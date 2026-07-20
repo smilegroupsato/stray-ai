@@ -65,7 +65,7 @@
 - [x] Isolated report namespaces per individual
 - [x] Primary root compatibility for `latest.html`, `map.html`, and named Reports
 - [x] Read-only collection entrance without memory or local-path exposure
-- [ ] Phase 4 CI validation
+- [x] Phase 4 CI validation
 - [ ] Phase 4 devbox and browser validation
 - [ ] Phase 4 merge and close Issue #19
 
