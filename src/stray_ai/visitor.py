@@ -13,6 +13,7 @@ from zoneinfo import ZoneInfo
 import yaml
 
 from .brain import BrainDecision, CommandBrain
+from .lifecycle import migrate_agent, recovered_fatigue
 
 _JST = ZoneInfo("Asia/Tokyo")
 _TEXT_SUFFIXES = {".md", ".markdown", ".txt"}
@@ -38,13 +39,22 @@ class Profile:
 class State:
     status: str = "unborn"
     visit_count: int = 0
+    llm_visit_count: int = 0
+    accepted_brain_visit_count: int = 0
+    safe_exit_count: int = 0
     current_location: str | None = None
+    last_location: str | None = None
     last_visit: str | None = None
+    rest_started_at: str | None = None
+    last_exit_reason: str | None = None
+    last_backend: str | None = None
+    last_model: str | None = None
     fatigue: float = 0.0
     unresolved_impulses: list[str] | None = None
 
     def __post_init__(self) -> None:
         self.unresolved_impulses = self.unresolved_impulses or []
+        self.fatigue = min(1.0, max(0.0, float(self.fatigue)))
 
 
 def _now() -> str:
@@ -70,6 +80,7 @@ def _load_profile(agent_dir: Path) -> Profile:
 
 
 def _load_state(agent_dir: Path) -> State:
+    migrate_agent(agent_dir)
     path = agent_dir / "state.json"
     return State(**json.loads(path.read_text(encoding="utf-8"))) if path.exists() else State()
 
@@ -222,7 +233,6 @@ def _mock_decision(
             link_index=index,
             observation="A local link was selected by the deterministic profile scorer.",
         )
-
     term = _term(profile, title, text)
     should_speak = bool(term) and (not profile.may_leave_silently or rng.random() >= 0.20)
     if should_speak:
@@ -262,7 +272,9 @@ def _brain_payload(
         "state": {
             "status": state.status,
             "visit_count": state.visit_count,
+            "llm_visit_count": state.llm_visit_count,
             "fatigue": state.fatigue,
+            "last_exit_reason": state.last_exit_reason,
         },
         "visit": {
             "step": step_number,
@@ -314,6 +326,11 @@ def run_visit(
     state = _load_state(agent_dir)
     rng = random.Random(seed)
     started_at = _now()
+    state.fatigue = recovered_fatigue(
+        state.fatigue,
+        rest_started_at=state.rest_started_at,
+        now=datetime.fromisoformat(started_at),
+    )
     planned_arrival = _arrival_locations(
         entrance=entrance,
         local_root=local_root,
@@ -321,6 +338,8 @@ def run_visit(
         max_places=profile.max_places,
     )
     location = planned_arrival[0]
+    state.status = "visiting"
+    state.current_location = str(location)
     steps: list[dict[str, Any]] = []
     memories: list[str] = []
     trace_file: Path | None = None
@@ -328,10 +347,12 @@ def run_visit(
     visited_titles: list[str] = []
     backend = "command" if brain else "mock"
     model = brain.label if brain else None
+    accepted_brain_decision = False
 
     for number in range(1, profile.max_places + 1):
         title, text, links = _read_page(location, local_root)
         visited_titles.append(title)
+        state.current_location = str(location)
         if number < len(planned_arrival):
             target = planned_arrival[number]
             steps.append(
@@ -373,6 +394,10 @@ def run_visit(
                 max_memories=profile.max_memories,
                 max_trace_characters=profile.max_trace_characters,
             )
+            accepted_brain_decision = accepted_brain_decision or decision.status in {
+                "accepted",
+                "corrected",
+            }
         else:
             decision = _mock_decision(
                 profile=profile,
@@ -440,11 +465,22 @@ def run_visit(
 
     ended_at = _now()
     added = _append_memory(agent_dir, memories[: profile.max_memories], ended_at)
-    state.status = "awake"
+    state.status = "resting"
     state.visit_count += 1
-    state.current_location = str(location)
+    if brain:
+        state.llm_visit_count += 1
+        if accepted_brain_decision:
+            state.accepted_brain_visit_count += 1
+    if exit_reason == "brain_failed_safe_exit":
+        state.safe_exit_count += 1
+    state.current_location = None
+    state.last_location = str(location)
     state.last_visit = ended_at
-    state.fatigue = max(0.0, state.fatigue - 0.08)
+    state.rest_started_at = ended_at
+    state.last_exit_reason = exit_reason
+    state.last_backend = backend
+    state.last_model = model
+    state.fatigue = min(1.0, max(0.0, state.fatigue))
     _save_state(agent_dir, state)
 
     visits = agent_dir / "visits"
