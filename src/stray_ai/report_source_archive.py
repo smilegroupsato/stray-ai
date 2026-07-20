@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from .report_archive import generate_archive
+from .report_map import augment_index_with_map_link, write_observed_map
 from .report_navigation import add_archive_link
 from .report_sources import (
     SourceCoordinates,
@@ -110,12 +111,13 @@ def generate_source_aware_archive(
         shutil.copyfile(report_files[0], Path(str(latest_value)))
 
     index_path = Path(str(result["index_file"]))
-    index_path.write_text(
-        augment_index(index_path.read_text(encoding="utf-8"), records),
-        encoding="utf-8",
-    )
+    index_html = augment_index(index_path.read_text(encoding="utf-8"), records)
+    index_path.write_text(augment_index_with_map_link(index_html), encoding="utf-8")
+    map_result = write_observed_map(records, output_dir)
+
     return {
         **result,
+        **map_result,
         "source_linked_visit_count": len(linked_files),
         "source_linked_visit_files": linked_files,
         "source_unlinked_visit_files": unlinked_files,
