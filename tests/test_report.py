@@ -50,6 +50,7 @@ def test_render_report_shows_route_and_silence() -> None:
     assert "Left silently" in html
     assert "No trace carried home" in html
     assert "Visit count" in html
+    assert "2026-07-20_104432.json" in html
 
 
 def test_render_report_escapes_venue_content() -> None:
@@ -81,3 +82,16 @@ def test_generate_report_writes_named_and_latest_files(tmp_path: Path) -> None:
     assert report_path.name == "2026-07-20_104432.html"
     assert latest_path.name == "latest.html"
     assert report_path.read_text(encoding="utf-8") == latest_path.read_text(encoding="utf-8")
+
+
+def test_generate_report_derives_visit_filename_for_legacy_record(tmp_path: Path) -> None:
+    visit = _visit()
+    visit.pop("visit_file")
+    visit_path = tmp_path / "2026-07-20_111436.json"
+    output_dir = tmp_path / "reports"
+    visit_path.write_text(json.dumps(visit), encoding="utf-8")
+
+    report_path, _ = generate_report(visit_path, output_dir)
+    html = report_path.read_text(encoding="utf-8")
+
+    assert "2026-07-20_111436.json" in html
