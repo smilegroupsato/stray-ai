@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from bs4 import BeautifulSoup
+
 from stray_ai.report_source_archive import (
     generate_source_aware_archive,
     resolve_visit_source,
@@ -115,3 +117,10 @@ def test_archive_reports_linked_and_unlinked_filenames(tmp_path: Path) -> None:
     assert result["source_linked_visit_count"] == 1
     assert result["source_linked_visit_files"] == [linked.name]
     assert result["source_unlinked_visit_files"] == [unlinked.name]
+
+    for report_name in ("2026-07-20_104432.html", "2026-07-20_104433.html"):
+        soup = BeautifulSoup(
+            (output_dir / report_name).read_text(encoding="utf-8"),
+            "html.parser",
+        )
+        assert soup.select_one('.kicker a[href="index.html"]') is not None
