@@ -46,7 +46,14 @@
 - [x] Empty and malformed archive handling
 - [x] Phase 2 CI validation
 - [x] Phase 2 devbox validation against four preserved visits
-- [x] Merge-ready implementation for Issue #13
+- [x] Merge and close Issue #13
+- [x] Phase 2.1 implementation — trusted source coordinates
+- [x] Commit-fixed page permalinks without Visit JSON mutation
+- [x] Relative return navigation from every Visit Report to `index.html`
+- [x] Graceful fallback for old or untrusted records
+- [ ] Phase 2.1 CI validation
+- [ ] Phase 2.1 devbox and browser validation
+- [ ] Phase 2.1 merge and close Issue #15
 - [ ] Phase 3 — venue map
 - [ ] Phase 4 — multiple individuals
 

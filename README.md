@@ -18,8 +18,6 @@ The first bounded local-LLM visit has now occurred. The visitor read the recepti
 
 The first manual wake judgment has also occurred. The trusted body gate saw insufficient rest and high remaining fatigue, did not invoke the model, did not read venue content, and recorded `remain_asleep` as a successful outcome.
 
-The four preserved visits can now be regenerated as a static chronological archive. `index.html`, `latest.html`, and each named visit report use relative links and remain independent of the HTTP server that may later serve the reports directory.
-
 ## Principles
 
 - A Stray AI is a visitor.
@@ -38,6 +36,7 @@ The four preserved visits can now be regenerated as a static chronological archi
 - [`docs/lifecycle.md`](docs/lifecycle.md) — return, rest, counters, and fatigue recovery
 - [`docs/wake-decision.md`](docs/wake-decision.md) — deciding whether there is a reason to wake
 - [`docs/visit-report-index.md`](docs/visit-report-index.md) — the static visit archive entrance
+- [`docs/visit-report-source-coordinates.md`](docs/visit-report-source-coordinates.md) — exact source coordinates and report navigation
 - [`docs/roadmap.md`](docs/roadmap.md) — current milestone state
 - [`agents/stray-001/`](agents/stray-001/) — the first individual
 
@@ -47,13 +46,9 @@ The four preserved visits can now be regenerated as a static chronological archi
 v0.1   The First Visitor             complete
 v0.1.1 The First Persistent Visitor  complete
 v0.2   The First Wake Judgment       complete
-
-Visit Report v0
-  Phase 1 — one visit page            complete
-  Phase 2 — chronological index       complete
 ```
 
-The archive is a local observation window, not a dashboard or control surface. Venue map and multiple-individual views remain later phases.
+Visit Report v0 Phase 1 and Phase 2 are complete. Phase 2.1 adds trusted source coordinates, exact commit-fixed page links, and a relative return link from every individual Report to `index.html`.
 
 A wake request still does not start a visit. The next safety review must decide how an accepted request may be handed to the existing bounded visit command without introducing a scheduler or automatic crawling.
 

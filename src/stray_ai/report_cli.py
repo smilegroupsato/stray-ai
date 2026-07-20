@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 
 from .report import generate_report
-from .report_archive import generate_archive
+from .report_source_archive import generate_source_aware_archive
 
 
 def main() -> None:
@@ -20,7 +20,7 @@ def main() -> None:
     output_dir = args.output_dir.resolve()
 
     if args.visits_dir is not None:
-        result = generate_archive(
+        result = generate_source_aware_archive(
             args.visits_dir.resolve(),
             output_dir,
             state_path,
@@ -32,7 +32,7 @@ def main() -> None:
             output_dir,
             state_path,
         )
-        archive = generate_archive(
+        archive = generate_source_aware_archive(
             visit_path.parent,
             output_dir,
             state_path,
