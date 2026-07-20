@@ -21,6 +21,7 @@ dev = ["pytest>=8,<10", "ruff>=0.9,<1"]
 [project.scripts]
 stray-ai = "stray_ai.cli:main"
 stray-ai-report = "stray_ai.report:main"
+stray-ai-migrate = "stray_ai.lifecycle:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
