@@ -21,20 +21,20 @@ local preserved snapshot
 
 ## Trusted input
 
-Coordinates are resolved only from the host-created `SNAPSHOT.txt` beside the recorded entrance snapshot.
+Coordinates are resolved only from the host-created `SNAPSHOT.txt` beside a recorded visit location.
 
 The resolver requires:
 
 - an accepted `https://github.com/<owner>/<repository>` source URL
 - a 40- or 64-character hexadecimal commit
 - a snapshot directory whose name matches that commit
-- a recorded entrance located inside that snapshot directory
+- one unambiguous trusted snapshot identity across the recorded entrance, arrival path, and step locations
 
-Untrusted, malformed, missing, or incompatible metadata produces no external link.
+Untrusted, malformed, missing, ambiguous, or incompatible metadata produces no external link.
 
 ## Generated links
 
-The archive index retains its local relative Report link and adds a separate venue repository link.
+The archive index retains its local relative Report link and adds a separate venue repository link where trusted coordinates exist.
 
 Each individual Walk node links to:
 
@@ -52,6 +52,8 @@ The individual Report also records:
 - snapshot capture time
 - exact entrance permalink
 
+The top `Stray AI · Visit Report v0` label is a relative `index.html` link. It returns from every individual Report—including local-only records without source coordinates—to the archive entrance without depending on a host name, port, or HTTP server configuration.
+
 ## Boundaries
 
 Report generation performs no network request and does not validate the current remote repository state.
@@ -65,4 +67,4 @@ It does not modify:
 - Trace files
 - wake-check records
 
-No absolute local `/srv/...` path is emitted into the generated source-coordinate interface. Old and non-snapshot Visit records continue to render without external links.
+No absolute local `/srv/...` path is emitted into the generated source-coordinate interface. Old, local-only, and non-snapshot Visit records continue to render without fabricated external links.
