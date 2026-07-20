@@ -13,7 +13,7 @@
 │   ├── state.json
 │   └── visits/
 ├── venues/
-│   └── entrance.md
+│   └── README.md
 ├── outbox/traces/
 ├── backups/
 └── run-first-visitor.sh
@@ -62,6 +62,13 @@ Before using an external venue, copy the example venue:
 ```bash
 cp -a /srv/sgos/repos/stray-ai/examples/venue/. /srv/sgos/data/stray-ai/venues/
 /srv/sgos/data/stray-ai/run-first-visitor.sh --seed 7
+```
+
+The generated launcher uses `/srv/sgos/data/stray-ai/venues/README.md` as the default entrance. A different entrance inside the bounded venue can be selected for one run:
+
+```bash
+STRAY_ENTRANCE=/srv/sgos/data/stray-ai/venues/another-page.md \
+  /srv/sgos/data/stray-ai/run-first-visitor.sh --seed 7
 ```
 
 Confirm that the command creates or updates:
