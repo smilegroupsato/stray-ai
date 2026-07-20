@@ -34,9 +34,9 @@
 - [x] Fail-closed sleep on invalid or unavailable brain
 - [x] At-most-one deduplicated unresolved impulse
 - [x] Offline tests
-- [ ] CI validation
-- [ ] Devbox check against the current local snapshot
-- [ ] Merge and close Issue #11
+- [x] CI validation
+- [x] Devbox check against the current local snapshot
+- [x] Merge-ready implementation for Issue #11
 
 ## Visit Report v0
 
