@@ -59,15 +59,16 @@
 - [x] Group trusted venues by repository and observed commit
 - [x] Preserve local-only venues without fabricated coordinates
 - [x] Phase 3 CI validation
-- [ ] Phase 3 devbox and browser validation
-- [ ] Phase 3 merge and close Issue #17
+- [x] Phase 3 devbox and browser validation
+- [x] Phase 3 merge and close Issue #17
 - [x] Phase 4 implementation — multiple-individual report collection
 - [x] Isolated report namespaces per individual
 - [x] Primary root compatibility for `latest.html`, `map.html`, and named Reports
 - [x] Read-only collection entrance without memory or local-path exposure
 - [x] Phase 4 CI validation
-- [ ] Phase 4 devbox and browser validation
-- [ ] Phase 4 merge and close Issue #19
+- [x] Phase 4 devbox and browser validation
+- [x] Phase 4 merge and close Issue #19
+- [ ] Next exploration — Stray AI world map across visits, commits, venues, and individuals
 
 ## After wake judgment
 
