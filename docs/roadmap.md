@@ -41,12 +41,12 @@
 ## Visit Report v0
 
 - [x] Phase 1 — one visit as one HTML page
-- [x] Phase 2 implementation — static chronological visit index
+- [x] Phase 2 — static chronological visit index
 - [x] Relative-link and HTTP-independent generation
 - [x] Empty and malformed archive handling
-- [ ] Phase 2 CI validation
-- [ ] Phase 2 devbox validation against four preserved visits
-- [ ] Phase 2 merge and close Issue #13
+- [x] Phase 2 CI validation
+- [x] Phase 2 devbox validation against four preserved visits
+- [x] Merge-ready implementation for Issue #13
 - [ ] Phase 3 — venue map
 - [ ] Phase 4 — multiple individuals
 
