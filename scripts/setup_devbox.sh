@@ -15,6 +15,7 @@ mkdir -p \
   "$DATA_DIR/agents/stray-001" \
   "$DATA_DIR/venues" \
   "$DATA_DIR/outbox/traces" \
+  "$DATA_DIR/reports" \
   "$DATA_DIR/backups"
 
 if [[ ! -d "$REPO_DIR/.venv" ]]; then
@@ -39,18 +40,37 @@ if [[ ! -f "\$ENTRANCE" ]]; then
   echo "Place a bounded venue under $DATA_DIR/venues or set STRAY_ENTRANCE." >&2
   exit 1
 fi
-exec "$REPO_DIR/.venv/bin/stray-ai" \
+RESULT="\$("$REPO_DIR/.venv/bin/stray-ai" \
   --agent "$DATA_DIR/agents/stray-001" \
   --local-root "$DATA_DIR/venues" \
   --entrance "\$ENTRANCE" \
   --outbox "$DATA_DIR/outbox/traces" \
-  "\$@"
+  "\$@")"
+printf '%s\n' "\$RESULT"
+VISIT_FILE="\$("$REPO_DIR/.venv/bin/python" -c 'import json,sys; print(json.load(sys.stdin)["visit_file"])' <<<"\$RESULT")"
+if ! "$REPO_DIR/.venv/bin/stray-ai-report" \
+  --visit "\$VISIT_FILE" \
+  --state "$DATA_DIR/agents/stray-001/state.json" \
+  --output-dir "$DATA_DIR/reports"; then
+  echo "Visit completed, but HTML report generation failed." >&2
+fi
 EOF
 chmod 750 "$DATA_DIR/run-first-visitor.sh"
+
+cat > "$DATA_DIR/generate-latest-report.sh" <<EOF
+#!/usr/bin/env bash
+set -euo pipefail
+exec "$REPO_DIR/.venv/bin/stray-ai-report" \
+  --visits-dir "$DATA_DIR/agents/stray-001/visits" \
+  --state "$DATA_DIR/agents/stray-001/state.json" \
+  --output-dir "$DATA_DIR/reports"
+EOF
+chmod 750 "$DATA_DIR/generate-latest-report.sh"
 
 "$REPO_DIR/.venv/bin/python" -m pytest "$REPO_DIR/tests"
 
 echo "Devbox habitat prepared."
 echo "Repository: $REPO_DIR"
 echo "Persistent data: $DATA_DIR"
+echo "Latest report: $DATA_DIR/reports/latest.html"
 echo "Next: place a bounded venue under $DATA_DIR/venues and run $DATA_DIR/run-first-visitor.sh"
