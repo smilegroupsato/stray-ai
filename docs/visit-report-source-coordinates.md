@@ -52,7 +52,7 @@ The individual Report also records:
 - snapshot capture time
 - exact entrance permalink
 
-The top `Stray AI · Visit Report v0` label is a relative `index.html` link. It returns from every individual Report—including local-only records without source coordinates—to the archive entrance without depending on a host name, port, or HTTP server configuration.
+The top `Stray AI · Visit Report v0` label links to the relative path `index.html`. Every individual Report, including local-only records without source coordinates, can therefore return to the archive entrance without depending on a host name, port, or HTTP server configuration.
 
 ## Boundaries
 
