@@ -84,9 +84,10 @@ def _discover_agent_dirs(agents_dir: Path) -> tuple[list[Path], list[str]]:
 
 
 def _remove_primary_aliases(output_dir: Path) -> None:
-    for path in output_dir.iterdir() if output_dir.exists() else ():
-        if path.is_file() and _NAMED_REPORT.fullmatch(path.name):
-            path.unlink()
+    if output_dir.exists():
+        for path in output_dir.iterdir():
+            if path.is_file() and _NAMED_REPORT.fullmatch(path.name):
+                path.unlink()
     for name in ("latest.html", "map.html", "visits.html"):
         path = output_dir / name
         if path.is_file():
@@ -118,9 +119,8 @@ def _copy_primary_aliases(primary: IndividualReport, output_dir: Path) -> list[s
     return copied
 
 
-def _link(href: str, label: str, *, css_class: str = "") -> str:
-    class_value = f' class="{escape(css_class, quote=True)}"' if css_class else ""
-    return f'<a href="{escape(href, quote=True)}"{class_value}>{escape(label)}</a>'
+def _link(href: str, label: str) -> str:
+    return f'<a href="{escape(href, quote=True)}">{escape(label)}</a>'
 
 
 def render_collection_index(
@@ -170,6 +170,8 @@ def render_collection_index(
         )
 
     total_visits = sum(individual.visit_count for individual in individuals)
+    individual_word = "individual" if len(individuals) == 1 else "individuals"
+    visit_word = "visit" if total_visits == 1 else "visits"
     return f"""<!doctype html>
 <html lang="en">
 <head>
@@ -194,7 +196,7 @@ h1{{font-size:42px;margin:9px 0 10px}}.intro{{color:var(--muted);max-width:720px
 <div class="kicker">Stray AI · Visit Report v0</div>
 <h1>Persistent individuals</h1>
 <p class="intro">A read-only entrance to each visitor's preserved reports. Individuals remain separate; their memories, state, routes, and maps are not merged here.</p>
-<div class="summary"><span>{len(individuals)} individual{'s' if len(individuals) != 1 else ''}</span><span>{total_visits} preserved visit{'s' if total_visits != 1 else ''}</span></div>
+<div class="summary"><span>{len(individuals)} {individual_word}</span><span>{total_visits} preserved {visit_word}</span></div>
 <div class="grid">{content}</div>
 <footer>Generated locally from bounded persistent records. This page cannot create, wake, or move an individual.</footer>
 </main></body></html>"""
@@ -207,16 +209,26 @@ def generate_report_collection(
 ) -> dict[str, Any]:
     agents_dir = agents_dir.resolve()
     output_dir = output_dir.resolve()
-    output_dir.mkdir(parents=True, exist_ok=True)
 
+    agent_dirs, skipped_agent_directories = _discover_agent_dirs(agents_dir)
+    available_ids = {agent_dir.name for agent_dir in agent_dirs}
+    if primary_agent_id is not None:
+        if _AGENT_ID.fullmatch(primary_agent_id) is None:
+            raise ValueError(f"invalid primary agent id: {primary_agent_id!r}")
+        if primary_agent_id not in available_ids:
+            raise FileNotFoundError(
+                f"primary individual {primary_agent_id!r} was not found under {agents_dir}"
+            )
+    elif agent_dirs:
+        primary_agent_id = agent_dirs[0].name
+
+    output_dir.mkdir(parents=True, exist_ok=True)
     individuals_root = output_dir / "individuals"
     if individuals_root.exists():
         shutil.rmtree(individuals_root)
     individuals_root.mkdir(parents=True)
 
-    agent_dirs, skipped_agent_directories = _discover_agent_dirs(agents_dir)
     individuals: list[IndividualReport] = []
-
     for agent_dir in agent_dirs:
         agent_id = agent_dir.name
         individual_output = individuals_root / agent_id
@@ -239,17 +251,6 @@ def generate_report_collection(
                 archive_result=archive_result,
             )
         )
-
-    available_ids = {individual.agent_id for individual in individuals}
-    if primary_agent_id is not None:
-        if _AGENT_ID.fullmatch(primary_agent_id) is None:
-            raise ValueError(f"invalid primary agent id: {primary_agent_id!r}")
-        if primary_agent_id not in available_ids:
-            raise FileNotFoundError(
-                f"primary individual {primary_agent_id!r} was not found under {agents_dir}"
-            )
-    elif individuals:
-        primary_agent_id = individuals[0].agent_id
 
     primary = next(
         (
