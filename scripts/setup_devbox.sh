@@ -33,16 +33,16 @@ done
 cat > "$DATA_DIR/run-first-visitor.sh" <<EOF
 #!/usr/bin/env bash
 set -euo pipefail
-ENTRANCE="${STRAY_ENTRANCE:-$DATA_DIR/venues/README.md}"
-if [[ ! -f "$ENTRANCE" ]]; then
-  echo "Entrance not found: $ENTRANCE" >&2
+ENTRANCE="\${STRAY_ENTRANCE:-$DATA_DIR/venues/README.md}"
+if [[ ! -f "\$ENTRANCE" ]]; then
+  echo "Entrance not found: \$ENTRANCE" >&2
   echo "Place a bounded venue under $DATA_DIR/venues or set STRAY_ENTRANCE." >&2
   exit 1
 fi
 exec "$REPO_DIR/.venv/bin/stray-ai" \
   --agent "$DATA_DIR/agents/stray-001" \
   --local-root "$DATA_DIR/venues" \
-  --entrance "$ENTRANCE" \
+  --entrance "\$ENTRANCE" \
   --outbox "$DATA_DIR/outbox/traces" \
   "\$@"
 EOF
