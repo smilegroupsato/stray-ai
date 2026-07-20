@@ -37,6 +37,7 @@ The first manual wake judgment has also occurred. The trusted body gate saw insu
 - [`docs/wake-decision.md`](docs/wake-decision.md) — deciding whether there is a reason to wake
 - [`docs/visit-report-index.md`](docs/visit-report-index.md) — the static visit archive entrance
 - [`docs/visit-report-source-coordinates.md`](docs/visit-report-source-coordinates.md) — exact source coordinates and report navigation
+- [`docs/visit-report-observed-map.md`](docs/visit-report-observed-map.md) — observed pages, routes, and venue boundaries
 - [`docs/roadmap.md`](docs/roadmap.md) — current milestone state
 - [`agents/stray-001/`](agents/stray-001/) — the first individual
 
@@ -48,7 +49,7 @@ v0.1.1 The First Persistent Visitor  complete
 v0.2   The First Wake Judgment       complete
 ```
 
-Visit Report v0 Phase 1 and Phase 2 are complete. Phase 2.1 adds trusted source coordinates, exact commit-fixed page links, and a relative return link from every individual Report to `index.html`.
+Visit Report v0 Phase 1 and Phase 2 are complete. Phase 2.1 adds trusted source coordinates, exact commit-fixed page links, and relative archive navigation. Phase 3 now adds an observed venue map that draws only preserved Visit steps and transitions.
 
 A wake request still does not start a visit. The next safety review must decide how an accepted request may be handed to the existing bounded visit command without introducing a scheduler or automatic crawling.
 
