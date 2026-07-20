@@ -52,8 +52,12 @@ def test_first_visit_persists_identity(tmp_path: Path) -> None:
 
     state = json.loads((agent / "state.json").read_text(encoding="utf-8"))
     record = json.loads(Path(result["visit_file"]).read_text(encoding="utf-8"))
-    assert state["status"] == "awake"
+    assert state["status"] == "resting"
     assert state["visit_count"] == 1
+    assert state["current_location"] is None
+    assert state["last_location"] == str((venue / "next.md").resolve())
+    assert state["last_exit_reason"] == "trace_carried_home"
+    assert state["rest_started_at"] == state["last_visit"]
     assert Path(result["visit_file"]).exists()
     assert record["visit_file"] == result["visit_file"]
     assert Path(result["trace_file"]).exists()
