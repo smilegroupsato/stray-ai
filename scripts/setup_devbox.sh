@@ -87,9 +87,17 @@ cat > "$DATA_DIR/visit-eternal-free-party.sh" <<EOF
 set -euo pipefail
 SNAPSHOT_DIR="\$(bash "$REPO_DIR/scripts/snapshot_eternal_free_party.sh")"
 echo "Eternal Free Party snapshot: \$SNAPSHOT_DIR" >&2
+for required in README.md REPOSITORY_CONTEXT.md AGENTS.md; do
+  if [[ ! -f "\$SNAPSHOT_DIR/\$required" ]]; then
+    echo "Required reception file missing: \$SNAPSHOT_DIR/\$required" >&2
+    exit 1
+  fi
+done
 export STRAY_LOCAL_ROOT="\$SNAPSHOT_DIR"
 export STRAY_ENTRANCE="\$SNAPSHOT_DIR/README.md"
-exec "$DATA_DIR/run-first-visitor.sh" "\$@"
+exec "$DATA_DIR/run-first-visitor.sh" \
+  --arrival-path REPOSITORY_CONTEXT.md AGENTS.md \
+  "\$@"
 EOF
 chmod 750 "$DATA_DIR/visit-eternal-free-party.sh"
 
