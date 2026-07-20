@@ -53,6 +53,35 @@ def test_render_report_shows_route_and_silence() -> None:
     assert "2026-07-20_104432.json" in html
 
 
+def test_render_report_shows_brain_observation_and_rejection() -> None:
+    visit = _visit()
+    visit["backend"] = "command"
+    visit["brain_model"] = "test-model"
+    visit["exit_reason"] = "brain_failed_safe_exit"
+    visit["steps"] = [
+        {
+            "step": 1,
+            "location": "/venue/README.md",
+            "title": "Entrance",
+            "action": "leave",
+            "brain": {
+                "status": "rejected",
+                "model": "test-model",
+                "observation": "The observation layer was unavailable.",
+                "error": "invalid link",
+            },
+        }
+    ]
+
+    html = render_report(visit)
+
+    assert "Brain decisions" in html
+    assert "test-model" in html
+    assert "The observation layer was unavailable" in html
+    assert "invalid link" in html
+    assert "Left safely · brain rejected" in html
+
+
 def test_render_report_escapes_venue_content() -> None:
     visit = _visit()
     visit["steps"] = [
