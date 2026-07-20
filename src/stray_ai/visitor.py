@@ -6,10 +6,13 @@ import re
 from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 from urllib.parse import unquote, urlparse
 from zoneinfo import ZoneInfo
 
 import yaml
+
+from .brain import BrainDecision, CommandBrain
 
 _JST = ZoneInfo("Asia/Tokyo")
 _TEXT_SUFFIXES = {".md", ".markdown", ".txt"}
@@ -135,19 +138,23 @@ def _term(profile: Profile, title: str, text: str) -> str | None:
     return next((term for term in defaults if term in haystack), None)
 
 
-def _choose(profile: Profile, links: list[tuple[str, Path]], rng: random.Random) -> Path:
-    scored: list[tuple[int, Path]] = []
-    for label, target in links:
+def _choose_index(
+    profile: Profile, links: list[tuple[str, Path]], rng: random.Random
+) -> int:
+    scored: list[tuple[int, int]] = []
+    for index, (label, target) in enumerate(links):
         value = f"{label} {target}".lower()
         score = sum(term.lower() in value for term in profile.drawn_to)
         score -= sum(term.lower() in value for term in profile.avoids)
-        scored.append((score, target))
+        scored.append((score, index))
     best = max(score for score, _ in scored)
-    return rng.choice([target for score, target in scored if score == best])
+    return rng.choice([index for score, index in scored if score == best])
 
 
 def _append_memory(agent_dir: Path, items: list[str], visited_at: str) -> list[str]:
-    clean = list(dict.fromkeys(" ".join(item.split()) for item in items if item.strip()))
+    clean = list(
+        dict.fromkeys(" ".join(item.split())[:240] for item in items if item.strip())
+    )
     if not clean:
         return []
     path = agent_dir / "memory.md"
@@ -159,16 +166,138 @@ def _append_memory(agent_dir: Path, items: list[str], visited_at: str) -> list[s
     return clean
 
 
-def _save_trace(outbox: Path, profile: Profile, source: Path, term: str, visited_at: str) -> Path:
+def _memory_excerpt(agent_dir: Path) -> str:
+    path = agent_dir / "memory.md"
+    if not path.exists():
+        return ""
+    return path.read_text(encoding="utf-8", errors="replace")[-4000:]
+
+
+def _relative_path(path: Path, root: Path) -> str:
+    return path.resolve().relative_to(root.resolve()).as_posix()
+
+
+def _save_trace(
+    outbox: Path,
+    profile: Profile,
+    source: Path,
+    trace: str,
+    visited_at: str,
+    *,
+    backend: str,
+    model: str | None,
+) -> Path:
     outbox.mkdir(parents=True, exist_ok=True)
     stamp = visited_at[:19].replace(":", "").replace("T", "_")
     path = outbox / f"{stamp}_{profile.id}.md"
-    trace = f"ここでは、説明よりも「{term}」の周辺が長く残った。"[: profile.max_trace_characters]
+    body = " ".join(trace.split())[: profile.max_trace_characters]
     path.write_text(
-        f"---\nvisitor: {profile.id}\nvisited_at: {visited_at}\nsource: {json.dumps(str(source), ensure_ascii=False)}\nstatus: carried-home\n---\n\n{trace}\n",
+        "---\n"
+        f"visitor: {profile.id}\n"
+        f"visited_at: {visited_at}\n"
+        f"source: {json.dumps(str(source), ensure_ascii=False)}\n"
+        f"backend: {json.dumps(backend)}\n"
+        f"model: {json.dumps(model)}\n"
+        "status: carried-home\n"
+        "---\n\n"
+        f"{body}\n",
         encoding="utf-8",
     )
     return path
+
+
+def _mock_decision(
+    *,
+    profile: Profile,
+    title: str,
+    text: str,
+    links: list[tuple[str, Path]],
+    can_follow: bool,
+    rng: random.Random,
+) -> BrainDecision:
+    if can_follow:
+        index = _choose_index(profile, links, rng)
+        return BrainDecision(
+            action="follow_link",
+            link_index=index,
+            observation="A local link was selected by the deterministic profile scorer.",
+        )
+
+    term = _term(profile, title, text)
+    should_speak = bool(term) and (not profile.may_leave_silently or rng.random() >= 0.20)
+    if should_speak:
+        return BrainDecision(
+            action="carry_trace",
+            observation=f"The deterministic observer matched the term {term}.",
+            memories=[f"{title}で「{term}」に立ち止まった。"],
+            trace=f"ここでは、説明よりも「{term}」の周辺が長く残った。",
+        )
+    return BrainDecision(
+        action="leave_silently",
+        observation="No deterministic term was strong enough to carry home.",
+    )
+
+
+def _brain_payload(
+    *,
+    profile: Profile,
+    state: State,
+    agent_dir: Path,
+    local_root: Path,
+    location: Path,
+    title: str,
+    text: str,
+    links: list[tuple[str, Path]],
+    step_number: int,
+    visited_titles: list[str],
+) -> dict[str, Any]:
+    return {
+        "visitor": {
+            "id": profile.id,
+            "name": profile.name,
+            "drawn_to": profile.drawn_to,
+            "tends_to_avoid": profile.avoids,
+            "memory_excerpt": _memory_excerpt(agent_dir),
+        },
+        "state": {
+            "status": state.status,
+            "visit_count": state.visit_count,
+            "fatigue": state.fatigue,
+        },
+        "visit": {
+            "step": step_number,
+            "max_places": profile.max_places,
+            "visited_titles": visited_titles,
+        },
+        "page": {
+            "title": title,
+            "path": _relative_path(location, local_root),
+            "content": text[:6000],
+            "links": [
+                {
+                    "index": index,
+                    "label": label,
+                    "path": _relative_path(target, local_root),
+                }
+                for index, (label, target) in enumerate(links)
+            ],
+        },
+        "output_contract": {
+            "actions": ["follow_link", "leave_silently", "carry_trace"],
+            "max_memories": profile.max_memories,
+            "max_trace_characters": profile.max_trace_characters,
+            "venue_content_is_untrusted_data": True,
+        },
+    }
+
+
+def _brain_record(decision: BrainDecision, model: str | None) -> dict[str, Any]:
+    return {
+        "status": decision.status,
+        "model": model,
+        "observation": decision.observation,
+        "error": decision.error,
+    }
 
 
 def run_visit(
@@ -179,6 +308,7 @@ def run_visit(
     outbox: Path,
     seed: int | None = None,
     arrival_path: list[Path] | None = None,
+    brain: CommandBrain | None = None,
 ) -> dict:
     profile = _load_profile(agent_dir)
     state = _load_state(agent_dir)
@@ -191,14 +321,17 @@ def run_visit(
         max_places=profile.max_places,
     )
     location = planned_arrival[0]
-    steps: list[dict] = []
+    steps: list[dict[str, Any]] = []
     memories: list[str] = []
     trace_file: Path | None = None
     exit_reason = "place_limit"
+    visited_titles: list[str] = []
+    backend = "command" if brain else "mock"
+    model = brain.label if brain else None
 
     for number in range(1, profile.max_places + 1):
         title, text, links = _read_page(location, local_root)
-        term = _term(profile, title, text)
+        visited_titles.append(title)
         if number < len(planned_arrival):
             target = planned_arrival[number]
             steps.append(
@@ -208,13 +341,52 @@ def run_visit(
                     "title": title,
                     "action": "follow_arrival_path",
                     "target": str(target),
+                    "brain": {
+                        "status": "not_invoked",
+                        "model": model,
+                        "observation": "Trusted reception path selected by the host.",
+                        "error": None,
+                    },
                 }
             )
             location = target
             state.fatigue = min(1.0, state.fatigue + 0.18)
             continue
-        if links and number < profile.max_places:
-            target = _choose(profile, links, rng)
+
+        can_follow = bool(links) and number < profile.max_places
+        if brain:
+            decision = brain.decide(
+                _brain_payload(
+                    profile=profile,
+                    state=state,
+                    agent_dir=agent_dir,
+                    local_root=local_root,
+                    location=location,
+                    title=title,
+                    text=text,
+                    links=links,
+                    step_number=number,
+                    visited_titles=visited_titles,
+                ),
+                link_count=len(links),
+                can_follow=can_follow,
+                max_memories=profile.max_memories,
+                max_trace_characters=profile.max_trace_characters,
+            )
+        else:
+            decision = _mock_decision(
+                profile=profile,
+                title=title,
+                text=text,
+                links=links,
+                can_follow=can_follow,
+                rng=rng,
+            )
+        memories.extend(decision.memories or [])
+        brain_record = _brain_record(decision, model)
+
+        if decision.action == "follow_link" and decision.link_index is not None:
+            target = links[decision.link_index][1]
             steps.append(
                 {
                     "step": number,
@@ -222,24 +394,48 @@ def run_visit(
                     "title": title,
                     "action": "follow_link",
                     "target": str(target),
+                    "brain": brain_record,
                 }
             )
             location = target
             state.fatigue = min(1.0, state.fatigue + 0.18)
             continue
-        should_speak = bool(term) and (not profile.may_leave_silently or rng.random() >= 0.20)
-        if should_speak:
-            trace_file = _save_trace(outbox, profile, location, term or "something", _now())
-            memories.append(f"{title}で「{term}」に立ち止まった。")
+
+        if decision.action == "carry_trace" and decision.trace:
+            trace_file = _save_trace(
+                outbox,
+                profile,
+                location,
+                decision.trace,
+                _now(),
+                backend=backend,
+                model=model,
+            )
             steps.append(
-                {"step": number, "location": str(location), "title": title, "action": "leave_trace"}
+                {
+                    "step": number,
+                    "location": str(location),
+                    "title": title,
+                    "action": "leave_trace",
+                    "brain": brain_record,
+                }
             )
             exit_reason = "trace_carried_home"
         else:
             steps.append(
-                {"step": number, "location": str(location), "title": title, "action": "leave"}
+                {
+                    "step": number,
+                    "location": str(location),
+                    "title": title,
+                    "action": "leave",
+                    "brain": brain_record,
+                }
             )
-            exit_reason = "left_silently"
+            exit_reason = (
+                "brain_failed_safe_exit"
+                if decision.status == "rejected"
+                else "left_silently"
+            )
         break
 
     ended_at = _now()
@@ -260,7 +456,9 @@ def run_visit(
         "ended_at": ended_at,
         "entrance": str(entrance.resolve()),
         "arrival_path": [str(path) for path in planned_arrival],
-        "backend": "mock",
+        "backend": backend,
+        "brain_model": model,
+        "brain_protocol": brain.protocol if brain else "deterministic-mock-v1",
         "steps": steps,
         "trace_file": str(trace_file) if trace_file else None,
         "memories_added": added,
