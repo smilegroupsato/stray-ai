@@ -21,7 +21,28 @@
 
 The repository copy of `agents/stray-001` is a birth template. After migration, runtime state must be read from and written to `/srv/sgos/data/stray-ai/agents/stray-001`.
 
-## Installation
+## Testing the migration PR before merge
+
+The setup script does not exist on `main` until this migration PR is merged. To test the PR from an existing clone:
+
+```bash
+cd /srv/sgos/repos/stray-ai
+git fetch origin agent/devbox-migration
+git switch --track origin/agent/devbox-migration
+bash -n scripts/setup_devbox.sh
+bash scripts/setup_devbox.sh
+```
+
+After the PR is merged, switch the checkout back to `main`:
+
+```bash
+cd /srv/sgos/repos/stray-ai
+git fetch origin
+git switch main
+git pull --ff-only
+```
+
+## Installation after merge
 
 ```bash
 sudo mkdir -p /srv/sgos/repos /srv/sgos/data
