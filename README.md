@@ -32,6 +32,7 @@ The first bounded local-LLM visit has now occurred. The visitor read the recepti
 - [`docs/constitution.md`](docs/constitution.md) — durable boundaries
 - [`docs/architecture.md`](docs/architecture.md) — body, memory, movement, and Trace
 - [`docs/lifecycle.md`](docs/lifecycle.md) — return, rest, counters, and fatigue recovery
+- [`docs/wake-decision.md`](docs/wake-decision.md) — deciding whether there is a reason to wake
 - [`docs/roadmap.md`](docs/roadmap.md) — current milestone state
 - [`agents/stray-001/`](agents/stray-001/) — the first individual
 
@@ -40,11 +41,12 @@ The first bounded local-LLM visit has now occurred. The visitor read the recepti
 ```text
 v0.1   The First Visitor             complete
 v0.1.1 The First Persistent Visitor  complete
+v0.2   The First Wake Judgment       in progress
 ```
 
 Visit Report v0 Phase 1 is complete: one visit can be rendered as one local HTML observation page. Index, venue map, and multiple-individual views remain later phases.
 
-The next visitor milestone is wake/revisit judgment. It must preserve the valid choice to remain asleep.
+The current milestone asks whether the resting visitor has a reason to wake. A wake request does not itself start a visit, and remaining asleep is valid.
 
 ## Related currents
 
