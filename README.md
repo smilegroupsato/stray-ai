@@ -16,6 +16,8 @@ The first milestone is **The First Visitor**: one persistent individual complete
 
 The first bounded local-LLM visit has now occurred. The visitor read the reception path, chose silence, retained two memories, performed no remote write, and returned safely. Its persistent state now records that return coherently: it is resting at home, while the final venue page remains historical context rather than current presence.
 
+The first manual wake judgment has also occurred. The trusted body gate saw insufficient rest and high remaining fatigue, did not invoke the model, did not read venue content, and recorded `remain_asleep` as a successful outcome.
+
 ## Principles
 
 - A Stray AI is a visitor.
@@ -41,12 +43,12 @@ The first bounded local-LLM visit has now occurred. The visitor read the recepti
 ```text
 v0.1   The First Visitor             complete
 v0.1.1 The First Persistent Visitor  complete
-v0.2   The First Wake Judgment       in progress
+v0.2   The First Wake Judgment       complete
 ```
 
 Visit Report v0 Phase 1 is complete: one visit can be rendered as one local HTML observation page. Index, venue map, and multiple-individual views remain later phases.
 
-The current milestone asks whether the resting visitor has a reason to wake. A wake request does not itself start a visit, and remaining asleep is valid.
+A wake request still does not start a visit. The next safety review must decide how an accepted request may be handed to the existing bounded visit command without introducing a scheduler or automatic crawling.
 
 ## Related currents
 
