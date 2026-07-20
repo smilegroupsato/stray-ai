@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 
 from .report import generate_report
-from .report_sources import generate_source_aware_archive
+from .report_source_archive import generate_source_aware_archive
 
 
 def main() -> None:
