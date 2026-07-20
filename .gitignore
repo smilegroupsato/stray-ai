@@ -1,0 +1,24 @@
+# Secrets
+.env
+.env.*
+*.key
+*.pem
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Runtime material
+logs/
+outbox/private/
+agents/*/private/
+
+# Editors and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
