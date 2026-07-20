@@ -26,14 +26,20 @@ def main() -> None:
             state_path,
         )
     elif args.visit is not None:
-        report_path, latest_path = generate_report(
-            args.visit.resolve(),
+        visit_path = args.visit.resolve()
+        report_path, _ = generate_report(
+            visit_path,
+            output_dir,
+            state_path,
+        )
+        archive = generate_archive(
+            visit_path.parent,
             output_dir,
             state_path,
         )
         result = {
             "report_file": str(report_path),
-            "latest_report": str(latest_path),
+            **archive,
         }
     else:
         parser.error("provide --visit or --visits-dir")
