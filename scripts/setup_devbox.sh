@@ -13,6 +13,7 @@ fi
 
 mkdir -p \
   "$DATA_DIR/agents/stray-001" \
+  "$DATA_DIR/agents/stray-001/wake_checks" \
   "$DATA_DIR/sources" \
   "$DATA_DIR/venues" \
   "$DATA_DIR/outbox/traces" \
@@ -126,6 +127,53 @@ exec "$DATA_DIR/visit-eternal-free-party.sh" \
 EOF
 chmod 750 "$DATA_DIR/visit-eternal-free-party-llm.sh"
 
+cat > "$DATA_DIR/check-wake-eternal-free-party.sh" <<EOF
+#!/usr/bin/env bash
+set -euo pipefail
+SNAPSHOT_ROOT="$DATA_DIR/venues/eternal-free-party"
+SNAPSHOT_DIR="\${STRAY_WAKE_SNAPSHOT_DIR:-}"
+if [[ -z "\$SNAPSHOT_DIR" ]]; then
+  SNAPSHOT_DIR="\$(find "\$SNAPSHOT_ROOT" -mindepth 1 -maxdepth 1 -type d -printf '%T@ %p\n' 2>/dev/null \
+    | sort -n \
+    | tail -1 \
+    | cut -d' ' -f2-)"
+fi
+if [[ -z "\$SNAPSHOT_DIR" || ! -d "\$SNAPSHOT_DIR" ]]; then
+  echo "No existing Eternal Free Party snapshot was found." >&2
+  echo "This wake check does not fetch a venue. Create a snapshot separately first." >&2
+  exit 1
+fi
+SNAPSHOT_ID="\$(basename "\$SNAPSHOT_DIR")"
+exec "$REPO_DIR/.venv/bin/stray-ai-wake" \
+  --agent "$DATA_DIR/agents/stray-001" \
+  --candidate-snapshot-id "\$SNAPSHOT_ID" \
+  "\$@"
+EOF
+chmod 750 "$DATA_DIR/check-wake-eternal-free-party.sh"
+
+cat > "$DATA_DIR/check-wake-eternal-free-party-llm.sh" <<EOF
+#!/usr/bin/env bash
+set -euo pipefail
+if [[ -z "\${STRAY_LLM_MODEL:-}" ]]; then
+  echo "STRAY_LLM_MODEL is required." >&2
+  exit 1
+fi
+export STRAY_LLM_BASE_URL="\${STRAY_LLM_BASE_URL:-http://127.0.0.1:11434/v1}"
+export STRAY_LLM_JSON_MODE="\${STRAY_LLM_JSON_MODE:-1}"
+export STRAY_LLM_REASONING_EFFORT="\${STRAY_LLM_REASONING_EFFORT:-none}"
+export STRAY_LLM_HTTP_TIMEOUT="\${STRAY_LLM_HTTP_TIMEOUT:-120}"
+export STRAY_LLM_MAX_TOKENS="\${STRAY_LLM_MAX_TOKENS:-300}"
+export STRAY_WAKE_BRAIN_TIMEOUT="\${STRAY_WAKE_BRAIN_TIMEOUT:-150}"
+BRAIN_COMMAND="$REPO_DIR/.venv/bin/python $REPO_DIR/scripts/openai_compatible_wake_brain.py"
+exec "$DATA_DIR/check-wake-eternal-free-party.sh" \
+  --brain command \
+  --brain-command "\$BRAIN_COMMAND" \
+  --brain-label "\$STRAY_LLM_MODEL" \
+  --brain-timeout "\$STRAY_WAKE_BRAIN_TIMEOUT" \
+  "\$@"
+EOF
+chmod 750 "$DATA_DIR/check-wake-eternal-free-party-llm.sh"
+
 "$REPO_DIR/.venv/bin/python" -m pytest "$REPO_DIR/tests"
 
 echo "Devbox habitat prepared."
@@ -134,3 +182,5 @@ echo "Persistent data: $DATA_DIR"
 echo "Latest report: $DATA_DIR/reports/latest.html"
 echo "Mock EFP visit: $DATA_DIR/visit-eternal-free-party.sh"
 echo "LLM EFP visit: $DATA_DIR/visit-eternal-free-party-llm.sh"
+echo "Deterministic EFP wake check: $DATA_DIR/check-wake-eternal-free-party.sh"
+echo "LLM EFP wake check: $DATA_DIR/check-wake-eternal-free-party-llm.sh"
