@@ -25,6 +25,11 @@ movement:
   may_stop_early: true
   may_leave_silently: true
 
+wake:
+  minimum_rest_hours: 12
+  maximum_fatigue_to_consider: 0.5
+  max_new_impulses_per_check: 1
+
 memory:
   max_new_memories_per_visit: 3
   may_forget: true
