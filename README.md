@@ -35,6 +35,7 @@ The first manual wake judgment has also occurred. The trusted body gate saw insu
 - [`docs/architecture.md`](docs/architecture.md) — body, memory, movement, and Trace
 - [`docs/lifecycle.md`](docs/lifecycle.md) — return, rest, counters, and fatigue recovery
 - [`docs/wake-decision.md`](docs/wake-decision.md) — deciding whether there is a reason to wake
+- [`docs/visit-report-index.md`](docs/visit-report-index.md) — the static visit archive entrance
 - [`docs/roadmap.md`](docs/roadmap.md) — current milestone state
 - [`agents/stray-001/`](agents/stray-001/) — the first individual
 
@@ -46,7 +47,7 @@ v0.1.1 The First Persistent Visitor  complete
 v0.2   The First Wake Judgment       complete
 ```
 
-Visit Report v0 Phase 1 is complete: one visit can be rendered as one local HTML observation page. Index, venue map, and multiple-individual views remain later phases.
+Visit Report v0 Phase 1 is complete. Phase 2 now adds a static, chronological `index.html` with relative links to each locally generated visit report. It remains independent of the HTTP server and contains no controls.
 
 A wake request still does not start a visit. The next safety review must decide how an accepted request may be handed to the existing bounded visit command without introducing a scheduler or automatic crawling.
 
