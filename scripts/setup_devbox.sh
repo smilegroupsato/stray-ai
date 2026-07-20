@@ -101,10 +101,28 @@ exec "$DATA_DIR/run-first-visitor.sh" \
 EOF
 chmod 750 "$DATA_DIR/visit-eternal-free-party.sh"
 
+cat > "$DATA_DIR/visit-eternal-free-party-llm.sh" <<EOF
+#!/usr/bin/env bash
+set -euo pipefail
+if [[ -z "\${STRAY_LLM_MODEL:-}" ]]; then
+  echo "STRAY_LLM_MODEL is required." >&2
+  exit 1
+fi
+export STRAY_LLM_BASE_URL="\${STRAY_LLM_BASE_URL:-http://127.0.0.1:11434/v1}"
+BRAIN_COMMAND="$REPO_DIR/.venv/bin/python $REPO_DIR/scripts/openai_compatible_brain.py"
+exec "$DATA_DIR/visit-eternal-free-party.sh" \
+  --brain command \
+  --brain-command "\$BRAIN_COMMAND" \
+  --brain-label "\$STRAY_LLM_MODEL" \
+  "\$@"
+EOF
+chmod 750 "$DATA_DIR/visit-eternal-free-party-llm.sh"
+
 "$REPO_DIR/.venv/bin/python" -m pytest "$REPO_DIR/tests"
 
 echo "Devbox habitat prepared."
 echo "Repository: $REPO_DIR"
 echo "Persistent data: $DATA_DIR"
 echo "Latest report: $DATA_DIR/reports/latest.html"
-echo "First EFP visit: $DATA_DIR/visit-eternal-free-party.sh"
+echo "Mock EFP visit: $DATA_DIR/visit-eternal-free-party.sh"
+echo "LLM EFP visit: $DATA_DIR/visit-eternal-free-party-llm.sh"
