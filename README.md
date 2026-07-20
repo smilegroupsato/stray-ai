@@ -48,7 +48,7 @@ v0.1.1 The First Persistent Visitor  complete
 v0.2   The First Wake Judgment       complete
 ```
 
-Visit Report v0 Phase 1 and Phase 2 are complete. Phase 2.1 adds trusted source coordinates, exact commit-fixed page links, and relative navigation back to `index.html` from every individual Report.
+Visit Report v0 Phase 1 and Phase 2 are complete. Phase 2.1 adds trusted source coordinates, exact commit-fixed page links, and a relative return link from every individual Report to `index.html`.
 
 A wake request still does not start a visit. The next safety review must decide how an accepted request may be handed to the existing bounded visit command without introducing a scheduler or automatic crawling.
 
