@@ -1,5 +1,3 @@
 # Memory
 
-No place has yet become a memory.
-
-The visitor has not completed its first visit.
+Memories are kept as dated observations. Silence and uncertainty may remain part of the record.

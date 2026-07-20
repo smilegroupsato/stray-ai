@@ -32,6 +32,8 @@ for file in profile.yml memory.md state.json; do
   fi
 done
 
+"$REPO_DIR/.venv/bin/stray-ai-migrate" "$DATA_DIR/agents/stray-001"
+
 cat > "$DATA_DIR/run-first-visitor.sh" <<EOF
 #!/usr/bin/env bash
 set -euo pipefail
