@@ -13,6 +13,7 @@ fi
 
 mkdir -p \
   "$DATA_DIR/agents/stray-001" \
+  "$DATA_DIR/sources" \
   "$DATA_DIR/venues" \
   "$DATA_DIR/outbox/traces" \
   "$DATA_DIR/reports" \
@@ -34,18 +35,25 @@ done
 cat > "$DATA_DIR/run-first-visitor.sh" <<EOF
 #!/usr/bin/env bash
 set -euo pipefail
-ENTRANCE="\${STRAY_ENTRANCE:-$DATA_DIR/venues/README.md}"
-if [[ ! -f "\$ENTRANCE" ]]; then
-  echo "Entrance not found: \$ENTRANCE" >&2
-  echo "Place a bounded venue under $DATA_DIR/venues or set STRAY_ENTRANCE." >&2
+LOCAL_ROOT="\${STRAY_LOCAL_ROOT:-$DATA_DIR/venues}"
+ENTRANCE="\${STRAY_ENTRANCE:-\$LOCAL_ROOT/README.md}"
+if [[ ! -d "\$LOCAL_ROOT" ]]; then
+  echo "Venue root not found: \$LOCAL_ROOT" >&2
   exit 1
 fi
-RESULT="\$("$REPO_DIR/.venv/bin/stray-ai" \
-  --agent "$DATA_DIR/agents/stray-001" \
-  --local-root "$DATA_DIR/venues" \
-  --entrance "\$ENTRANCE" \
-  --outbox "$DATA_DIR/outbox/traces" \
-  "\$@")"
+if [[ ! -f "\$ENTRANCE" ]]; then
+  echo "Entrance not found: \$ENTRANCE" >&2
+  echo "Place a bounded venue under \$LOCAL_ROOT or set STRAY_ENTRANCE." >&2
+  exit 1
+fi
+COMMAND=(
+  "$REPO_DIR/.venv/bin/stray-ai"
+  --agent "$DATA_DIR/agents/stray-001"
+  --local-root "\$LOCAL_ROOT"
+  --entrance "\$ENTRANCE"
+  --outbox "$DATA_DIR/outbox/traces"
+)
+RESULT="\$("\${COMMAND[@]}" "\$@")"
 printf '%s\n' "\$RESULT"
 VISIT_FILE="\$("$REPO_DIR/.venv/bin/python" -c 'import json,sys; print(json.load(sys.stdin)["visit_file"])' <<<"\$RESULT")"
 if ! "$REPO_DIR/.venv/bin/stray-ai-report" \
@@ -67,10 +75,28 @@ exec "$REPO_DIR/.venv/bin/stray-ai-report" \
 EOF
 chmod 750 "$DATA_DIR/generate-latest-report.sh"
 
+cat > "$DATA_DIR/snapshot-eternal-free-party.sh" <<EOF
+#!/usr/bin/env bash
+set -euo pipefail
+exec bash "$REPO_DIR/scripts/snapshot_eternal_free_party.sh" "\$@"
+EOF
+chmod 750 "$DATA_DIR/snapshot-eternal-free-party.sh"
+
+cat > "$DATA_DIR/visit-eternal-free-party.sh" <<EOF
+#!/usr/bin/env bash
+set -euo pipefail
+SNAPSHOT_DIR="\$(bash "$REPO_DIR/scripts/snapshot_eternal_free_party.sh")"
+echo "Eternal Free Party snapshot: \$SNAPSHOT_DIR" >&2
+export STRAY_LOCAL_ROOT="\$SNAPSHOT_DIR"
+export STRAY_ENTRANCE="\$SNAPSHOT_DIR/README.md"
+exec "$DATA_DIR/run-first-visitor.sh" "\$@"
+EOF
+chmod 750 "$DATA_DIR/visit-eternal-free-party.sh"
+
 "$REPO_DIR/.venv/bin/python" -m pytest "$REPO_DIR/tests"
 
 echo "Devbox habitat prepared."
 echo "Repository: $REPO_DIR"
 echo "Persistent data: $DATA_DIR"
 echo "Latest report: $DATA_DIR/reports/latest.html"
-echo "Next: place a bounded venue under $DATA_DIR/venues and run $DATA_DIR/run-first-visitor.sh"
+echo "First EFP visit: $DATA_DIR/visit-eternal-free-party.sh"
