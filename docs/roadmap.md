@@ -58,10 +58,16 @@
 - [x] Static SVG plus accessible route and page tables
 - [x] Group trusted venues by repository and observed commit
 - [x] Preserve local-only venues without fabricated coordinates
-- [ ] Phase 3 CI validation
+- [x] Phase 3 CI validation
 - [ ] Phase 3 devbox and browser validation
 - [ ] Phase 3 merge and close Issue #17
-- [ ] Phase 4 — multiple individuals
+- [x] Phase 4 implementation — multiple-individual report collection
+- [x] Isolated report namespaces per individual
+- [x] Primary root compatibility for `latest.html`, `map.html`, and named Reports
+- [x] Read-only collection entrance without memory or local-path exposure
+- [ ] Phase 4 CI validation
+- [ ] Phase 4 devbox and browser validation
+- [ ] Phase 4 merge and close Issue #19
 
 ## After wake judgment
 
