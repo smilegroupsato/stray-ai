@@ -14,7 +14,7 @@ Sometimes it leaves a Trace. Sometimes it leaves silently.
 
 The first milestone is **The First Visitor**: one persistent individual completes one bounded visit, carries something back, and remains capable of returning as the same individual.
 
-The first bounded local-LLM visit has now occurred. The visitor read the reception path, chose silence, retained two memories, performed no remote write, and returned safely. The current v0.1 work makes that return persistent and internally coherent before automatic revisits are introduced.
+The first bounded local-LLM visit has now occurred. The visitor read the reception path, chose silence, retained two memories, performed no remote write, and returned safely. Its persistent state now records that return coherently: it is resting at home, while the final venue page remains historical context rather than current presence.
 
 ## Principles
 
@@ -32,16 +32,19 @@ The first bounded local-LLM visit has now occurred. The visitor read the recepti
 - [`docs/constitution.md`](docs/constitution.md) — durable boundaries
 - [`docs/architecture.md`](docs/architecture.md) — body, memory, movement, and Trace
 - [`docs/lifecycle.md`](docs/lifecycle.md) — return, rest, counters, and fatigue recovery
+- [`docs/roadmap.md`](docs/roadmap.md) — current milestone state
 - [`agents/stray-001/`](agents/stray-001/) — the first individual
 
 ## Status
 
 ```text
-v0.1   The First Visitor             first bounded visits complete
-v0.1.1 The First Persistent Visitor  coherent return and rest in progress
+v0.1   The First Visitor             complete
+v0.1.1 The First Persistent Visitor  complete
 ```
 
 Visit Report v0 Phase 1 is complete: one visit can be rendered as one local HTML observation page. Index, venue map, and multiple-individual views remain later phases.
+
+The next visitor milestone is wake/revisit judgment. It must preserve the valid choice to remain asleep.
 
 ## Related currents
 
