@@ -77,14 +77,20 @@ def _save_state(agent_dir: Path, state: State) -> None:
     )
 
 
-def _read_page(location: Path, root: Path) -> tuple[str, str, list[tuple[str, Path]]]:
+def _bounded_text_path(location: Path, root: Path) -> Path:
     path = location.resolve()
+    root = root.resolve()
     try:
-        path.relative_to(root.resolve())
+        path.relative_to(root)
     except ValueError as exc:
         raise StrayError(f"path escapes bounded venue: {path}") from exc
     if not path.is_file() or path.suffix.lower() not in _TEXT_SUFFIXES:
         raise StrayError(f"unreadable venue page: {path}")
+    return path
+
+
+def _read_page(location: Path, root: Path) -> tuple[str, str, list[tuple[str, Path]]]:
+    path = _bounded_text_path(location, root)
     text = path.read_text(encoding="utf-8", errors="replace")[:9000]
     heading = re.search(r"^#\s+(.+)$", text, flags=re.MULTILINE)
     title = heading.group(1).strip() if heading else path.stem
@@ -102,6 +108,21 @@ def _read_page(location: Path, root: Path) -> tuple[str, str, list[tuple[str, Pa
         if candidate.is_file() and candidate.suffix.lower() in _TEXT_SUFFIXES:
             links.append((label.strip()[:160], candidate))
     return title, text, links[:12]
+
+
+def _arrival_locations(
+    *, entrance: Path, local_root: Path, arrival_path: list[Path] | None, max_places: int
+) -> list[Path]:
+    locations = [_bounded_text_path(entrance, local_root)]
+    for requested in arrival_path or []:
+        resolved = _bounded_text_path(requested, local_root)
+        if resolved != locations[-1]:
+            locations.append(resolved)
+    if len(locations) > max_places:
+        raise StrayError(
+            f"trusted arrival path contains {len(locations)} places, exceeding limit {max_places}"
+        )
+    return locations
 
 
 def _term(profile: Profile, title: str, text: str) -> str | None:
@@ -150,12 +171,26 @@ def _save_trace(outbox: Path, profile: Profile, source: Path, term: str, visited
     return path
 
 
-def run_visit(*, agent_dir: Path, local_root: Path, entrance: Path, outbox: Path, seed: int | None = None) -> dict:
+def run_visit(
+    *,
+    agent_dir: Path,
+    local_root: Path,
+    entrance: Path,
+    outbox: Path,
+    seed: int | None = None,
+    arrival_path: list[Path] | None = None,
+) -> dict:
     profile = _load_profile(agent_dir)
     state = _load_state(agent_dir)
     rng = random.Random(seed)
     started_at = _now()
-    location = entrance.resolve()
+    planned_arrival = _arrival_locations(
+        entrance=entrance,
+        local_root=local_root,
+        arrival_path=arrival_path,
+        max_places=profile.max_places,
+    )
+    location = planned_arrival[0]
     steps: list[dict] = []
     memories: list[str] = []
     trace_file: Path | None = None
@@ -164,9 +199,31 @@ def run_visit(*, agent_dir: Path, local_root: Path, entrance: Path, outbox: Path
     for number in range(1, profile.max_places + 1):
         title, text, links = _read_page(location, local_root)
         term = _term(profile, title, text)
+        if number < len(planned_arrival):
+            target = planned_arrival[number]
+            steps.append(
+                {
+                    "step": number,
+                    "location": str(location),
+                    "title": title,
+                    "action": "follow_arrival_path",
+                    "target": str(target),
+                }
+            )
+            location = target
+            state.fatigue = min(1.0, state.fatigue + 0.18)
+            continue
         if links and number < profile.max_places:
             target = _choose(profile, links, rng)
-            steps.append({"step": number, "location": str(location), "title": title, "action": "follow_link", "target": str(target)})
+            steps.append(
+                {
+                    "step": number,
+                    "location": str(location),
+                    "title": title,
+                    "action": "follow_link",
+                    "target": str(target),
+                }
+            )
             location = target
             state.fatigue = min(1.0, state.fatigue + 0.18)
             continue
@@ -174,10 +231,14 @@ def run_visit(*, agent_dir: Path, local_root: Path, entrance: Path, outbox: Path
         if should_speak:
             trace_file = _save_trace(outbox, profile, location, term or "something", _now())
             memories.append(f"{title}で「{term}」に立ち止まった。")
-            steps.append({"step": number, "location": str(location), "title": title, "action": "leave_trace"})
+            steps.append(
+                {"step": number, "location": str(location), "title": title, "action": "leave_trace"}
+            )
             exit_reason = "trace_carried_home"
         else:
-            steps.append({"step": number, "location": str(location), "title": title, "action": "leave"})
+            steps.append(
+                {"step": number, "location": str(location), "title": title, "action": "leave"}
+            )
             exit_reason = "left_silently"
         break
 
@@ -190,13 +251,21 @@ def run_visit(*, agent_dir: Path, local_root: Path, entrance: Path, outbox: Path
     state.fatigue = max(0.0, state.fatigue - 0.08)
     _save_state(agent_dir, state)
 
-    record = {"agent_id": profile.id, "started_at": started_at, "ended_at": ended_at,
-              "entrance": str(entrance.resolve()), "backend": "mock", "steps": steps,
-              "trace_file": str(trace_file) if trace_file else None,
-              "memories_added": added, "exit_reason": exit_reason}
     visits = agent_dir / "visits"
     visits.mkdir(parents=True, exist_ok=True)
     visit_file = visits / f"{started_at[:19].replace(':', '').replace('T', '_')}.json"
+    record = {
+        "agent_id": profile.id,
+        "started_at": started_at,
+        "ended_at": ended_at,
+        "entrance": str(entrance.resolve()),
+        "arrival_path": [str(path) for path in planned_arrival],
+        "backend": "mock",
+        "steps": steps,
+        "trace_file": str(trace_file) if trace_file else None,
+        "memories_added": added,
+        "exit_reason": exit_reason,
+        "visit_file": str(visit_file),
+    }
     visit_file.write_text(json.dumps(record, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    record["visit_file"] = str(visit_file)
     return record

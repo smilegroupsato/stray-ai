@@ -29,8 +29,14 @@ def render_report(visit: dict[str, Any], state: dict[str, Any] | None = None) ->
     route_nodes: list[str] = []
     for index, step in enumerate(steps, start=1):
         action = str(step.get("action", "observe"))
-        terminal_class = " terminal" if action == "leave" else ""
-        badge = "LEAVE" if action == "leave" else f"STEP {step.get('step', index)}"
+        terminal_class = " terminal" if action in {"leave", "leave_trace"} else ""
+        badge = (
+            "TRACE"
+            if action == "leave_trace"
+            else "LEAVE"
+            if action == "leave"
+            else f"STEP {step.get('step', index)}"
+        )
         title = escape(str(step.get("title", "Untitled")))
         location = escape(_short_path(str(step.get("location", ""))))
         route_nodes.append(
@@ -49,6 +55,8 @@ def render_report(visit: dict[str, Any], state: dict[str, Any] | None = None) ->
     exit_label = (
         "Left silently"
         if exit_reason == "left_silently"
+        else "Trace carried home"
+        if exit_reason == "trace_carried_home"
         else exit_reason.replace("_", " ").title()
     )
     memories = [str(item) for item in visit.get("memories_added", [])]
@@ -154,6 +162,7 @@ def generate_report(
     state_path: Path | None = None,
 ) -> tuple[Path, Path]:
     visit = _load_json(visit_path)
+    visit.setdefault("visit_file", str(visit_path))
     state = _load_json(state_path) if state_path and state_path.exists() else {}
     output_dir.mkdir(parents=True, exist_ok=True)
     report_path = output_dir / f"{visit_path.stem}.html"
