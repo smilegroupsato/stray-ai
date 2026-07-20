@@ -44,8 +44,11 @@ def _make_public_venue(repository: Path) -> str:
 def _make_tree_writable(root: Path) -> None:
     if not root.exists():
         return
-    for path in sorted(root.rglob("*"), reverse=True):
-        path.chmod(path.stat().st_mode | stat.S_IWUSR, follow_symlinks=False)
+    paths = sorted(root.rglob("*"), key=lambda item: len(item.parts), reverse=True)
+    for path in paths:
+        if path.is_symlink():
+            continue
+        path.chmod(path.stat().st_mode | stat.S_IWUSR)
     root.chmod(root.stat().st_mode | stat.S_IWUSR)
 
 
