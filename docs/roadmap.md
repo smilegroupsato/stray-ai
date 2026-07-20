@@ -11,7 +11,7 @@
 - [x] Bounded local LLM brain
 - [x] First accepted local-LLM visit
 - [x] Fail-closed visit observed on devbox
-- [ ] Coherent return migration validated on the persistent `stray-001`
+- [x] Coherent return migration validated on the persistent `stray-001`
 
 ## v0.1.1 — The First Persistent Visitor
 
@@ -21,8 +21,8 @@
 - [x] Mock, LLM, accepted-brain, and safe-exit observation counters
 - [x] Deterministic time-based fatigue recovery
 - [x] Idempotent migration implementation
-- [ ] Devbox migration validation
-- [ ] Merge and close Issue #9
+- [x] Devbox migration validation
+- [x] Merge-ready implementation for Issue #9
 
 ## Visit Report v0
 
