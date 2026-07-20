@@ -58,12 +58,11 @@ COMMAND=(
 )
 RESULT="\$("\${COMMAND[@]}" "\$@")"
 printf '%s\n' "\$RESULT"
-VISIT_FILE="\$("$REPO_DIR/.venv/bin/python" -c 'import json,sys; print(json.load(sys.stdin)["visit_file"])' <<<"\$RESULT")"
 if ! "$REPO_DIR/.venv/bin/stray-ai-report" \
-  --visit "\$VISIT_FILE" \
-  --state "$DATA_DIR/agents/stray-001/state.json" \
+  --agents-dir "$DATA_DIR/agents" \
+  --primary-agent stray-001 \
   --output-dir "$DATA_DIR/reports"; then
-  echo "Visit completed, but HTML report generation failed." >&2
+  echo "Visit completed, but HTML report collection generation failed." >&2
 fi
 EOF
 chmod 750 "$DATA_DIR/run-first-visitor.sh"
@@ -72,8 +71,8 @@ cat > "$DATA_DIR/generate-latest-report.sh" <<EOF
 #!/usr/bin/env bash
 set -euo pipefail
 exec "$REPO_DIR/.venv/bin/stray-ai-report" \
-  --visits-dir "$DATA_DIR/agents/stray-001/visits" \
-  --state "$DATA_DIR/agents/stray-001/state.json" \
+  --agents-dir "$DATA_DIR/agents" \
+  --primary-agent stray-001 \
   --output-dir "$DATA_DIR/reports"
 EOF
 chmod 750 "$DATA_DIR/generate-latest-report.sh"
@@ -179,7 +178,10 @@ chmod 750 "$DATA_DIR/check-wake-eternal-free-party-llm.sh"
 echo "Devbox habitat prepared."
 echo "Repository: $REPO_DIR"
 echo "Persistent data: $DATA_DIR"
-echo "Latest report: $DATA_DIR/reports/latest.html"
+echo "Collection index: $DATA_DIR/reports/index.html"
+echo "Primary visits: $DATA_DIR/reports/visits.html"
+echo "Primary latest report: $DATA_DIR/reports/latest.html"
+echo "Primary observed map: $DATA_DIR/reports/map.html"
 echo "Mock EFP visit: $DATA_DIR/visit-eternal-free-party.sh"
 echo "LLM EFP visit: $DATA_DIR/visit-eternal-free-party-llm.sh"
 echo "Deterministic EFP wake check: $DATA_DIR/check-wake-eternal-free-party.sh"
