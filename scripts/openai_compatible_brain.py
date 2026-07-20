@@ -100,6 +100,8 @@ def main() -> None:
         ],
         "temperature": float(os.environ.get("STRAY_LLM_TEMPERATURE", "0.7")),
         "max_tokens": int(os.environ.get("STRAY_LLM_MAX_TOKENS", "600")),
+        "reasoning_effort": os.environ.get("STRAY_LLM_REASONING_EFFORT", "none"),
+        "stream": False,
     }
     if os.environ.get("STRAY_LLM_JSON_MODE", "0") == "1":
         body["response_format"] = {"type": "json_object"}
