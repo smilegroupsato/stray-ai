@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from .report_archive import generate_archive
+from .report_navigation import add_archive_link
 from .report_sources import (
     SourceCoordinates,
     augment_index,
@@ -90,12 +91,15 @@ def generate_source_aware_archive(
 
         source = resolve_visit_source(visit)
         records[report_path.name] = (visit, source)
+        report_html = add_archive_link(report_path.read_text(encoding="utf-8"))
+
         if source is None:
+            report_path.write_text(report_html, encoding="utf-8")
             unlinked_files.append(visit_path.name)
             continue
 
         report_path.write_text(
-            augment_visit_report(report_path.read_text(encoding="utf-8"), visit, source),
+            augment_visit_report(report_html, visit, source),
             encoding="utf-8",
         )
         linked_files.append(visit_path.name)
