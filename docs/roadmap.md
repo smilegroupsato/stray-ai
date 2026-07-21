@@ -75,7 +75,8 @@
 - [x] Add accessible evidence and place tables
 - [x] Link collection entrance and world map with relative URLs
 - [x] Phase 5 CI validation
-- [ ] Phase 5 devbox and browser validation
+- [x] Phase 5 devbox, source-preservation, and Gateway validation
+- [ ] Phase 5 browser inspection
 - [ ] Phase 5 merge and close Issue #21
 
 ## After wake judgment
