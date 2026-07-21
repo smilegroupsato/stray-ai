@@ -65,7 +65,11 @@ def _repository(value: str | None) -> tuple[str, str] | None:
     return f"https://github.com/{owner}/{repository}", f"{owner}/{repository}"
 
 
-def _venue_label(snapshot_root: Path) -> str:
+def _venue_label(snapshot_root: Path, recorded: str | None = None) -> str:
+    if recorded:
+        label = recorded.strip()
+        if 1 <= len(label) <= 120 and all(character.isprintable() for character in label):
+            return label
     raw = snapshot_root.parent.name or "Unknown venue"
     return raw.replace("_", " ").replace("-", " ").strip().title()
 
@@ -100,7 +104,7 @@ def resolve_source_coordinates(visit: dict[str, Any]) -> SourceCoordinates | Non
             return None
         repository_url, repository_display = repository
         return SourceCoordinates(
-            venue_label=_venue_label(root),
+            venue_label=_venue_label(root, values.get("venue_label")),
             repository_url=repository_url,
             repository_display=repository_display,
             commit=commit.lower(),

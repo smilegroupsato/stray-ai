@@ -79,6 +79,18 @@
 - [x] Phase 5 browser inspection
 - [x] Phase 5 merge and close Issue #21
 
+## Venue Operations v0
+
+- [x] Define GENAI-RON Repository Context as the second bounded venue
+- [x] Fix the approved manifest to `README.md`, `CHAT_HISTORY.md`, and `AFTERHOURS.md`
+- [x] Add commit-addressed snapshot creation with fail-closed validation
+- [x] Separate snapshot preparation from manual mock and LLM Visit launchers
+- [x] Preserve a bounded trusted venue display label in Visit Reports
+- [x] Offline tests and CI validation
+- [x] Devbox snapshot-only validation and manifest inspection
+- [ ] Merge and close Issue #23
+- [ ] First separately approved GENAI-RON Visit
+
 ## After wake judgment
 
 A later safety review may allow an accepted `request_visit` decision to invoke the existing bounded visit command. No scheduler or automatic revisit is part of the current milestone.
