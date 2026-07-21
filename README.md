@@ -50,9 +50,13 @@ v0.1.1 The First Persistent Visitor  complete
 v0.2   The First Wake Judgment       complete
 ```
 
-Visit Report v0 now has individual Visit pages, a chronological archive, trusted source coordinates, and an observed venue map. Phase 4 adds a read-only collection entrance and isolated report namespaces for multiple persistent individuals while preserving the primary `/stray-ai/latest.html` route.
+Visit Report v0 is complete through the observed world map. It provides static individual Visit pages, chronological archives, trusted commit-fixed source coordinates, observed venue maps, isolated multi-individual namespaces, and a read-only world view without inferring travel.
 
-A wake request still does not start a visit. The next safety review must decide how an accepted request may be handed to the existing bounded visit command without introducing a scheduler or automatic crawling.
+Venue Operations v0 is also complete for the first two bounded venues: Eternal Free Party and GENAI-RON Repository Context. The first separately approved GENAI-RON Visit has completed, and `stray-001` returned to rest.
+
+The report presentation now supports narrow-window layouts, Japanese interface labels, stable navigation between the collection and individual reports, an `/individuals/` entrance, and optional Japanese display translations that preserve the original free text without mutating Visit JSON.
+
+A wake request still does not start a visit. Snapshot creation, wake judgment, and Visit execution remain separate manual operations. No scheduler, automatic revisit, or automatic crawling is part of the current state.
 
 ## Related currents
 
