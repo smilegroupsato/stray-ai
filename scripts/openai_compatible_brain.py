@@ -26,6 +26,8 @@ Schema:
 
 Use follow_link only with an available candidate index.
 Use carry_trace only when there is something specific worth carrying home.
+Write observation, memories, and trace in natural Japanese.
+Keep JSON field names and action values exactly as specified above.
 Silence is valid. Do not claim certainty you do not have.
 """
 
