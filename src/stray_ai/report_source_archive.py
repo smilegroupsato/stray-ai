@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from .report_archive import generate_archive
+from .report_bilingual import apply_cached_translations
 from .report_map import augment_index_with_map_link, write_observed_map
 from .report_navigation import add_archive_link
 from .report_presentation import localize_visit_report
@@ -15,6 +16,7 @@ from .report_sources import (
     augment_visit_report,
     resolve_source_coordinates,
 )
+from .report_translations import load_report_translations
 
 
 def _load_visit(path: Path) -> dict[str, Any] | None:
@@ -77,8 +79,10 @@ def generate_source_aware_archive(
     visits_dir: Path,
     output_dir: Path,
     state_path: Path | None = None,
+    translations_path: Path | None = None,
 ) -> dict[str, Any]:
     result = generate_archive(visits_dir, output_dir, state_path)
+    translations = load_report_translations(translations_path)
     records: dict[str, tuple[dict[str, Any], SourceCoordinates | None]] = {}
     linked_files: list[str] = []
     unlinked_files: list[str] = []
@@ -101,8 +105,9 @@ def generate_source_aware_archive(
             report_html = augment_visit_report(report_html, visit, source)
             linked_files.append(visit_path.name)
 
+        localized = localize_visit_report(report_html)
         report_path.write_text(
-            localize_visit_report(report_html),
+            apply_cached_translations(localized, translations),
             encoding="utf-8",
         )
 
