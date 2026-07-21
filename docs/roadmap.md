@@ -89,7 +89,7 @@
 - [x] Offline tests and CI validation
 - [x] Devbox snapshot-only validation and manifest inspection
 - [x] Merge and close Issue #23
-- [ ] First separately approved GENAI-RON Visit
+- [x] First separately approved GENAI-RON Visit
 
 ## After wake judgment
 
