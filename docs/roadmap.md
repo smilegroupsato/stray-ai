@@ -88,7 +88,7 @@
 - [x] Preserve a bounded trusted venue display label in Visit Reports
 - [x] Offline tests and CI validation
 - [x] Devbox snapshot-only validation and manifest inspection
-- [ ] Merge and close Issue #23
+- [x] Merge and close Issue #23
 - [ ] First separately approved GENAI-RON Visit
 
 ## After wake judgment
