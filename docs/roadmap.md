@@ -87,7 +87,7 @@
 - [x] Separate snapshot preparation from manual mock and LLM Visit launchers
 - [x] Preserve a bounded trusted venue display label in Visit Reports
 - [x] Offline tests and CI validation
-- [ ] Devbox snapshot-only validation and manifest inspection
+- [x] Devbox snapshot-only validation and manifest inspection
 - [ ] Merge and close Issue #23
 - [ ] First separately approved GENAI-RON Visit
 
