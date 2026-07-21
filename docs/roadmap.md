@@ -68,7 +68,16 @@
 - [x] Phase 4 CI validation
 - [x] Phase 4 devbox and browser validation
 - [x] Phase 4 merge and close Issue #19
-- [ ] Next exploration — Stray AI world map across visits, commits, venues, and individuals
+- [x] Phase 5 design — observed world map boundary
+- [x] Phase 5 implementation — `world.html`
+- [x] Aggregate individual-to-observed-place relationships without inferred travel
+- [x] Preserve exact commit separation and local-only isolation
+- [x] Add accessible evidence and place tables
+- [x] Link collection entrance and world map with relative URLs
+- [x] Phase 5 CI validation
+- [x] Phase 5 devbox, source-preservation, and Gateway validation
+- [x] Phase 5 browser inspection
+- [ ] Phase 5 merge and close Issue #21
 
 ## After wake judgment
 

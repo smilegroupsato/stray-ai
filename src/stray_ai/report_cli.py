@@ -5,8 +5,8 @@ import json
 from pathlib import Path
 
 from .report import generate_report
-from .report_collection import generate_report_collection
 from .report_source_archive import generate_source_aware_archive
+from .report_world_collection import generate_world_report_collection
 
 
 def main() -> None:
@@ -31,7 +31,7 @@ def main() -> None:
         if args.state is not None:
             parser.error("--state is not used with --agents-dir")
         try:
-            result = generate_report_collection(
+            result = generate_world_report_collection(
                 args.agents_dir.resolve(),
                 output_dir,
                 args.primary_agent,
