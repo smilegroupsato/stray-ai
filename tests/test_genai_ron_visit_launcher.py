@@ -42,6 +42,18 @@ def _launcher() -> Path:
     return Path(__file__).parents[1] / "scripts" / "visit_genai_ron_rc.sh"
 
 
+def _isolated_env(data_dir: Path) -> dict[str, str]:
+    env = dict(os.environ)
+    for name in (
+        "STRAY_GENAI_RON_SNAPSHOT_DIR",
+        "GENAI_RON_SNAPSHOT_BASE",
+        "GENAI_RON_REPO_URL",
+    ):
+        env.pop(name, None)
+    env["DATA_DIR"] = str(data_dir)
+    return env
+
+
 def test_launcher_uses_existing_snapshot_and_fixed_arrival_path(tmp_path: Path) -> None:
     data_dir = tmp_path / "data"
     snapshot = _snapshot(data_dir)
@@ -57,7 +69,7 @@ def test_launcher_uses_existing_snapshot_and_fixed_arrival_path(tmp_path: Path) 
 
     completed = subprocess.run(
         ["bash", str(_launcher()), "--max-steps", "5"],
-        env={**os.environ, "DATA_DIR": str(data_dir)},
+        env=_isolated_env(data_dir),
         check=True,
         text=True,
         capture_output=True,
@@ -73,9 +85,10 @@ def test_launcher_uses_existing_snapshot_and_fixed_arrival_path(tmp_path: Path) 
 
 
 def test_launcher_fails_without_a_separately_created_snapshot(tmp_path: Path) -> None:
+    data_dir = tmp_path / "data"
     completed = subprocess.run(
         ["bash", str(_launcher())],
-        env={**os.environ, "DATA_DIR": str(tmp_path / "data")},
+        env=_isolated_env(data_dir),
         check=False,
         text=True,
         capture_output=True,
@@ -94,7 +107,7 @@ def test_launcher_rejects_snapshot_outside_manifest(tmp_path: Path) -> None:
 
     completed = subprocess.run(
         ["bash", str(_launcher())],
-        env={**os.environ, "DATA_DIR": str(data_dir)},
+        env=_isolated_env(data_dir),
         check=False,
         text=True,
         capture_output=True,
