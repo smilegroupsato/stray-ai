@@ -75,14 +75,22 @@ def resolve_visit_source(visit: dict[str, Any]) -> SourceCoordinates | None:
     return next(iter(sources.values()))
 
 
+def _default_translations_path(visits_dir: Path) -> Path:
+    agent_dir = visits_dir.parent
+    return agent_dir.parent.parent / "report-translations" / f"{agent_dir.name}.ja.json"
+
+
 def generate_source_aware_archive(
     visits_dir: Path,
     output_dir: Path,
     state_path: Path | None = None,
     translations_path: Path | None = None,
 ) -> dict[str, Any]:
+    visits_dir = visits_dir.resolve()
     result = generate_archive(visits_dir, output_dir, state_path)
-    translations = load_report_translations(translations_path)
+    translations = load_report_translations(
+        translations_path or _default_translations_path(visits_dir)
+    )
     records: dict[str, tuple[dict[str, Any], SourceCoordinates | None]] = {}
     linked_files: list[str] = []
     unlinked_files: list[str] = []
