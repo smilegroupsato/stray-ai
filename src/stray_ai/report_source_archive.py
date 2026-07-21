@@ -8,6 +8,7 @@ from typing import Any
 from .report_archive import generate_archive
 from .report_map import augment_index_with_map_link, write_observed_map
 from .report_navigation import add_archive_link
+from .report_presentation import localize_visit_report
 from .report_sources import (
     SourceCoordinates,
     augment_index,
@@ -95,15 +96,15 @@ def generate_source_aware_archive(
         report_html = add_archive_link(report_path.read_text(encoding="utf-8"))
 
         if source is None:
-            report_path.write_text(report_html, encoding="utf-8")
             unlinked_files.append(visit_path.name)
-            continue
+        else:
+            report_html = augment_visit_report(report_html, visit, source)
+            linked_files.append(visit_path.name)
 
         report_path.write_text(
-            augment_visit_report(report_html, visit, source),
+            localize_visit_report(report_html),
             encoding="utf-8",
         )
-        linked_files.append(visit_path.name)
 
     report_files = [Path(str(value)) for value in result.get("report_files", [])]
     latest_value = result.get("latest_report")
