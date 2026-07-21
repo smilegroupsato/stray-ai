@@ -7,10 +7,15 @@ from typing import Any
 import yaml
 from bs4 import BeautifulSoup
 
+from .report_bilingual import apply_cached_translations
 from .report_collection import generate_report_collection
+from .report_collection_navigation import (
+    apply_navigation_to_individual_directory,
+    render_individuals_directory_index,
+)
 from .report_source_archive import resolve_visit_source
+from .report_translations import load_report_translations
 from .report_world import WorldIndividual, WorldVisitRecord, write_observed_world
-
 
 _COLLECTION_UI_CSS = """
 html,body{width:100%;max-width:100%;min-width:0;overflow-x:hidden}
@@ -69,7 +74,9 @@ def _localize_collection(soup: BeautifulSoup) -> None:
 
     kicker = soup.select_one(".kicker")
     if kicker is not None:
-        kicker.string = "Stray AI · 訪問レポート v0"
+        link = kicker.find("a")
+        target = link if link is not None else kicker
+        target.string = "Stray AI · 訪問レポート v0"
 
     heading = soup.find("h1")
     if heading is not None:
@@ -90,7 +97,7 @@ def _localize_collection(soup: BeautifulSoup) -> None:
             f"{_leading_count(summary_items[1].get_text())}件の保存済み訪問"
         )
 
-    world_link = soup.select_one('a[href="world.html"]')
+    world_link = soup.select_one(".world-link a")
     if world_link is not None:
         world_link.string = "観測された世界地図"
 
@@ -170,6 +177,33 @@ def augment_collection_with_world_link(html: str) -> str:
     return str(soup)
 
 
+def _apply_individual_presentation(
+    agents_dir: Path,
+    output_dir: Path,
+    individual_results: list[dict[str, Any]],
+) -> None:
+    translations_root = agents_dir.parent / "report-translations"
+    for item in individual_results:
+        if not isinstance(item, dict) or not item.get("agent_id"):
+            continue
+        agent_id = str(item["agent_id"])
+        individual_output = output_dir / "individuals" / agent_id
+        translations = load_report_translations(translations_root / f"{agent_id}.ja.json")
+        if translations:
+            for path in sorted(individual_output.glob("*.html")):
+                path.write_text(
+                    apply_cached_translations(
+                        path.read_text(encoding="utf-8"),
+                        translations,
+                    ),
+                    encoding="utf-8",
+                )
+        apply_navigation_to_individual_directory(
+            individual_output,
+            agent_id=agent_id,
+        )
+
+
 def generate_world_report_collection(
     agents_dir: Path,
     output_dir: Path,
@@ -178,6 +212,11 @@ def generate_world_report_collection(
     agents_dir = agents_dir.resolve()
     output_dir = output_dir.resolve()
     result = generate_report_collection(agents_dir, output_dir, primary_agent_id)
+    _apply_individual_presentation(
+        agents_dir,
+        output_dir,
+        list(result.get("individuals", [])),
+    )
 
     individuals: list[WorldIndividual] = []
     records: list[WorldVisitRecord] = []
@@ -218,10 +257,19 @@ def generate_world_report_collection(
 
     world_result = write_observed_world(individuals, records, output_dir)
     collection_index = Path(str(result["collection_index_file"]))
-    collection_index.write_text(
-        augment_collection_with_world_link(
-            collection_index.read_text(encoding="utf-8")
-        ),
+    localized_collection = augment_collection_with_world_link(
+        collection_index.read_text(encoding="utf-8")
+    )
+    collection_index.write_text(localized_collection, encoding="utf-8")
+
+    individuals_index = output_dir / "individuals" / "index.html"
+    individuals_index.write_text(
+        render_individuals_directory_index(localized_collection),
         encoding="utf-8",
     )
-    return {**result, **world_result}
+
+    return {
+        **result,
+        **world_result,
+        "individuals_index_file": str(individuals_index),
+    }
