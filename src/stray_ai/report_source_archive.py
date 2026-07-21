@@ -6,14 +6,17 @@ from pathlib import Path
 from typing import Any
 
 from .report_archive import generate_archive
+from .report_bilingual import apply_cached_translations
 from .report_map import augment_index_with_map_link, write_observed_map
 from .report_navigation import add_archive_link
+from .report_presentation import localize_visit_report
 from .report_sources import (
     SourceCoordinates,
     augment_index,
     augment_visit_report,
     resolve_source_coordinates,
 )
+from .report_translations import load_report_translations
 
 
 def _load_visit(path: Path) -> dict[str, Any] | None:
@@ -72,12 +75,22 @@ def resolve_visit_source(visit: dict[str, Any]) -> SourceCoordinates | None:
     return next(iter(sources.values()))
 
 
+def _default_translations_path(visits_dir: Path) -> Path:
+    agent_dir = visits_dir.parent
+    return agent_dir.parent.parent / "report-translations" / f"{agent_dir.name}.ja.json"
+
+
 def generate_source_aware_archive(
     visits_dir: Path,
     output_dir: Path,
     state_path: Path | None = None,
+    translations_path: Path | None = None,
 ) -> dict[str, Any]:
+    visits_dir = visits_dir.resolve()
     result = generate_archive(visits_dir, output_dir, state_path)
+    translations = load_report_translations(
+        translations_path or _default_translations_path(visits_dir)
+    )
     records: dict[str, tuple[dict[str, Any], SourceCoordinates | None]] = {}
     linked_files: list[str] = []
     unlinked_files: list[str] = []
@@ -95,15 +108,16 @@ def generate_source_aware_archive(
         report_html = add_archive_link(report_path.read_text(encoding="utf-8"))
 
         if source is None:
-            report_path.write_text(report_html, encoding="utf-8")
             unlinked_files.append(visit_path.name)
-            continue
+        else:
+            report_html = augment_visit_report(report_html, visit, source)
+            linked_files.append(visit_path.name)
 
+        localized = localize_visit_report(report_html)
         report_path.write_text(
-            augment_visit_report(report_html, visit, source),
+            apply_cached_translations(localized, translations),
             encoding="utf-8",
         )
-        linked_files.append(visit_path.name)
 
     report_files = [Path(str(value)) for value in result.get("report_files", [])]
     latest_value = result.get("latest_report")

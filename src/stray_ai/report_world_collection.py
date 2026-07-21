@@ -7,9 +7,41 @@ from typing import Any
 import yaml
 from bs4 import BeautifulSoup
 
+from .report_bilingual import apply_cached_translations
 from .report_collection import generate_report_collection
+from .report_collection_navigation import (
+    apply_navigation_to_individual_directory,
+    render_individuals_directory_index,
+)
 from .report_source_archive import resolve_visit_source
+from .report_translations import load_report_translations
 from .report_world import WorldIndividual, WorldVisitRecord, write_observed_world
+
+_COLLECTION_UI_CSS = """
+html,body{width:100%;max-width:100%;min-width:0;overflow-x:hidden}
+main{width:min(100%,1100px);max-width:100%;min-width:0;margin:0 auto;padding:48px 24px 72px}
+main>*,.summary,.world-link,.grid,.grid>*,.individual-card,.empty,.card-head,.metrics,.metrics div,nav{min-width:0;max-width:100%}
+.grid{grid-template-columns:minmax(0,1fr);width:100%}
+.grid>*{width:100%}
+.card-head,.metrics div{flex-wrap:wrap}
+.metrics strong{min-width:0;max-width:100%;overflow-wrap:anywhere;word-break:break-word}
+nav{flex-wrap:wrap}
+@media(max-width:680px){
+ main{padding:28px 14px 48px}
+ h1{font-size:32px}
+ .card-head{flex-direction:column}
+ .metrics div{align-items:flex-start;flex-direction:column;gap:5px}
+ .metrics strong{text-align:left}
+}
+"""
+
+_STATE_LABELS = {
+    "unborn": "未誕生",
+    "awake": "覚醒中",
+    "visiting": "訪問中",
+    "resting": "休息中",
+    "unknown": "不明",
+}
 
 
 def _load_json(path: Path) -> dict[str, Any] | None:
@@ -31,37 +63,145 @@ def _display_name(agent_dir: Path) -> str | None:
     return text or None
 
 
+def _leading_count(text: str) -> str:
+    value = text.strip().split(maxsplit=1)[0] if text.strip() else "0"
+    return value if value.isdigit() else "0"
+
+
+def _localize_collection(soup: BeautifulSoup) -> None:
+    if soup.title is not None:
+        soup.title.string = "Stray AI — 永続個体"
+
+    kicker = soup.select_one(".kicker")
+    if kicker is not None:
+        link = kicker.find("a")
+        target = link if link is not None else kicker
+        target.string = "Stray AI · 訪問レポート v0"
+
+    heading = soup.find("h1")
+    if heading is not None:
+        heading.string = "永続個体"
+
+    intro = soup.select_one(".intro")
+    if intro is not None:
+        intro.string = (
+            "保存された各訪問者のレポートへ入る、読み取り専用の入口。"
+            "個体ごとの記憶・状態・経路・地図は、ここでは混合しない。"
+        )
+
+    summary_items = soup.select(".summary span")
+    if len(summary_items) >= 1:
+        summary_items[0].string = f"{_leading_count(summary_items[0].get_text())} 個体"
+    if len(summary_items) >= 2:
+        summary_items[1].string = (
+            f"{_leading_count(summary_items[1].get_text())}件の保存済み訪問"
+        )
+
+    world_link = soup.select_one(".world-link a")
+    if world_link is not None:
+        world_link.string = "観測された世界地図"
+
+    for badge in soup.select(".individual-card .badge"):
+        if badge.get_text(" ", strip=True) == "PRIMARY":
+            badge.string = "主個体"
+
+    for status in soup.select(".individual-card .status"):
+        value = status.get_text(" ", strip=True)
+        status.string = _STATE_LABELS.get(value, value)
+
+    for label in soup.select(".individual-card .metrics span"):
+        value = label.get_text(" ", strip=True)
+        label.string = {
+            "Visits": "訪問回数",
+            "Last visit": "最終訪問",
+        }.get(value, value)
+
+    for link in soup.select(".individual-card nav a"):
+        value = link.get_text(" ", strip=True)
+        link.string = {
+            "Visits": "訪問一覧",
+            "Latest": "最新レポート",
+            "Observed map": "観測地図",
+        }.get(value, value)
+
+    empty_heading = soup.select_one(".empty h2")
+    if empty_heading is not None:
+        empty_heading.string = "観測された永続個体はまだいない"
+    empty_paragraph = soup.select_one(".empty p")
+    if empty_paragraph is not None:
+        empty_paragraph.string = (
+            "コレクションは空であり、個体の生成や覚醒は行われていない。"
+        )
+
+    footer = soup.find("footer")
+    if footer is not None:
+        footer.string = (
+            "境界づけられた永続記録からローカル生成。"
+            "このページは個体を生成・覚醒・移動させない。"
+        )
+
+
 def augment_collection_with_world_link(html: str) -> str:
     soup = BeautifulSoup(html, "html.parser")
-    if soup.select_one('a[href="world.html"]') is not None:
-        return str(soup)
 
-    link = soup.new_tag("a", href="world.html")
-    link.string = "Observed world map"
-    nav = soup.new_tag("nav", attrs={"class": "world-link"})
-    nav.append(link)
+    if soup.select_one('a[href="world.html"]') is None:
+        link = soup.new_tag("a", href="world.html")
+        link.string = "Observed world map"
+        nav = soup.new_tag("nav", attrs={"class": "world-link"})
+        nav.append(link)
 
-    summary = soup.select_one(".summary")
-    if summary is not None:
-        summary.insert_after(nav)
-    elif soup.main is not None:
-        soup.main.insert(0, nav)
-    elif soup.body is not None:
-        soup.body.append(nav)
-    else:
-        soup.append(nav)
+        summary = soup.select_one(".summary")
+        if summary is not None:
+            summary.insert_after(nav)
+        elif soup.main is not None:
+            soup.main.insert(0, nav)
+        elif soup.body is not None:
+            soup.body.append(nav)
+        else:
+            soup.append(nav)
 
-    style = soup.new_tag("style")
-    style.string = (
-        ".world-link{margin:-12px 0 28px}.world-link a{display:inline-block;"
-        "color:var(--text);text-decoration:none;background:var(--panel2);"
-        "border:1px solid var(--line);border-radius:12px;padding:10px 13px}"
-        ".world-link a:hover,.world-link a:focus-visible{border-color:var(--accent);"
-        "color:var(--accent)}"
-    )
-    if soup.head is not None:
-        soup.head.append(style)
+    if soup.select_one("style#collection-ui-v0") is None:
+        style = soup.new_tag("style", id="collection-ui-v0")
+        style.string = (
+            ".world-link{margin:-12px 0 28px}.world-link a{display:inline-block;"
+            "color:var(--text);text-decoration:none;background:var(--panel2);"
+            "border:1px solid var(--line);border-radius:12px;padding:10px 13px}"
+            ".world-link a:hover,.world-link a:focus-visible{border-color:var(--accent);"
+            "color:var(--accent)}"
+            + _COLLECTION_UI_CSS
+        )
+        if soup.head is not None:
+            soup.head.append(style)
+
+    _localize_collection(soup)
     return str(soup)
+
+
+def _apply_individual_presentation(
+    agents_dir: Path,
+    output_dir: Path,
+    individual_results: list[dict[str, Any]],
+) -> None:
+    translations_root = agents_dir.parent / "report-translations"
+    for item in individual_results:
+        if not isinstance(item, dict) or not item.get("agent_id"):
+            continue
+        agent_id = str(item["agent_id"])
+        individual_output = output_dir / "individuals" / agent_id
+        translations = load_report_translations(translations_root / f"{agent_id}.ja.json")
+        if translations:
+            for path in sorted(individual_output.glob("*.html")):
+                path.write_text(
+                    apply_cached_translations(
+                        path.read_text(encoding="utf-8"),
+                        translations,
+                    ),
+                    encoding="utf-8",
+                )
+        apply_navigation_to_individual_directory(
+            individual_output,
+            agent_id=agent_id,
+        )
 
 
 def generate_world_report_collection(
@@ -72,6 +212,11 @@ def generate_world_report_collection(
     agents_dir = agents_dir.resolve()
     output_dir = output_dir.resolve()
     result = generate_report_collection(agents_dir, output_dir, primary_agent_id)
+    _apply_individual_presentation(
+        agents_dir,
+        output_dir,
+        list(result.get("individuals", [])),
+    )
 
     individuals: list[WorldIndividual] = []
     records: list[WorldVisitRecord] = []
@@ -112,10 +257,19 @@ def generate_world_report_collection(
 
     world_result = write_observed_world(individuals, records, output_dir)
     collection_index = Path(str(result["collection_index_file"]))
-    collection_index.write_text(
-        augment_collection_with_world_link(
-            collection_index.read_text(encoding="utf-8")
-        ),
+    localized_collection = augment_collection_with_world_link(
+        collection_index.read_text(encoding="utf-8")
+    )
+    collection_index.write_text(localized_collection, encoding="utf-8")
+
+    individuals_index = output_dir / "individuals" / "index.html"
+    individuals_index.write_text(
+        render_individuals_directory_index(localized_collection),
         encoding="utf-8",
     )
-    return {**result, **world_result}
+
+    return {
+        **result,
+        **world_result,
+        "individuals_index_file": str(individuals_index),
+    }
