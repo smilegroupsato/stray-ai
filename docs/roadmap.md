@@ -127,8 +127,8 @@
 - [x] Prevent automatic retry after failure or interruption
 - [x] Record the resulting Visit file after success
 - [x] Add offline mock and command-brain regression tests
-- [ ] CI validation
-- [ ] Synthetic devbox approval and one-shot Visit validation
+- [x] CI validation
+- [x] Synthetic devbox approval and one-shot Visit validation
 - [ ] Merge and close Issue #31
 
 ## After one-shot execution
