@@ -44,12 +44,30 @@ Wake judgment does not read venue page content.
 The wake layer may know only:
 
 ```text
-previous snapshot identity
+candidate Venue identity
+previous snapshot identity for that same Venue
 candidate snapshot identity
-whether they differ
+whether a same-Venue comparison is available
+whether those snapshot identities differ
 ```
 
 A changed identity is a reason that may matter, not proof about what changed.
+
+The candidate Venue identity is trusted host input. When it is supplied, the wake layer searches historical Visit records only for the latest snapshot of that same Venue. A Visit to another Venue is never used as the previous snapshot.
+
+An explicitly supplied `--previous-snapshot-id` remains supported and is recorded with comparison scope `explicit_previous`.
+
+When neither a candidate Venue identity nor an explicit previous snapshot is supplied, comparison is recorded as unavailable:
+
+```json
+{
+  "comparison_available": false,
+  "comparison_scope": "unavailable_no_venue",
+  "changed": false
+}
+```
+
+This fail-closed behavior prevents an alternating sequence of Venue visits from producing a false `changed: true` result.
 
 ## Bounded wake brain
 
@@ -82,9 +100,9 @@ Every check writes one local record:
 agents/<agent-id>/wake_checks/YYYY-MM-DD_HHMMSS.json
 ```
 
-The record includes eligibility, blockers, rest and fatigue facts, opaque snapshot identities, brain status, final decision, and any safely added impulse.
+The record includes eligibility, blockers, rest and fatigue facts, candidate Venue identity, comparison availability and scope, opaque snapshot identities, brain status, final decision, and any safely added impulse.
 
-Wake checks do not increment visit counters and do not modify Visit JSON or Trace files.
+Wake checks do not increment visit counters and do not modify Visit JSON or Trace files. Existing wake records are historical evidence and are not rewritten after later comparison fixes.
 
 ## Approval-only handoff
 
@@ -96,11 +114,12 @@ See [`wake-to-visit-handoff.md`](wake-to-visit-handoff.md).
 
 ## CLI
 
-Deterministic safe-default check:
+Deterministic safe-default same-Venue check:
 
 ```bash
 stray-ai-wake \
   --agent /srv/sgos/data/stray-ai/agents/stray-001 \
+  --candidate-venue-id eternal-free-party \
   --candidate-snapshot-id SNAPSHOT_ID
 ```
 
@@ -109,13 +128,14 @@ Optional command brain:
 ```bash
 stray-ai-wake \
   --agent /srv/sgos/data/stray-ai/agents/stray-001 \
+  --candidate-venue-id eternal-free-party \
   --candidate-snapshot-id SNAPSHOT_ID \
   --brain command \
   --brain-command "python scripts/openai_compatible_wake_brain.py" \
   --brain-label MODEL_NAME
 ```
 
-The devbox setup creates launchers that select only an already existing local Eternal Free Party snapshot:
+The devbox setup creates launchers that select only an already existing local Eternal Free Party snapshot and pass the trusted Venue ID:
 
 ```text
 /srv/sgos/data/stray-ai/check-wake-eternal-free-party.sh

@@ -128,7 +128,18 @@ def _elapsed_rest_hours(rest_started_at: str | None, now: datetime) -> float:
     return max(0.0, (now - started).total_seconds() / 3600.0)
 
 
-def _latest_snapshot_id(agent_dir: Path) -> str | None:
+def _visit_snapshot_identity(value: dict[str, Any]) -> tuple[str | None, str | None]:
+    entrance = value.get("entrance")
+    if not isinstance(entrance, str) or not entrance.strip():
+        return None, None
+    snapshot_dir = Path(entrance).parent
+    venue_dir = snapshot_dir.parent
+    venue_id = _clean_text(venue_dir.name, 160) or None
+    snapshot_id = _clean_text(snapshot_dir.name, 160) or None
+    return venue_id, snapshot_id
+
+
+def _latest_snapshot_id(agent_dir: Path, *, venue_id: str) -> str | None:
     visits_dir = agent_dir / "visits"
     if not visits_dir.exists():
         return None
@@ -139,9 +150,9 @@ def _latest_snapshot_id(agent_dir: Path) -> str | None:
             continue
         if not isinstance(value, dict):
             continue
-        entrance = value.get("entrance")
-        if entrance:
-            return _clean_text(Path(str(entrance)).parent.name, 160) or None
+        visit_venue_id, snapshot_id = _visit_snapshot_identity(value)
+        if visit_venue_id == venue_id and snapshot_id:
+            return snapshot_id
     return None
 
 
@@ -232,6 +243,7 @@ def run_wake_check(
     *,
     agent_dir: Path,
     candidate_snapshot_id: str,
+    candidate_venue_id: str | None = None,
     previous_snapshot_id: str | None = None,
     brain: WakeCommandBrain | None = None,
     now: datetime | None = None,
@@ -244,8 +256,21 @@ def run_wake_check(
     candidate_id = _clean_text(candidate_snapshot_id, 160)
     if not candidate_id:
         raise ValueError("candidate snapshot id is required")
-    previous_id = _clean_text(previous_snapshot_id, 160) if previous_snapshot_id else None
-    previous_id = previous_id or _latest_snapshot_id(agent_dir)
+    candidate_venue = _clean_text(candidate_venue_id, 160) if candidate_venue_id else None
+
+    explicit_previous = _clean_text(previous_snapshot_id, 160) if previous_snapshot_id else None
+    if explicit_previous:
+        previous_id = explicit_previous
+        comparison_scope = "explicit_previous"
+    elif candidate_venue:
+        previous_id = _latest_snapshot_id(agent_dir, venue_id=candidate_venue)
+        comparison_scope = "same_venue_history" if previous_id else "same_venue_no_history"
+    else:
+        previous_id = None
+        comparison_scope = "unavailable_no_venue"
+
+    comparison_available = previous_id is not None
+    venue_changed = bool(comparison_available and previous_id != candidate_id)
 
     rest_started_at = state.get("rest_started_at")
     rest_started_text = str(rest_started_at) if rest_started_at else None
@@ -255,7 +280,6 @@ def run_wake_check(
         rest_started_at=rest_started_text,
         now=checked_at,
     )
-    venue_changed = bool(previous_id and previous_id != candidate_id)
 
     blockers: list[str] = []
     if state.get("status") != "resting":
@@ -270,6 +294,16 @@ def run_wake_check(
     brain_error: str | None = None
     model = brain.label if brain else None
     protocol = brain.protocol if brain else "deterministic-wake-gate-v1"
+
+    venue_facts = {
+        "candidate_venue_id": candidate_venue,
+        "previous_snapshot_id": previous_id,
+        "candidate_snapshot_id": candidate_id,
+        "comparison_available": comparison_available,
+        "comparison_scope": comparison_scope,
+        "changed": venue_changed,
+        "content_was_not_read": True,
+    }
 
     if not eligible:
         decision = WakeDecision(
@@ -301,12 +335,7 @@ def run_wake_check(
                 "minimum_rest_hours": policy.minimum_rest_hours,
                 "maximum_fatigue_to_consider": policy.maximum_fatigue_to_consider,
             },
-            "venue": {
-                "previous_snapshot_id": previous_id,
-                "candidate_snapshot_id": candidate_id,
-                "changed": venue_changed,
-                "content_was_not_read": True,
-            },
+            "venue": venue_facts,
             "output_contract": {
                 "decisions": sorted(_ALLOWED_DECISIONS),
                 "max_new_impulses": policy.max_new_impulses_per_check,
@@ -355,12 +384,7 @@ def run_wake_check(
             "elapsed_hours": round(elapsed_hours, 4),
             "recovered_fatigue": round(fatigue, 4),
         },
-        "venue": {
-            "previous_snapshot_id": previous_id,
-            "candidate_snapshot_id": candidate_id,
-            "changed": venue_changed,
-            "content_was_not_read": True,
-        },
+        "venue": venue_facts,
         "brain": {
             "status": brain_status,
             "model": model,
@@ -383,6 +407,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(prog="stray-ai-wake")
     parser.add_argument("--agent", type=Path, required=True)
     parser.add_argument("--candidate-snapshot-id", required=True)
+    parser.add_argument("--candidate-venue-id")
     parser.add_argument("--previous-snapshot-id")
     parser.add_argument("--brain", choices=["deterministic", "command"], default="deterministic")
     parser.add_argument("--brain-command")
@@ -403,6 +428,7 @@ def main() -> None:
     result = run_wake_check(
         agent_dir=args.agent,
         candidate_snapshot_id=args.candidate_snapshot_id,
+        candidate_venue_id=args.candidate_venue_id,
         previous_snapshot_id=args.previous_snapshot_id,
         brain=brain,
     )

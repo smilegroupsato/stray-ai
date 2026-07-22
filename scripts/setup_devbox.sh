@@ -145,6 +145,7 @@ fi
 SNAPSHOT_ID="\$(basename "\$SNAPSHOT_DIR")"
 exec "$REPO_DIR/.venv/bin/stray-ai-wake" \
   --agent "$DATA_DIR/agents/stray-001" \
+  --candidate-venue-id eternal-free-party \
   --candidate-snapshot-id "\$SNAPSHOT_ID" \
   "\$@"
 EOF
