@@ -91,6 +91,18 @@
 - [x] Merge and close Issue #23
 - [x] First separately approved GENAI-RON Visit
 
+## Memory provenance v0
+
+- [x] Keep `memory.md` as the human-readable continuity layer
+- [x] Add append-only `memory_records.jsonl`
+- [x] Separate `recorded_at`, source Visit, and source step from memory text
+- [x] Preserve embedded model-authored timestamps as untrusted text
+- [x] Add idempotent historical backfill without Visit mutation
+- [x] Add offline regression tests
+- [x] CI validation
+- [x] Devbox backfill validation against preserved `stray-001`
+- [ ] Merge and close Issue #25
+
 ## After wake judgment
 
 A later safety review may allow an accepted `request_visit` decision to invoke the existing bounded visit command. No scheduler or automatic revisit is part of the current milestone.

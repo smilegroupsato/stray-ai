@@ -97,8 +97,16 @@ def test_legacy_agent_migration_is_idempotent(tmp_path: Path) -> None:
     state_after_first = (agent / "state.json").read_bytes()
     second = migrate_agent(agent)
 
-    assert first == {"memory_changed": True, "state_changed": True}
-    assert second == {"memory_changed": False, "state_changed": False}
+    assert first == {
+        "memory_changed": True,
+        "memory_records_changed": False,
+        "state_changed": True,
+    }
+    assert second == {
+        "memory_changed": False,
+        "memory_records_changed": False,
+        "state_changed": False,
+    }
     assert (agent / "memory.md").read_bytes() == memory_after_first
     assert (agent / "state.json").read_bytes() == state_after_first
     memory = memory_after_first.decode()
