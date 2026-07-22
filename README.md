@@ -37,6 +37,7 @@ The first manual wake judgment has also occurred. The trusted body gate saw insu
 - [`docs/memory-provenance.md`](docs/memory-provenance.md) — structured recording time and Visit source for memories
 - [`docs/wake-decision.md`](docs/wake-decision.md) — deciding whether there is a reason to wake
 - [`docs/wake-to-visit-handoff.md`](docs/wake-to-visit-handoff.md) — preparing a pending approval envelope without starting a Visit
+- [`docs/human-approved-visit-execution.md`](docs/human-approved-visit-execution.md) — explicit approval and one-shot bounded execution
 - [`docs/visit-report-index.md`](docs/visit-report-index.md) — the static visit archive entrance
 - [`docs/visit-report-source-coordinates.md`](docs/visit-report-source-coordinates.md) — exact source coordinates and report navigation
 - [`docs/visit-report-observed-map.md`](docs/visit-report-observed-map.md) — observed pages, routes, and venue boundaries
@@ -60,9 +61,9 @@ The report presentation now supports narrow-window layouts, Japanese interface l
 
 Memory provenance v0 keeps `memory.md` as human-readable continuity while storing system-recorded time and source Visit separately in append-only structured records. Timestamps inside model-authored text remain untrusted content rather than system time.
 
-An accepted wake request may now be prepared as a local `pending_human_approval` envelope after a human supplies an existing bounded snapshot and route. Preparation does not approve or start a Visit.
+An accepted wake request may be prepared as a local `pending_human_approval` envelope. A later human may approve one fixed execution plan and invoke it once through a durable exclusive claim. Approval, execution, and any real Visit remain separate explicit operations.
 
-Snapshot creation, wake judgment, handoff preparation, approval, and Visit execution remain separate operations. No scheduler, automatic approval, automatic revisit, or automatic crawling is part of the current state.
+Snapshot creation, wake judgment, handoff preparation, approval, and Visit execution remain separate operations. No scheduler, automatic approval, automatic retry, automatic revisit, or automatic crawling is part of the current state.
 
 ## Related currents
 
