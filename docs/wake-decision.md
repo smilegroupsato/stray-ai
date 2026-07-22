@@ -86,6 +86,14 @@ The record includes eligibility, blockers, rest and fatigue facts, opaque snapsh
 
 Wake checks do not increment visit counters and do not modify Visit JSON or Trace files.
 
+## Approval-only handoff
+
+An accepted `request_visit` may be converted by a separate human-invoked command into one local `pending_human_approval` envelope under `visit_requests/`.
+
+That handoff validates the preserved wake record, a human-supplied existing snapshot root, and a bounded relative route. It does not read venue content, approve the request, or invoke the Visit command.
+
+See [`wake-to-visit-handoff.md`](wake-to-visit-handoff.md).
+
 ## CLI
 
 Deterministic safe-default check:
@@ -128,4 +136,4 @@ This layer adds no:
 - remote venue fetch
 - venue-content read
 
-The next safety review must happen before a `request_visit` result is allowed to trigger the existing bounded visit command.
+A further safety review is still required before a human-approved request may invoke the existing bounded Visit command.
