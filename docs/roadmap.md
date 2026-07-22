@@ -129,7 +129,7 @@
 - [x] Add offline mock and command-brain regression tests
 - [x] CI validation
 - [x] Synthetic devbox approval and one-shot Visit validation
-- [ ] Merge and close Issue #31
+- [x] Merge and close Issue #31
 
 ## After one-shot execution
 
