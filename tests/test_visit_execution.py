@@ -286,7 +286,7 @@ def test_tampered_request_core_or_approval_digest_fails_closed(tmp_path: Path) -
     agent, _, _, outbox, request = _prepared(tmp_path)
     _approve_mock(agent=agent, request=request, outbox=outbox)
     approved = _request(request)
-    approved["venue"]["entrance"] = "NEXT.md"
+    approved["venue"]["arrival_path"] = []
     request.write_text(json.dumps(approved, indent=2) + "\n", encoding="utf-8")
 
     with pytest.raises(VisitExecutionError, match="approval digest"):
