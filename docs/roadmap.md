@@ -112,8 +112,8 @@
 - [x] Keep state, Visit, wake, memory, Trace, and reports unchanged
 - [x] Exclude `run_visit`, schedulers, auto-approval, fetch, and venue-content reads
 - [x] Add offline fail-closed regression tests
-- [ ] CI validation
-- [ ] Synthetic devbox validation without running wake or Visit
+- [x] CI validation
+- [x] Synthetic devbox validation without running wake or Visit
 - [ ] Merge and close Issue #29
 
 ## After handoff preparation
