@@ -14,6 +14,7 @@ import yaml
 
 from .brain import BrainDecision, CommandBrain
 from .lifecycle import migrate_agent, recovered_fatigue
+from .memory_records import MemoryCandidate, persist_memories
 
 _JST = ZoneInfo("Asia/Tokyo")
 _TEXT_SUFFIXES = {".md", ".markdown", ".txt"}
@@ -160,21 +161,6 @@ def _choose_index(
         scored.append((score, index))
     best = max(score for score, _ in scored)
     return rng.choice([index for score, index in scored if score == best])
-
-
-def _append_memory(agent_dir: Path, items: list[str], visited_at: str) -> list[str]:
-    clean = list(
-        dict.fromkeys(" ".join(item.split())[:240] for item in items if item.strip())
-    )
-    if not clean:
-        return []
-    path = agent_dir / "memory.md"
-    existing = path.read_text(encoding="utf-8").rstrip() if path.exists() else "# Memory"
-    path.write_text(
-        existing + "\n\n## " + visited_at + "\n" + "\n".join(f"- {item}" for item in clean) + "\n",
-        encoding="utf-8",
-    )
-    return clean
 
 
 def _memory_excerpt(agent_dir: Path) -> str:
@@ -341,7 +327,7 @@ def run_visit(
     state.status = "visiting"
     state.current_location = str(location)
     steps: list[dict[str, Any]] = []
-    memories: list[str] = []
+    memories: list[MemoryCandidate] = []
     trace_file: Path | None = None
     exit_reason = "place_limit"
     visited_titles: list[str] = []
@@ -407,7 +393,10 @@ def run_visit(
                 can_follow=can_follow,
                 rng=rng,
             )
-        memories.extend(decision.memories or [])
+        memories.extend(
+            MemoryCandidate(text=item, source_step=number)
+            for item in decision.memories or []
+        )
         brain_record = _brain_record(decision, model)
 
         if decision.action == "follow_link" and decision.link_index is not None:
@@ -464,7 +453,16 @@ def run_visit(
         break
 
     ended_at = _now()
-    added = _append_memory(agent_dir, memories[: profile.max_memories], ended_at)
+    visits = agent_dir / "visits"
+    visits.mkdir(parents=True, exist_ok=True)
+    visit_file = visits / f"{started_at[:19].replace(':', '').replace('T', '_')}.json"
+    added = persist_memories(
+        agent_dir,
+        memories,
+        recorded_at=ended_at,
+        source_visit=f"visits/{visit_file.name}",
+        max_items=profile.max_memories,
+    )
     state.status = "resting"
     state.visit_count += 1
     if brain:
@@ -483,9 +481,6 @@ def run_visit(
     state.fatigue = min(1.0, max(0.0, state.fatigue))
     _save_state(agent_dir, state)
 
-    visits = agent_dir / "visits"
-    visits.mkdir(parents=True, exist_ok=True)
-    visit_file = visits / f"{started_at[:19].replace(':', '').replace('T', '_')}.json"
     record = {
         "agent_id": profile.id,
         "started_at": started_at,
