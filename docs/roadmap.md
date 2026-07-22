@@ -100,7 +100,7 @@
 - [x] Add idempotent historical backfill without Visit mutation
 - [x] Add offline regression tests
 - [x] CI validation
-- [ ] Devbox backfill validation against preserved `stray-001`
+- [x] Devbox backfill validation against preserved `stray-001`
 - [ ] Merge and close Issue #25
 
 ## After wake judgment
