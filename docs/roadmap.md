@@ -131,6 +131,22 @@
 - [x] Synthetic devbox approval and one-shot Visit validation
 - [x] Merge and close Issue #31
 
-## After one-shot execution
+## Visit Request Review & Cancellation v0
 
-A later review may define human-facing approval presentation, fail-stop recovery, or request cancellation. No scheduler, automatic approval, automatic retry, automatic snapshot fetch, or automatic Visit is part of the current milestone.
+- [x] Add explicitly invoked static HTML and JSON Request review outputs
+- [x] Keep the review surface read-only and free of action controls
+- [x] Inspect metadata and bounded path existence without reading Venue content
+- [x] Hide local absolute paths, outbox paths, and raw brain commands
+- [x] Show a command fingerprint and bounded approval-plan summary
+- [x] Isolate malformed Requests as invalid cards
+- [x] Add exact-id, named-human, pending-only cancellation
+- [x] Preserve cancelled Requests and cancellation reasons as evidence
+- [x] Reject cancellation after approval, claim, or execution history
+- [x] Add offline safety and non-mutation regression tests
+- [x] CI validation
+- [x] Synthetic devbox review generation and cancellation validation
+- [ ] Merge and close Issue #33
+
+## After Request review and cancellation
+
+A later safety review may define presentation integration with the internal Gateway or a human-reviewed recovery path for `execution_failed`. No scheduler, automatic generation, automatic approval, automatic cancellation, automatic retry, automatic snapshot fetch, or automatic Visit is part of the current milestone.
