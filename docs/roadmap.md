@@ -161,7 +161,7 @@
 - [x] CI validation
 - [x] Synthetic devbox publish validation
 - [x] Explicit `stray-001` HTML-only publish and LAN/Tailscale HTTP validation
-- [ ] Merge and close Issue #35
+- [x] Merge and close Issue #35
 
 ## After Gateway Request review
 
