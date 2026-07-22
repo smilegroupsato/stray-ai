@@ -158,7 +158,7 @@
 - [x] Use atomic replacement and preserve the previous page on preflight failure
 - [x] Add an explicit devbox-only publish helper without a scheduler
 - [x] Add offline safety and non-mutation regression tests
-- [ ] CI validation
+- [x] CI validation
 - [ ] Synthetic devbox publish validation
 - [ ] Explicit `stray-001` HTML-only publish and LAN/Tailscale HTTP validation
 - [ ] Merge and close Issue #35
