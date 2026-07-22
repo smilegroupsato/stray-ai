@@ -6,6 +6,8 @@ from pathlib import Path
 from typing import Any
 from zoneinfo import ZoneInfo
 
+from .memory_records import migrate_memory_records
+
 _JST = ZoneInfo("Asia/Tokyo")
 _FATIGUE_RECOVERY_PER_HOUR = 0.04
 _LEGACY_MEMORY_BLOCK = (
@@ -132,6 +134,7 @@ def migrate_agent(agent_dir: Path) -> dict[str, bool]:
     agent_dir.mkdir(parents=True, exist_ok=True)
     return {
         "memory_changed": migrate_memory(agent_dir / "memory.md"),
+        "memory_records_changed": migrate_memory_records(agent_dir),
         "state_changed": migrate_state(agent_dir),
     }
 
