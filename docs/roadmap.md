@@ -116,6 +116,21 @@
 - [x] Synthetic devbox validation without running wake or Visit
 - [x] Merge and close Issue #29
 
-## After handoff preparation
+## Human-approved Visit Execution v0
 
-A later safety review may define explicit human approval and one bounded execution path. No scheduler, automatic approval, automatic venue fetch, or automatic Visit is part of the current milestone.
+- [x] Separate explicit approval from explicit execution
+- [x] Require exact request-id confirmation and a named approver
+- [x] Bind snapshot, route, outbox, backend, and brain plan at approval
+- [x] Protect the approval with a canonical SHA-256 digest
+- [x] Revalidate source wake, request core, route, and resting state before execution
+- [x] Add a durable exclusive execution claim
+- [x] Prevent automatic retry after failure or interruption
+- [x] Record the resulting Visit file after success
+- [x] Add offline mock and command-brain regression tests
+- [x] CI validation
+- [x] Synthetic devbox approval and one-shot Visit validation
+- [ ] Merge and close Issue #31
+
+## After one-shot execution
+
+A later review may define human-facing approval presentation, fail-stop recovery, or request cancellation. No scheduler, automatic approval, automatic retry, automatic snapshot fetch, or automatic Visit is part of the current milestone.
