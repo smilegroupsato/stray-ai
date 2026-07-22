@@ -28,6 +28,7 @@ stray-ai-approve-visit = "stray_ai.visit_execution:approval_main"
 stray-ai-execute-approved-visit = "stray_ai.visit_execution:execution_main"
 stray-ai-review-visit-requests = "stray_ai.visit_request_admin:review_main"
 stray-ai-cancel-visit-request = "stray_ai.visit_request_admin:cancel_main"
+stray-ai-publish-request-review = "stray_ai.gateway_request_review:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
