@@ -99,7 +99,7 @@
 - [x] Preserve embedded model-authored timestamps as untrusted text
 - [x] Add idempotent historical backfill without Visit mutation
 - [x] Add offline regression tests
-- [ ] CI validation
+- [x] CI validation
 - [ ] Devbox backfill validation against preserved `stray-001`
 - [ ] Merge and close Issue #25
 
