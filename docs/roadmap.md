@@ -143,7 +143,7 @@
 - [x] Preserve cancelled Requests and cancellation reasons as evidence
 - [x] Reject cancellation after approval, claim, or execution history
 - [x] Add offline safety and non-mutation regression tests
-- [ ] CI validation
+- [x] CI validation
 - [ ] Synthetic devbox review generation and cancellation validation
 - [ ] Merge and close Issue #33
 
