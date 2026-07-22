@@ -38,6 +38,7 @@ The first manual wake judgment has also occurred. The trusted body gate saw insu
 - [`docs/wake-decision.md`](docs/wake-decision.md) — deciding whether there is a reason to wake
 - [`docs/wake-to-visit-handoff.md`](docs/wake-to-visit-handoff.md) — preparing a pending approval envelope without starting a Visit
 - [`docs/human-approved-visit-execution.md`](docs/human-approved-visit-execution.md) — explicit approval and one-shot bounded execution
+- [`docs/visit-request-review-cancellation.md`](docs/visit-request-review-cancellation.md) — read-only Request presentation and pending-only cancellation
 - [`docs/visit-report-index.md`](docs/visit-report-index.md) — the static visit archive entrance
 - [`docs/visit-report-source-coordinates.md`](docs/visit-report-source-coordinates.md) — exact source coordinates and report navigation
 - [`docs/visit-report-observed-map.md`](docs/visit-report-observed-map.md) — observed pages, routes, and venue boundaries
@@ -63,7 +64,9 @@ Memory provenance v0 keeps `memory.md` as human-readable continuity while storin
 
 An accepted wake request may be prepared as a local `pending_human_approval` envelope. A later human may approve one fixed execution plan and invoke it once through a durable exclusive claim. Approval, execution, and any real Visit remain separate explicit operations.
 
-Snapshot creation, wake judgment, handoff preparation, approval, and Visit execution remain separate operations. No scheduler, automatic approval, automatic retry, automatic revisit, or automatic crawling is part of the current state.
+Visit Requests may be rendered into an explicitly generated read-only HTML and JSON review without reading Venue content or exposing local absolute paths and brain commands. A still-pending Request may also be explicitly cancelled while preserving the Request and its cancellation reason as evidence.
+
+Snapshot creation, wake judgment, handoff preparation, review generation, cancellation, approval, and Visit execution remain separate operations. No scheduler, automatic approval, automatic cancellation, automatic retry, automatic revisit, or automatic crawling is part of the current state.
 
 ## Related currents
 
