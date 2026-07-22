@@ -147,6 +147,22 @@
 - [x] Synthetic devbox review generation and cancellation validation
 - [x] Merge and close Issue #33
 
-## After Request review and cancellation
+## Internal Gateway Request Review v0
 
-A later safety review may define presentation integration with the internal Gateway or a human-reviewed recovery path for `execution_failed`. No scheduler, automatic generation, automatic approval, automatic cancellation, automatic retry, automatic snapshot fetch, or automatic Visit is part of the current milestone.
+- [x] Preserve the separation between Visit Reports and Request operations
+- [x] Reuse the existing metadata-only review collection in memory
+- [x] Publish one fixed HTML file at `request-review/index.html`
+- [x] Publish no JSON, raw Request, wake, claim, memory, Visit, or Trace data
+- [x] Add static safety checks for paths, commands, forms, buttons, and scripts
+- [x] Add symlink and path-containment checks
+- [x] Use atomic replacement and preserve the previous page on preflight failure
+- [x] Add an explicit devbox-only publish helper without a scheduler
+- [x] Add offline safety and non-mutation regression tests
+- [ ] CI validation
+- [ ] Synthetic devbox publish validation
+- [ ] Explicit `stray-001` HTML-only publish and LAN/Tailscale HTTP validation
+- [ ] Merge and close Issue #35
+
+## After Gateway Request review
+
+A later safety review may define a read-only link from SGOS Console or a human-reviewed recovery path for `execution_failed`. No scheduler, automatic publication, automatic approval, automatic cancellation, automatic retry, automatic snapshot fetch, or automatic Visit is part of the current milestone.
