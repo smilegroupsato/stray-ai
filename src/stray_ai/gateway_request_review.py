@@ -59,6 +59,17 @@ def _safe_destination(report_root: Path) -> tuple[Path, Path]:
     destination = resolved_dir / _PUBLISHED_RELATIVE_PATH.name
     if destination.exists() and destination.is_symlink():
         raise GatewayRequestReviewError("published index must not be a symlink")
+
+    json_files = sorted(
+        path.relative_to(root).as_posix()
+        for path in resolved_dir.glob("*.json*")
+        if path.is_file()
+    )
+    if json_files:
+        raise GatewayRequestReviewError(
+            "Gateway Request review directory contains JSON-like files: "
+            + ", ".join(json_files)
+        )
     return root, destination
 
 
@@ -89,19 +100,8 @@ def publish_gateway_request_review(
         raise GatewayRequestReviewError(str(exc)) from exc
 
     _assert_safe_html(rendered)
-    root, destination = _safe_destination(report_root)
+    _, destination = _safe_destination(report_root)
     _atomic_write_text(destination, rendered)
-
-    json_files = sorted(
-        path.relative_to(root).as_posix()
-        for path in (root / _PUBLISHED_RELATIVE_PATH.parent).glob("*.json*")
-        if path.is_file()
-    )
-    if json_files:
-        raise GatewayRequestReviewError(
-            "Gateway Request review directory contains JSON-like files: "
-            + ", ".join(json_files)
-        )
 
     return {
         "published": True,
