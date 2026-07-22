@@ -101,7 +101,7 @@
 - [x] Add offline regression tests
 - [x] CI validation
 - [x] Devbox backfill validation against preserved `stray-001`
-- [ ] Merge and close Issue #25
+- [x] Merge and close Issue #25
 
 ## After wake judgment
 
