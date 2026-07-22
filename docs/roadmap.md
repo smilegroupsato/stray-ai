@@ -103,6 +103,19 @@
 - [x] Devbox backfill validation against preserved `stray-001`
 - [x] Merge and close Issue #25
 
-## After wake judgment
+## Wake-to-Visit Handoff v0
 
-A later safety review may allow an accepted `request_visit` decision to invoke the existing bounded visit command. No scheduler or automatic revisit is part of the current milestone.
+- [x] Define an approval-only handoff boundary
+- [x] Validate accepted local `request_visit` wake records
+- [x] Require a human-supplied existing snapshot and bounded route
+- [x] Add idempotent `pending_human_approval` envelopes
+- [x] Keep state, Visit, wake, memory, Trace, and reports unchanged
+- [x] Exclude `run_visit`, schedulers, auto-approval, fetch, and venue-content reads
+- [x] Add offline fail-closed regression tests
+- [ ] CI validation
+- [ ] Synthetic devbox validation without running wake or Visit
+- [ ] Merge and close Issue #29
+
+## After handoff preparation
+
+A later safety review may define explicit human approval and one bounded execution path. No scheduler, automatic approval, automatic venue fetch, or automatic Visit is part of the current milestone.
