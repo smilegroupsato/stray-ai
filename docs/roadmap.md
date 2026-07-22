@@ -114,7 +114,7 @@
 - [x] Add offline fail-closed regression tests
 - [x] CI validation
 - [x] Synthetic devbox validation without running wake or Visit
-- [ ] Merge and close Issue #29
+- [x] Merge and close Issue #29
 
 ## After handoff preparation
 
