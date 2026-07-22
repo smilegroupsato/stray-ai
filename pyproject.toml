@@ -23,6 +23,7 @@ stray-ai = "stray_ai.cli:main"
 stray-ai-report = "stray_ai.report_cli:main"
 stray-ai-migrate = "stray_ai.lifecycle:main"
 stray-ai-wake = "stray_ai.wake:main"
+stray-ai-prepare-visit = "stray_ai.visit_handoff:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
