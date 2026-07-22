@@ -79,6 +79,8 @@ def _wake_record(agent_dir: Path, wake_file: Path) -> tuple[Path, dict[str, Any]
     venue = record.get("venue")
     if not isinstance(venue, dict):
         raise VisitHandoffError("wake record has no bounded venue identity")
+    if venue.get("content_was_not_read") is not True:
+        raise VisitHandoffError("wake record does not preserve the no-content-read boundary")
     candidate = venue.get("candidate_snapshot_id")
     if not isinstance(candidate, str) or not candidate.strip():
         raise VisitHandoffError("wake record has no candidate snapshot identity")
@@ -111,6 +113,22 @@ def _existing_request(path: Path, expected: dict[str, Any]) -> dict[str, Any] | 
     if existing.get("status") != "pending_human_approval":
         raise VisitHandoffError("the existing request is no longer pending human approval")
     return existing
+
+
+def _reject_conflicting_source_request(
+    request_dir: Path,
+    *,
+    source_wake: str,
+    expected_path: Path,
+) -> None:
+    if not request_dir.exists():
+        return
+    for candidate in sorted(request_dir.glob("*.json")):
+        if candidate.resolve() == expected_path.resolve():
+            continue
+        existing = _read_json_object(candidate, label="existing visit request")
+        if existing.get("source_wake") == source_wake:
+            raise VisitHandoffError("a request already exists for this wake record with different provenance")
 
 
 def prepare_visit_request(
@@ -196,6 +214,11 @@ def prepare_visit_request(
         },
     }
 
+    _reject_conflicting_source_request(
+        request_dir,
+        source_wake=source_relative,
+        expected_path=request_file,
+    )
     existing = _existing_request(request_file, envelope)
     if existing is not None:
         return {"created": False, "request_file": str(request_file), "request": existing}
