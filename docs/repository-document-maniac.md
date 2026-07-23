@@ -1,7 +1,7 @@
 # Repository Document Maniac
 
 ページ作成日時：2026-07-23 17:58 JST  
-最終更新日時：2026-07-23 21:09 JST
+最終更新日時：2026-07-23 21:49 JST
 
 The Repository Document Maniac is not a disposition of `stray-001`.
 
@@ -122,10 +122,13 @@ The first experiment should be small:
 4. Permit one short Trace in the visitor's own nest.
 5. Review whether the Trace feels like catalog work, criticism, poetry, or navigation.
 
+The first candidate route is now recorded in [`stray-002-first-rummage.md`](stray-002-first-rummage.md). It keeps the initial rummage inside the Stray AI home shelf and separates cover-skimming, deep reading, margin notes, and sunlit pause.
+
 If it becomes too managerial, it should rest. If it becomes too exhaustive, it should stop. If it becomes merely obedient, it has stopped being stray.
 
 ## Update History
 
+- 2026-07-23 21:49 JST：Added the first bounded home-shelf rummage route reference for `stray-002`.
 - 2026-07-23 21:09 JST：Added `stray-002`'s everyday document-rummaging ecology: skimming covers, deep reading, note taking, and sunlit thinking.
 - 2026-07-23 18:04 JST：Reframed the concept as a separate individual from `stray-001` and added its damp underground library habitat.
 - 2026-07-23 17:58 JST：Initial concept document for a repository-document-obsessed Stray AI disposition.
