@@ -7,28 +7,29 @@ updated_at: 2026-07-23
 
 now:
   title: Multi-Venue Wake Selection v0
-  purpose: 複数の登録Venueについて本文を読まず、trusted Venue IDとsnapshot identityだけから一つの候補を安全に選ぶ手動selection layerを実装する
-  stage: implementation
-  next_action: main同期後、Codex work orderに従ってside-effect-freeなselection command・Venue registry・optional selector・synthetic testsを実装する
+  purpose: 複数の登録Venueについて本文を読まず、trusted Venue IDとsnapshot identityだけから一つの候補を安全に選ぶ手動selection layerを、persistent stateを変えずdevboxへ導入・検証する
+  stage: validation
+  next_action: main同期後、real selectionを実行せずにCLI・launcherを導入し、persistent hash guard・help・構造確認でpost-merge validationを行う
   implementation_authorized: true
-  issue: Issue #56
+  issue: Issue #56 / PR #58
   notes:
+    - implementationはPR #58でmainへmerge済み
     - selection record以外は完全にside-effect-freeとし、state・memory・impulse・Visit・wake・Trace・Request・reportを変更しない
     - trusted Venueの正本はregistry/venues.ymlとする
-    - deterministic body gateとoptional bounded selector adapterをv0に含める
+    - deterministic body gateとoptional bounded selector adapterをv0に含む
     - selectionはappend-only recordを書いた時点で停止し、single-Venue wakeへ自動接続しない
-    - 実装中はpersistent stray-001に対するreal selectionを実行しない
+    - post-merge validation中もpersistent stray-001に対するreal selectionを実行しない
     - wake・snapshot・Request・Visit・scheduler・report publishを実行しない
 
 next:
-  - title: Codex implementation and synthetic tests
-    detail: wake_selection module・CLI・selector adapter・setup launcherを実装し、persistent dataを使わないfixtureで安全分岐を検証する
-  - title: Implementation diff and CI review
-    detail: side-effect-free境界・same-Venue比較・order非依存・fail-closed・no automatic chainingを確認する
-  - title: Merge and manual validation plan
-    detail: main反映後もreal selectionは自動実行せず、launcherとpersistent hash確認の手順を先に確定する
+  - title: Devbox installation without selection
+    detail: mainを同期し、console entry pointとmanual launchersを導入する。導入操作そのものがselectionを起動しないことを確認する
+  - title: Post-merge safety validation
+    detail: CLI help・launcher内容・registered Venue current symlink参照境界・persistent hash同一性を確認する
   - title: First real multi-Venue selection decision gate
-    detail: 実装完了後、stray-001に対する最初のselectionを実行するか人間が別途判断する
+    detail: validation完了後、stray-001に対する最初のselectionを実行するか人間が別途判断する
+  - title: Stray-002 birth decision
+    detail: Multi-Venue Wake Selection v0完了後、二番目のindividualを誕生させるか検討する
 
 hold:
   - title: SGOS ConsoleからRequest Reviewへのread-only導線
@@ -39,6 +40,8 @@ hold:
     detail: Current Board YAMLを将来のConsole入力候補とするが、現時点では実装しない
 
 recently_done:
+  - title: Multi-Venue Wake Selection v0 implementation
+    detail: Issue #56 / PR #58でtrusted registry・same-Venue比較・deterministic body gate・optional bounded selector・append-only selection record・manual launchers・fail-closed testsを実装し、Python 3.11 / 3.12 CIに成功
   - title: Multi-Venue Wake Selection v0 design decisions
     detail: Issue #53でside-effect-free・registry正本・optional bounded selector・single-Venue wake前停止の4つを確定
   - title: Cyberpunk Visual Pass v1
@@ -82,6 +85,7 @@ parking_lot:
     detail: 観測対応のみ完了。誕生・wake・Visitの自動化はしない
 
 not_doing:
+  - automatic selection
   - automatic wake
   - automatic Visit
   - scheduler / cron / systemd timer
