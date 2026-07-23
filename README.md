@@ -40,6 +40,7 @@ The first manual wake judgment has also occurred. The trusted body gate saw insu
 - [`docs/human-approved-visit-execution.md`](docs/human-approved-visit-execution.md) — explicit approval and one-shot bounded execution
 - [`docs/visit-request-review-cancellation.md`](docs/visit-request-review-cancellation.md) — read-only Request presentation and pending-only cancellation
 - [`docs/internal-gateway-request-review.md`](docs/internal-gateway-request-review.md) — explicit HTML-only publication to the private Gateway
+- [`docs/current-board.md`](docs/current-board.md) — one read-only current-state page before SGOS Console exists
 - [`docs/visit-report-index.md`](docs/visit-report-index.md) — the static visit archive entrance
 - [`docs/visit-report-source-coordinates.md`](docs/visit-report-source-coordinates.md) — exact source coordinates and report navigation
 - [`docs/visit-report-observed-map.md`](docs/visit-report-observed-map.md) — observed pages, routes, and venue boundaries
@@ -68,6 +69,8 @@ An accepted wake request may be prepared as a local `pending_human_approval` env
 Visit Requests may be rendered into an explicitly generated read-only HTML and JSON review without reading Venue content or exposing local absolute paths and brain commands. A still-pending Request may also be explicitly cancelled while preserving the Request and its cancellation reason as evidence.
 
 The read-only Request review may also be published manually as HTML only under the existing private Internal Service Gateway. It is kept separate from Visit Report navigation, publishes no JSON, exposes no action controls, and never updates automatically.
+
+Current Board v0 combines one repository-managed planning source with bounded local agent metadata into one manually published read-only HTML page. It is a temporary current-state interface, not SGOS Console, and remains separate from Visit Report navigation and all action surfaces.
 
 Snapshot creation, wake judgment, handoff preparation, review generation, Gateway publication, cancellation, approval, and Visit execution remain separate operations. No scheduler, automatic approval, automatic cancellation, automatic retry, automatic revisit, or automatic crawling is part of the current state.
 
