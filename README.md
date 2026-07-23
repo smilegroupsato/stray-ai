@@ -75,6 +75,8 @@ The read-only Request review may also be published manually as HTML only under t
 
 Current Board v0 combines one repository-managed planning source with bounded local agent metadata into one manually published read-only HTML page. It is a temporary current-state interface, not SGOS Console, and remains separate from Visit Report navigation and all action surfaces.
 
+The Current Board is scheduled to move from `/stray-ai/current/` to the shared SGOS namespace `/current-board/stray-ai/`. Migration is tracked in Issue #62 and must preserve the old path until the new LAN / Tailscale surface is verified. The `/stray-ai/` namespace remains owned by Stray AI reports and other project-specific read-only surfaces.
+
 Snapshot creation, wake selection, wake judgment, handoff preparation, review generation, Gateway publication, cancellation, approval, and Visit execution remain separate operations. No scheduler, automatic selection, automatic wake, automatic approval, automatic cancellation, automatic retry, automatic revisit, or automatic crawling is part of the current state.
 
 ## Related currents
