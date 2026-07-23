@@ -8,20 +8,18 @@ updated_at: 2026-07-23
 now:
   title: Cyberpunk Visual Pass v1
   purpose: Current BoardとVisit Reportを、汎用的なdark UIではなくStray AI固有の観察端末として視覚的に完成させる
-  stage: implementation
-  next_action: Observed Venue Mapをshared terminal visual systemへ統合し、再生成後にdesktop・mobileで最終確認する
+  stage: validation
+  next_action: main同期後にObserved Venue Mapを含むHTMLを手動再生成・公開し、LAN・Tailscale・desktop・mobileで最終確認する
   implementation_authorized: true
   issue: Issue #45
   notes:
     - Current Board・Visit Report archive・個別Visit Reportは視覚確認済み
-    - Observed Venue Mapだけ旧themeのまま残っているためVisual Pass v1は未完了
-    - mapの観測意味・source link・relative link・inference禁止境界は変更しない
+    - Observed Venue Mapのshared terminal visual実装はmainへmerge済みだが、公開HTMLはまだ未再生成
+    - mapの観測意味・source link・relative link・inference禁止境界は変更していない
     - binary asset・外部font・CDN・JavaScriptは使わない
     - persistent agent dataを変更せず、HTMLの再生成と公開は人間が明示的に行う
 
 next:
-  - title: Observed Venue Map visual completion
-    detail: report_map.pyをshared brand helpersへ接続し、summary・Venue panel・SVG graph・tableを同じterminal identityへ揃える
   - title: Map publication and browser review
     detail: persistent stray-001を変更せずHTMLだけ再生成し、LAN・Tailscale・desktop・mobile表示と安全境界を確認する
   - title: Visual Pass completion sync
@@ -38,6 +36,8 @@ hold:
     detail: Current Board YAMLを将来のConsole入力候補とするが、現時点では実装しない
 
 recently_done:
+  - title: Observed Venue Map visual implementation
+    detail: report_map.pyをshared brand helpersへ接続し、summary・Venue sector・SVG graph・evidence tableを同じterminal identityへ統合
   - title: Cyberpunk Visual Pass v1 core surfaces
     detail: Current Board・Visit Report archive・個別Visit Reportへterminal shell・title zone・scanline・section identityを適用し、desktop・mobileで確認
   - title: Current Board v0
