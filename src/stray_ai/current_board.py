@@ -316,44 +316,45 @@ def render_current_board_html(
 :root {{ color-scheme: dark; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }}
 * {{ box-sizing: border-box; }}
 body {{ margin: 0; line-height: 1.55; }}
-main {{ width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 32px 0 64px; }}
+main {{ width: min(1120px, calc(100% - 32px)); margin: 24px auto 48px; padding: 28px; }}
 header {{ margin-bottom: 24px; }}
 h1 {{ margin: 0 0 8px; font-size: clamp(1.8rem, 5vw, 3.3rem); letter-spacing: -0.04em; }}
 .subtitle, .generated {{ color: var(--muted); margin: 4px 0; }}
 .readonly {{ border: 1px solid var(--line); background:var(--panel); border-radius: 12px; padding: 10px 14px; display: inline-block; margin-top: 12px; }}
-.now {{ border: 1px solid rgba(255,230,109,.5); background:linear-gradient(135deg,rgba(255,230,109,.08),var(--panel)); box-shadow:0 0 24px rgba(255,230,109,.05); border-radius: 18px; padding: 22px; margin-bottom: 20px; }}
+.now {{ position:relative;border: 1px solid rgba(255,230,109,.62); border-left:4px solid var(--yellow); background:linear-gradient(135deg,rgba(255,230,109,.12),var(--panel) 48%); box-shadow:inset 0 0 24px rgba(255,230,109,.035),0 0 26px rgba(255,230,109,.08); border-radius: 4px 18px 18px 4px; padding: 22px; margin-bottom: 20px; }}
 .now h2 {{ margin: 0 0 8px; font-size: .85rem; letter-spacing: .18em; color: var(--yellow); }}
 .now h3 {{ margin: 0; font-size: clamp(1.45rem, 4vw, 2.35rem); }}
 .now-purpose {{ margin:8px 0 0;color:var(--text);max-width:78ch; }}
 .now-grid {{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 18px; }}
-.now-cell, .metric {{ background: rgba(255,255,255,.045); border-radius: 12px; padding: 14px; }}
+.now-cell, .metric {{ background: rgba(255,255,255,.045); border:1px solid rgba(255,255,255,.06);border-radius: 6px; padding: 14px; }}
 .label {{ display: block; color: var(--muted); font-size: .78rem; letter-spacing: .08em; margin-bottom: 4px; }}
 .meta-chip {{ display: inline-block; border: 1px solid var(--line-magenta); color:var(--magenta); border-radius: 999px; padding: 3px 9px; margin-top: 10px; font-size: .82rem; }}
-.live {{ margin: 20px 0; }}
+.live {{ margin: 20px 0;padding:16px 18px;border-left:2px solid var(--cyan);border-right:1px solid var(--line);background:linear-gradient(90deg,rgba(57,246,255,.08),rgba(8,14,22,.82));box-shadow:inset 0 0 22px rgba(57,246,255,.025); }}
 .live h2, .panel h2 {{ font-size: .85rem; letter-spacing: .16em; color: var(--cyan); }}
 .live > a {{display:inline-block;margin-top:12px;color:var(--cyan);text-underline-offset:3px}}
 .metrics {{ display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }}
-.metric strong {{ display: block; font-size: 1.15rem; overflow-wrap: anywhere; }}
+.metric strong {{ display: block; font-size: 1.15rem; overflow-wrap: anywhere; }}.live .metric{{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:rgba(5,12,18,.72)}}
 .metric small {{ display: block; color: #aaa; font-size: .75rem; margin-top: 3px; }}
 .boards {{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }}
-.panel {{ border: 1px solid var(--line); border-radius: 14px; padding: 18px; background: var(--panel); box-shadow:0 0 18px rgba(57,246,255,.035); }}
+.panel {{ --section-accent:var(--cyan);position:relative;border: 1px solid var(--line); border-top:2px solid var(--section-accent);border-radius: 3px 14px 14px 14px; padding: 18px; background:linear-gradient(150deg,color-mix(in srgb,var(--section-accent) 6%,transparent),var(--panel) 34%); box-shadow:inset 0 0 20px rgba(255,255,255,.012),0 0 18px rgba(57,246,255,.035); }}
+.panel h2{{color:var(--section-accent)}}.next{{--section-accent:var(--cyan)}}.hold{{--section-accent:var(--yellow)}}.done{{--section-accent:#6dffb2}}.parking{{--section-accent:var(--magenta)}}.not-doing{{--section-accent:#ff8c9d}}
 .panel ul {{ margin: 0; padding-left: 1.2rem; }}
 .panel li + li {{ margin-top: 10px; }}
 .detail {{ margin: 2px 0 0; color: var(--muted); }}
 .nested {{ margin-top: 5px !important; color: var(--muted); }}
-.board-group {{list-style:none;margin-left:-1.2rem;border-left:2px solid var(--magenta);padding-left:14px}}
-.board-group-title {{color:var(--magenta);letter-spacing:.04em}}.board-children {{margin-top:12px!important;padding-left:1.15rem!important}}.board-child::marker {{color:var(--cyan)}}
+.board-group {{list-style:none;margin:16px 0 0 -1.2rem!important;border:1px solid var(--line-magenta);border-left:3px solid var(--magenta);padding:14px;background:rgba(255,79,216,.035)}}
+.board-group-title {{color:var(--magenta);letter-spacing:.04em}}.board-children {{display:grid;gap:8px;margin-top:12px!important;padding:0!important;list-style:none}}.board-child{{margin:0!important;padding:10px 12px 10px 16px;border-left:1px solid var(--cyan);background:rgba(57,246,255,.035)}}.board-child::before{{content:"↳";color:var(--cyan);margin-right:8px}}
 .empty {{ color: #777; }}
 .footer-note {{ margin-top: 24px; color: #888; font-size: .88rem; }}
 @media (max-width: 820px) {{
   .now-grid, .metrics, .boards {{ grid-template-columns: 1fr; }}
-  main {{ width: min(100% - 20px, 1120px); padding-top: 20px; }}
+  main {{ width: min(100% - 12px, 1120px); margin:8px auto 24px;padding:18px 12px 28px; }}
 }}
 </style>
 </head>
 <body>
-<main>
-<header>
+<main class="terminal-shell current-board-shell">
+<header class="title-zone">
 <div class="title-row">{inline_title_mark_svg()}<h1>{html.escape(board["title"])}</h1></div>
 <p class="subtitle">全体像・現在地・次の一手を一枚で見る暫定Current-State interface</p>
 <p class="generated">計画更新: {html.escape(board["updated_at"])} ／ 生成: {html.escape(generated.isoformat(timespec="seconds"))}</p>

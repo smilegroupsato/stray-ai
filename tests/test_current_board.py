@@ -167,6 +167,14 @@ def test_publish_combines_plan_and_live_state_without_exposing_local_paths(
     assert soup.select_one('a[href="../index.html"] [role="button"]') is None
     assert "--bg-0:#05070b" in rendered
     assert "--cyan:#39f6ff" in rendered
+    assert soup.select_one("main.terminal-shell.current-board-shell") is not None
+    assert soup.select_one("header.title-zone") is not None
+    assert "repeating-linear-gradient" in rendered
+    assert "body::before" in rendered
+    assert "url(http" not in rendered
+    for section_class in ("next", "hold", "done", "parking", "not-doing"):
+        assert soup.select_one(f".panel.{section_class}") is not None
+    assert "@media (max-width: 820px)" in rendered
 
 
 def test_now_must_be_exactly_one_mapping(tmp_path: Path) -> None:
