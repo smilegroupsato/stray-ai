@@ -10,6 +10,7 @@ from typing import Any
 
 from bs4 import BeautifulSoup
 
+from .brand import cyberpunk_css, favicon_link_html, inline_title_mark_svg
 from .report_sources import SourceCoordinates
 
 
@@ -286,7 +287,7 @@ def _svg(venue: ObservedVenue, index: int) -> str:
 
     title_id = f"venue-map-title-{index}"
     return (
-        '<div class="svg-wrap">'
+        '<div class="svg-wrap graph-enclosure">'
         f'<svg class="venue-svg" viewBox="0 0 {width} {height}" role="img" aria-labelledby="{title_id}">'
         f'<title id="{title_id}">Observed route map for {escape(venue.label)}</title>'
         "<defs>"
@@ -327,7 +328,7 @@ def _route_table(venue: ObservedVenue) -> str:
             "</tr>"
         )
     return (
-        '<div class="table-wrap"><table><thead><tr>'
+        '<div class="table-wrap evidence-table route-evidence"><table><thead><tr>'
         "<th>Visit</th><th>Observed route</th><th>Exit</th>"
         f'</tr></thead><tbody>{"".join(rows)}</tbody></table></div>'
     )
@@ -351,7 +352,7 @@ def _node_table(venue: ObservedVenue) -> str:
             "</tr>"
         )
     return (
-        '<div class="table-wrap"><table><thead><tr>'
+        '<div class="table-wrap evidence-table page-evidence"><table><thead><tr>'
         "<th>Observed page</th><th>Visits</th><th>Entrance</th><th>Terminal</th>"
         f'</tr></thead><tbody>{"".join(rows)}</tbody></table></div>'
     )
@@ -361,7 +362,7 @@ def render_observed_map(observed: ObservedMap) -> str:
     venue_sections: list[str] = []
     for index, venue in enumerate(observed.venues, start=1):
         venue_sections.append(
-            f'<section class="venue" id="venue-{index}">'
+            f'<section class="venue venue-sector" id="venue-{index}">'
             '<div class="venue-head"><div>'
             f'<div class="venue-number">VENUE {index}</div>'
             f"<h2>{escape(venue.label)}</h2>"
@@ -390,33 +391,36 @@ def render_observed_map(observed: ObservedMap) -> str:
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Observed Venue Map</title>
+{favicon_link_html()}
 <style>
-:root{{--bg:#0f1115;--panel:#171a21;--panel2:#1f2430;--text:#eef2f7;--muted:#9aa4b2;--line:#343b49;--accent:#d7ff62}}
-*{{box-sizing:border-box}}body{{margin:0;background:radial-gradient(circle at top left,#1a2030,#0f1115 42%);color:var(--text);font-family:Inter,system-ui,sans-serif}}
-main{{max-width:1120px;margin:auto;padding:52px 24px 80px}}a{{color:inherit}}a:hover,a:focus-visible{{color:var(--accent)}}
-.kicker{{text-transform:uppercase;letter-spacing:.18em;font-size:12px;margin-bottom:10px}}.kicker a{{color:var(--accent);text-decoration:none}}
+{cyberpunk_css()}
+:root{{color-scheme:dark}}
+*{{box-sizing:border-box}}body{{margin:0;font-family:Inter,system-ui,sans-serif}}
+main{{max-width:1120px;margin:24px auto 48px;padding:42px 28px 64px;min-width:0}}a{{color:var(--cyan);text-decoration-thickness:1px;text-underline-offset:3px}}a:hover{{color:var(--yellow)}}
+.kicker{{text-transform:uppercase;letter-spacing:.18em;font-size:12px;margin-bottom:10px}}.kicker a{{color:var(--cyan);text-decoration:none}}
 h1{{font-size:42px;line-height:1.08;margin:0 0 10px}}.intro{{color:var(--muted);max-width:760px;line-height:1.7;margin:0}}
-.summary{{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:30px 0 40px}}.summary div,.venue,.empty{{background:rgba(23,26,33,.94);border:1px solid var(--line);border-radius:18px}}
-.summary div{{padding:16px}}.summary span{{display:block;color:var(--muted);font-size:12px;margin-bottom:7px}}.summary strong{{font-size:18px}}
-.venue{{padding:24px;margin-top:18px}}.venue-head{{display:flex;justify-content:space-between;gap:24px;align-items:flex-start}}.venue-number{{color:var(--accent);font-size:11px;letter-spacing:.14em}}
-.venue h2{{font-size:28px;margin:7px 0}}.venue h3{{font-size:16px;margin:26px 0 10px}}.venue-source{{color:var(--muted);margin:0;overflow-wrap:anywhere}}.venue-source a{{text-decoration:none}}
-.venue-facts{{display:grid;grid-template-columns:repeat(3,minmax(70px,1fr));gap:10px;margin:0}}.venue-facts div{{background:var(--panel2);border-radius:12px;padding:12px}}dt{{color:var(--muted);font-size:11px}}dd{{margin:5px 0 0;font-size:16px}}
-.svg-wrap{{overflow-x:auto;margin-top:22px;border:1px solid var(--line);border-radius:16px;background:var(--panel2)}}.venue-svg{{min-width:620px;width:100%;height:auto;display:block}}
-.map-edge{{fill:none;stroke:var(--muted);stroke-width:2;opacity:.72}}marker path{{fill:var(--muted)}}.edge-count{{fill:var(--accent);font-size:12px;text-anchor:middle}}
-.map-node rect{{fill:#171a21;stroke:var(--line);stroke-width:2}}.map-node.entrance rect{{stroke:var(--accent)}}.map-node.terminal rect{{stroke-dasharray:5 3}}.node-label{{fill:var(--text);font-size:14px;font-weight:700}}.node-path,.node-count{{fill:var(--muted);font-size:9px}}
-.table-wrap{{overflow-x:auto}}table{{width:100%;border-collapse:collapse;font-size:13px}}th,td{{text-align:left;border-bottom:1px solid var(--line);padding:11px 9px;vertical-align:top}}th{{color:var(--muted);font-size:11px;font-weight:500}}td a{{text-decoration:none}}
-.empty{{padding:28px;color:var(--muted)}}footer{{margin-top:24px;color:var(--muted);font-size:12px}}
-@media(max-width:760px){{h1{{font-size:34px}}.summary{{grid-template-columns:1fr 1fr}}.venue-head{{flex-direction:column}}.venue-facts{{width:100%}}}}
+.summary{{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:30px 0 40px}}.summary div,.venue,.empty{{background:var(--panel);border:1px solid var(--line);box-shadow:inset 0 0 24px rgba(57,246,255,.025),0 0 24px rgba(0,0,0,.2)}}
+.summary div{{position:relative;padding:16px;border-top:2px solid var(--cyan);clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,0 100%)}}.summary div:nth-child(even){{border-top-color:var(--magenta)}}.summary span{{display:block;color:var(--muted);font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:7px}}.summary strong{{font:700 20px/1 ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--yellow)}}
+.venue{{position:relative;padding:24px;margin-top:22px;border-left:3px solid var(--magenta);background:linear-gradient(120deg,rgba(255,79,216,.045),var(--panel) 28%,rgba(57,246,255,.025))}}.venue::before{{content:"OBSERVATION SECTOR";position:absolute;right:16px;top:8px;color:rgba(57,246,255,.4);font:9px/1 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.14em}}.venue-head{{display:flex;justify-content:space-between;gap:24px;align-items:flex-start}}.venue-number{{color:var(--yellow);font:700 11px/1.2 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.16em}}
+.venue h2{{font-size:28px;margin:7px 0}}.venue h3{{font-size:13px;margin:28px 0 10px;color:var(--cyan);letter-spacing:.12em;text-transform:uppercase}}.venue-source{{color:var(--muted);margin:0;overflow-wrap:anywhere;font:12px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace}}.venue-source code{{color:var(--magenta)}}.venue-source a{{font-weight:700}}
+.venue-facts{{display:grid;grid-template-columns:repeat(3,minmax(70px,1fr));gap:8px;margin:0}}.venue-facts div{{background:var(--panel-2);border:1px solid var(--line);padding:11px 12px}}dt{{color:var(--muted);font-size:10px;letter-spacing:.08em;text-transform:uppercase}}dd{{margin:5px 0 0;font:700 16px/1 ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--yellow)}}
+.svg-wrap{{overflow-x:auto;overscroll-behavior-inline:contain;margin-top:22px;border:1px solid var(--cyan);background:radial-gradient(circle at 50% 45%,rgba(57,246,255,.07),transparent 45%),linear-gradient(rgba(57,246,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(57,246,255,.035) 1px,transparent 1px),var(--panel-2);background-size:auto,24px 24px,24px 24px,auto;box-shadow:inset 0 0 36px rgba(0,0,0,.55),0 0 18px rgba(57,246,255,.08)}}.venue-svg{{min-width:620px;width:100%;height:auto;display:block}}
+.map-edge{{fill:none;stroke:var(--muted);stroke-width:2;opacity:.82}}marker path{{fill:var(--yellow)}}.edge-count{{fill:var(--yellow);font:700 12px ui-monospace,SFMono-Regular,Consolas,monospace;text-anchor:middle;paint-order:stroke;stroke:var(--bg-1);stroke-width:4px}}
+.map-node rect{{fill:var(--bg-1);stroke:var(--cyan);stroke-width:2}}.map-node.entrance rect{{stroke:var(--yellow);stroke-width:4}}.map-node.terminal rect{{stroke:var(--magenta);stroke-width:3;stroke-dasharray:8 4}}.map-node.entrance.terminal rect{{stroke:var(--yellow);stroke-dasharray:10 3 2 3}}.node-label{{fill:var(--text);font-size:14px;font-weight:700}}.node-path{{fill:var(--cyan);font-size:9px}}.node-count{{fill:var(--muted);font-size:9px}}
+.table-wrap{{overflow-x:auto;overscroll-behavior-inline:contain;border:1px solid var(--line);background:rgba(5,7,11,.42)}}table{{width:100%;min-width:560px;border-collapse:collapse;font-size:13px}}th,td{{text-align:left;border-bottom:1px solid var(--line);padding:11px 9px;vertical-align:top}}th{{color:var(--yellow);background:rgba(57,246,255,.045);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}}tbody tr:last-child td{{border-bottom:0}}td a{{font-weight:600}}
+.empty{{padding:28px;color:var(--muted);border-left:3px solid var(--yellow)}}footer{{margin-top:24px;color:var(--muted);font-size:12px}}
+@media(max-width:760px){{main{{margin:12px;padding:38px 16px 48px}}h1{{font-size:34px}}.summary{{grid-template-columns:1fr 1fr}}.venue{{padding:22px 14px}}.venue-head{{flex-direction:column}}.venue-facts{{width:100%}}}}
+@media(max-width:380px){{main{{margin:8px;padding-inline:12px}}.summary{{gap:8px}}.summary div{{padding:12px 10px}}}}
 </style>
 </head>
 <body>
-<main>
-<header>
+<main class="terminal-shell observed-map-shell">
+<header class="title-zone">
 <div class="kicker"><a href="index.html">Stray AI · Visit Report v0</a></div>
-<h1>Observed Venue Map</h1>
+<div class="title-row">{inline_title_mark_svg()}<h1>Observed Venue Map</h1></div>
 <p class="intro">Only preserved passages are drawn here. Unvisited pages, inferred links, and the rest of each venue remain outside the map.</p>
 </header>
-<section class="summary" aria-label="Observed map summary">
+<section class="summary map-summary" aria-label="Observed map summary">
 <div><span>Visible visits</span><strong>{observed.visit_count}</strong></div>
 <div><span>Observed venues</span><strong>{len(observed.venues)}</strong></div>
 <div><span>Observed pages</span><strong>{observed.node_count}</strong></div>

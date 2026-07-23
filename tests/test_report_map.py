@@ -191,6 +191,77 @@ def test_rendered_map_has_relative_reports_exact_sources_and_no_local_paths(
     assert "Unvisited pages" in html
 
 
+def test_rendered_map_uses_shared_terminal_identity_and_safe_static_ui(
+    tmp_path: Path,
+) -> None:
+    records, _, _ = _current_records(tmp_path)
+    html = render_observed_map(build_observed_map(records))
+    soup = BeautifulSoup(html, "html.parser")
+
+    title = soup.find("h1", string="Observed Venue Map")
+    assert title is not None
+    assert title.find_previous_sibling("svg", class_="stray-mark") is not None
+    assert soup.select_one("main.terminal-shell.observed-map-shell") is not None
+    assert soup.select_one("header.title-zone") is not None
+    assert soup.select_one('link[rel="icon"][href^="data:image/svg+xml,"]') is not None
+    assert soup.select_one("section.map-summary") is not None
+    assert len(soup.select("section.venue-sector")) == 2
+    assert len(soup.select(".graph-enclosure svg.venue-svg")) == 2
+    assert len(soup.select(".evidence-table.route-evidence")) == 2
+    assert len(soup.select(".evidence-table.page-evidence")) == 2
+
+    assert "STRAY // OBSERVATION TERMINAL" in html
+    assert "linear-gradient(rgba(57,246,255,.035) 1px,transparent 1px)" in html
+    assert "repeating-linear-gradient(0deg" in html
+    assert "body::after" in html
+    assert "url(http" not in html
+    assert "Current Board" not in html
+
+    lowered = html.lower()
+    for forbidden in (
+        "<script",
+        "<button",
+        "<form",
+        "javascript:",
+        "file://",
+        "/srv/",
+        "snapshot_root",
+        "brain_command",
+    ):
+        assert forbidden not in lowered
+
+
+def test_rendered_map_preserves_graph_accessibility_and_link_safety(
+    tmp_path: Path,
+) -> None:
+    records, _, _ = _current_records(tmp_path)
+    html = render_observed_map(build_observed_map(records))
+    soup = BeautifulSoup(html, "html.parser")
+
+    graphs = soup.select('svg.venue-svg[role="img"][aria-labelledby]')
+    assert len(graphs) == 2
+    for graph in graphs:
+        title_id = graph["aria-labelledby"]
+        assert graph.find("title", id=title_id) is not None
+
+    external_links = soup.select('a[target="_blank"]')
+    assert external_links
+    for link in external_links:
+        assert link.get("rel") == ["noopener", "noreferrer"]
+        assert str(link["href"]).startswith(f"{_REPOSITORY}")
+
+    exact_page = f"{_REPOSITORY}/blob/{_COMMIT}/AGENTS.md"
+    assert soup.select_one(f'a[href="{exact_page}"]') is not None
+    local_hrefs = {
+        link["href"]
+        for link in soup.select("a[href]")
+        if not str(link["href"]).startswith("https://")
+    }
+    assert "index.html" in local_hrefs
+    assert "2026-07-20_104432.html" in local_hrefs
+    assert all(not str(href).startswith("/") for href in local_hrefs)
+
+
 def test_empty_map_preserves_observed_absence() -> None:
     html = render_observed_map(build_observed_map({}))
 
