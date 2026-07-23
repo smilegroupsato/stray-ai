@@ -6,26 +6,26 @@ title: Stray AI Current Board
 updated_at: 2026-07-23
 
 now:
-  title: Cyberpunk Visual Pass v1
-  purpose: Current BoardとVisit Reportを、汎用的なdark UIではなくStray AI固有の観察端末として視覚的に完成させる
-  stage: validation
-  next_action: main同期後にObserved Venue Mapを含むHTMLを手動再生成・公開し、LAN・Tailscale・desktop・mobileで最終確認する
-  implementation_authorized: true
-  issue: Issue #45
+  title: Multi-Venue Wake Selection v0
+  purpose: 複数の登録Venueについて本文を読まず、trusted Venue IDとsnapshot identityだけから、起きる理由がある候補を安全に一つ選ぶ設計を確定する
+  stage: design
+  next_action: Design Issueを作成し、入力・出力・候補なし・fail-closed・人間確認の境界を定義する
+  implementation_authorized: false
+  issue: Issue未作成
   notes:
-    - Current Board・Visit Report archive・個別Visit Reportは視覚確認済み
-    - Observed Venue Mapのshared terminal visual実装はmainへmerge済みだが、公開HTMLはまだ未再生成
-    - mapの観測意味・source link・relative link・inference禁止境界は変更していない
-    - binary asset・外部font・CDN・JavaScriptは使わない
-    - persistent agent dataを変更せず、HTMLの再生成と公開は人間が明示的に行う
+    - Venue本文・snapshot本文は読まない
+    - 入力はtrusted Venue ID・snapshot identity・休息と疲労などの既存safe stateに限定する
+    - 出力はasleepの維持、または後続の人間検討用に一つのVenue候補を示すことだけとする
+    - wake・Request・Visit・snapshot fetchを実行しない
+    - 設計とIssue作成が先であり、実装はまだ承認しない
 
 next:
-  - title: Map publication and browser review
-    detail: persistent stray-001を変更せずHTMLだけ再生成し、LAN・Tailscale・desktop・mobile表示と安全境界を確認する
-  - title: Visual Pass completion sync
-    detail: Map確認後、Cyberpunk Visual Pass v1を完了済みへ移し、次のNOWを確定する
-  - title: Multi-Venue Wake Selection v0
-    detail: Visual Pass v1完了後、Venue本文を読まない候補提示と選択の安全設計へ戻る
+  - title: Design Issue and safe contract
+    detail: candidate入力、選択結果、候補なし、同率、unknown、fail-closedの意味を明文化する
+  - title: Synthetic fixture and review plan
+    detail: Venue本文やpersistent dataを使わず、複数候補・候補なし・不正入力を検証できるfixture方針を作る
+  - title: Implementation decision gate
+    detail: 設計レビュー後に、実装範囲と人間承認点を改めて決定する
 
 hold:
   - title: SGOS ConsoleからRequest Reviewへのread-only導線
@@ -36,10 +36,8 @@ hold:
     detail: Current Board YAMLを将来のConsole入力候補とするが、現時点では実装しない
 
 recently_done:
-  - title: Observed Venue Map visual implementation
-    detail: report_map.pyをshared brand helpersへ接続し、summary・Venue sector・SVG graph・evidence tableを同じterminal identityへ統合
-  - title: Cyberpunk Visual Pass v1 core surfaces
-    detail: Current Board・Visit Report archive・個別Visit Reportへterminal shell・title zone・scanline・section identityを適用し、desktop・mobileで確認
+  - title: Cyberpunk Visual Pass v1
+    detail: Current Board・Visit Report archive・個別Visit Report・Observed Venue Mapをshared terminal identityへ統合し、desktop・mobileで表示確認
   - title: Current Board v0
     detail: 計画とlive状態の一望、read-only境界、目的表示、完了基盤階層、アイコン・favicon、Visit Report導線まで機能面を完了
   - title: 最新の安全修正
