@@ -14,6 +14,12 @@ It is not a dashboard, scheduler, approval surface, or replacement for the histo
 
 ## Sources
 
+The SGOS common specification is:
+
+```text
+/srv/sgos/repos/sgos-pkm-core/docs/current-state-interface-pattern.md
+```
+
 ### Plan source
 
 ```text
@@ -46,17 +52,20 @@ Local paths found in source data are not rendered.
 
 ## Publication
 
-The manual publisher writes exactly one file:
+The manual publisher writes exactly one file beneath the existing shared runtime root:
 
 ```text
-reports/current/index.html
+/srv/sgos/data/current-board/stray-ai/index.html
 ```
 
-On the existing Internal Service Gateway it is available at:
+Its canonical Internal Service Gateway URL is:
 
 ```text
-/stray-ai/current/index.html
+/current-board/stray-ai/
 ```
+
+The shared Current Board Index is `/current-board/`. The retained Stray AI
+namespace and Visit Report entrance is `/stray-ai/`.
 
 The devbox helper is:
 
@@ -66,11 +75,16 @@ scripts/devbox/publish-stray-ai-current-board-v0.sh
 
 The publisher performs an atomic replacement. A source-validation or safety failure preserves the previous HTML.
 
+The legacy `/stray-ai/current/` surface remains unchanged until the new surface
+passes LAN and Tailscale HTTP and hash verification. After that verification,
+the redirect is owned by Internal Server Build; this implementation neither
+creates nor claims completion of that redirect.
+
 ## Separation from Visit Report
 
 Current Board is an operational current-state view. Visit Report remains an observation archive.
 
-Current Board LIVE contains one read-only relative link to the Visit Report entrance. No reverse Current Board link is added to Visit Reports, maps, world views, or source archive navigation.
+Current Board LIVE contains one read-only relative link to the retained Visit Report entrance and a restrained link to the shared Current Board Index. No reverse Current Board link is added to Visit Reports, maps, world views, or source archive navigation.
 
 ## Safety boundary
 

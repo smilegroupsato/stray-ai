@@ -6,12 +6,12 @@ title: Stray AI Current Board
 updated_at: 2026-07-23
 
 now:
-  title: Stray-002 birth decision
-  purpose: Multi-Venue Wake Selection v0の最初のreal運用まで完了したため、二番目のpersistent individualを誕生させるか、人間が明示的に判断する
-  stage: decision
-  next_action: Stray-002の誕生を承認するか、承認する場合はidentity・初期状態・記憶・wake・Visit境界を先に設計するかを人間が決める
-  implementation_authorized: false
-  issue: Issue未作成
+  title: Current Board shared namespace migration
+  purpose: Current BoardをSGOS共通の固定surface namespaceへ移し、Stray AI固有のVisit Report namespaceと分離する
+  stage: implementation
+  next_action: merge implementation, confirm shared route, publish new output, verify LAN/Tailscale and hashes while preserving the legacy output
+  implementation_authorized: true
+  issue: Issue #62 / sgos-pkm-core Issue #88
   notes:
     - 最初のreal Multi-Venue SelectionはIssue #61でLLM selectorを使い1回だけ実行済み
     - qwen3.5:9bはacceptedでremain_asleepを返し、selected Venueはnull

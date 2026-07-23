@@ -14,7 +14,9 @@ import yaml
 from .brand import cyberpunk_css, favicon_link_html, inline_title_mark_svg
 
 _JST = ZoneInfo("Asia/Tokyo")
-_PUBLISHED_RELATIVE_PATH = Path("current/index.html")
+SURFACE_SLUG = "stray-ai"
+_PUBLISHED_FILENAME = "index.html"
+_GATEWAY_PATH = "/current-board/stray-ai/"
 _FORBIDDEN_HTML_MARKERS = (
     "/srv/",
     "snapshot_root",
@@ -381,7 +383,8 @@ h1 {{ margin: 0 0 8px; font-size: clamp(1.8rem, 5vw, 3.3rem); letter-spacing: -0
 <div class="metric"><span class="label">VISITS</span><strong>{live["visit_count"]}</strong><small>persistent counter</small></div>
 <div class="metric"><span class="label">INVALID LOCAL RECORDS</span><strong>{wake["invalid_file_count"] + live["invalid_request_count"]}</strong><small>wake / request files skipped</small></div>
 </div>
-<a href="../index.html">Stray AI · 訪問レポートを見る</a>
+<a href="../../stray-ai/">Stray AI · 訪問レポートを見る</a>
+<a href="../">共有 Current Board Index</a>
 </section>
 <div class="boards">{sections_html}</div>
 <p class="footer-note">手動生成・HTMLのみ。Visit Reportとは分離され、外部fetch、scheduler、自動publishはありません。</p>
@@ -405,21 +408,34 @@ def _atomic_write_text(path: Path, text: str) -> None:
             temporary.unlink()
 
 
-def _safe_destination(report_root: Path) -> Path:
-    if not report_root.is_dir():
-        raise CurrentBoardError("report root must be an existing directory")
-    root = report_root.resolve()
-    current_dir = root / _PUBLISHED_RELATIVE_PATH.parent
-    if current_dir.exists() and current_dir.is_symlink():
-        raise CurrentBoardError("current directory must not be a symlink")
-    current_dir.mkdir(parents=True, exist_ok=True)
-    resolved_dir = current_dir.resolve()
+def _validate_surface_slug(surface_slug: str) -> None:
+    if surface_slug != SURFACE_SLUG:
+        raise CurrentBoardError(f"surface slug must be exactly {SURFACE_SLUG}")
+
+
+def _safe_destination(output_root: Path, *, surface_slug: str) -> Path:
+    _validate_surface_slug(surface_slug)
+    if output_root.is_symlink():
+        raise CurrentBoardError("output root must not be a symlink")
+    if not output_root.is_dir():
+        raise CurrentBoardError("output root must be an existing directory")
+    root = output_root.resolve()
+    surface_dir = root / SURFACE_SLUG
+    if surface_dir.is_symlink():
+        raise CurrentBoardError(f"{SURFACE_SLUG} directory must not be a symlink")
+    try:
+        surface_dir.mkdir(exist_ok=True)
+    except OSError as exc:
+        raise CurrentBoardError(
+            f"{SURFACE_SLUG} directory could not be created safely: {exc}"
+        ) from exc
+    resolved_dir = surface_dir.resolve()
     try:
         resolved_dir.relative_to(root)
     except ValueError as exc:
-        raise CurrentBoardError("current directory escapes the report root") from exc
-    destination = resolved_dir / _PUBLISHED_RELATIVE_PATH.name
-    if destination.exists() and destination.is_symlink():
+        raise CurrentBoardError(f"{SURFACE_SLUG} directory escapes the output root") from exc
+    destination = resolved_dir / _PUBLISHED_FILENAME
+    if destination.is_symlink():
         raise CurrentBoardError("published current board must not be a symlink")
     json_files = sorted(
         path.relative_to(root).as_posix()
@@ -428,7 +444,7 @@ def _safe_destination(report_root: Path) -> Path:
     )
     if json_files:
         raise CurrentBoardError(
-            "current board directory contains JSON-like files: " + ", ".join(json_files)
+            "current board surface contains JSON-like files: " + ", ".join(json_files)
         )
     return destination
 
@@ -448,19 +464,21 @@ def publish_current_board(
     *,
     board_path: Path,
     agent_dir: Path,
-    report_root: Path,
+    output_root: Path,
+    surface_slug: str = SURFACE_SLUG,
     generated_at: datetime | None = None,
 ) -> dict[str, Any]:
+    _validate_surface_slug(surface_slug)
     board = load_current_board(board_path)
     live = build_live_state(agent_dir.resolve())
     rendered = render_current_board_html(board, live, generated_at=generated_at)
     _assert_safe_html(rendered)
-    destination = _safe_destination(report_root)
+    destination = _safe_destination(output_root, surface_slug=surface_slug)
     _atomic_write_text(destination, rendered)
     return {
         "published": True,
         "html_output": str(destination),
-        "gateway_path": "/stray-ai/current/index.html",
+        "gateway_path": _GATEWAY_PATH,
         "now": board["now"]["title"],
         "agent_status": live["status"],
         "pending_request_count": live["pending_request_count"],
@@ -481,7 +499,8 @@ def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="stray-ai-publish-current-board")
     parser.add_argument("--board", type=Path, required=True)
     parser.add_argument("--agent", type=Path, required=True)
-    parser.add_argument("--report-root", type=Path, required=True)
+    parser.add_argument("--output-root", type=Path, required=True)
+    parser.add_argument("--surface-slug", default=SURFACE_SLUG)
     return parser
 
 
@@ -492,7 +511,8 @@ def main() -> None:
         result = publish_current_board(
             board_path=args.board,
             agent_dir=args.agent,
-            report_root=args.report_root,
+            output_root=args.output_root,
+            surface_slug=args.surface_slug,
         )
     except CurrentBoardError as exc:
         parser.error(str(exc))
