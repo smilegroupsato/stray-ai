@@ -8,7 +8,13 @@ from zoneinfo import ZoneInfo
 import pytest
 from bs4 import BeautifulSoup
 
-from stray_ai.current_board import CurrentBoardError, load_current_board, publish_current_board
+import stray_ai.current_board as current_board_module
+from stray_ai.current_board import (
+    SURFACE_SLUG,
+    CurrentBoardError,
+    load_current_board,
+    publish_current_board,
+)
 
 _JST = ZoneInfo("Asia/Tokyo")
 
@@ -108,19 +114,20 @@ def test_publish_combines_plan_and_live_state_without_exposing_local_paths(
 ) -> None:
     board = _board(tmp_path / "board.yml")
     agent = _agent(tmp_path / "agent")
-    reports = tmp_path / "reports"
-    reports.mkdir()
+    output_root = tmp_path / "current-board"
+    output_root.mkdir()
 
     result = publish_current_board(
         board_path=board,
         agent_dir=agent,
-        report_root=reports,
+        output_root=output_root,
+        surface_slug=SURFACE_SLUG,
         generated_at=datetime(2026, 7, 23, 10, 0, tzinfo=_JST),
     )
 
-    output = reports / "current" / "index.html"
+    output = output_root / "stray-ai" / "index.html"
     rendered = output.read_text(encoding="utf-8")
-    assert result["gateway_path"] == "/stray-ai/current/index.html"
+    assert result["gateway_path"] == "/current-board/stray-ai/"
     assert result["now"] == "Multi-Venue Wake Selection v0"
     assert result["pending_request_count"] == 1
     assert result["visit_count"] == 5
@@ -137,7 +144,7 @@ def test_publish_combines_plan_and_live_state_without_exposing_local_paths(
     assert "<script" not in rendered.lower()
     assert "javascript:" not in rendered.lower()
     assert "file://" not in rendered.lower()
-    assert list((reports / "current").iterdir()) == [output]
+    assert list((output_root / "stray-ai").iterdir()) == [output]
 
     soup = BeautifulSoup(rendered, "html.parser")
     purpose = soup.select_one(".now-purpose")
@@ -163,8 +170,9 @@ def test_publish_combines_plan_and_live_state_without_exposing_local_paths(
     assert title is not None
     assert title.find_previous_sibling("svg", class_="stray-mark") is not None
     assert soup.select_one('link[rel="icon"][href^="data:image/svg+xml,"]') is not None
-    assert len(soup.select('a[href="../index.html"]')) == 1
-    assert soup.select_one('a[href="../index.html"] [role="button"]') is None
+    assert len(soup.select('a[href="../../stray-ai/"]')) == 1
+    assert len(soup.select('a[href="../"]')) == 1
+    assert soup.select_one('a[href="../../stray-ai/"] [role="button"]') is None
     assert "--bg-0:#05070b" in rendered
     assert "--cyan:#39f6ff" in rendered
     assert soup.select_one("main.terminal-shell.current-board-shell") is not None
@@ -226,16 +234,23 @@ def test_malformed_completed_foundation_children_fail_closed(
         load_current_board(board)
 
 
-def test_publish_failure_preserves_previous_html(tmp_path: Path) -> None:
-    board = _board(tmp_path / "board.yml", now="list")
+def test_failed_render_preserves_previous_html(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    board = _board(tmp_path / "board.yml")
     agent = _agent(tmp_path / "agent")
-    reports = tmp_path / "reports"
-    output = reports / "current" / "index.html"
+    output_root = tmp_path / "current-board"
+    output = output_root / "stray-ai" / "index.html"
     output.parent.mkdir(parents=True)
     output.write_text("previous", encoding="utf-8")
+    monkeypatch.setattr(
+        current_board_module,
+        "render_current_board_html",
+        lambda *args, **kwargs: "<html>/srv/private</html>",
+    )
 
-    with pytest.raises(CurrentBoardError):
-        publish_current_board(board_path=board, agent_dir=agent, report_root=reports)
+    with pytest.raises(CurrentBoardError, match="safety check"):
+        publish_current_board(board_path=board, agent_dir=agent, output_root=output_root)
 
     assert output.read_text(encoding="utf-8") == "previous"
 
@@ -243,13 +258,13 @@ def test_publish_failure_preserves_previous_html(tmp_path: Path) -> None:
 def test_json_like_public_file_blocks_publish(tmp_path: Path) -> None:
     board = _board(tmp_path / "board.yml")
     agent = _agent(tmp_path / "agent")
-    reports = tmp_path / "reports"
-    current = reports / "current"
-    current.mkdir(parents=True)
-    (current / "state.json").write_text("{}", encoding="utf-8")
+    output_root = tmp_path / "current-board"
+    surface = output_root / "stray-ai"
+    surface.mkdir(parents=True)
+    (surface / "state.json").write_text("{}", encoding="utf-8")
 
     with pytest.raises(CurrentBoardError, match="JSON-like"):
-        publish_current_board(board_path=board, agent_dir=agent, report_root=reports)
+        publish_current_board(board_path=board, agent_dir=agent, output_root=output_root)
 
 
 def test_board_source_symlink_is_rejected(tmp_path: Path) -> None:
@@ -258,3 +273,98 @@ def test_board_source_symlink_is_rejected(tmp_path: Path) -> None:
     link.symlink_to(source)
     with pytest.raises(CurrentBoardError, match="must not be a symlink"):
         load_current_board(link)
+
+
+@pytest.mark.parametrize(
+    "surface_slug",
+    ["other", "../stray-ai", "/stray-ai", "area/stray-ai", r"area\stray-ai"],
+)
+def test_noncanonical_surface_slug_is_rejected(
+    tmp_path: Path, surface_slug: str
+) -> None:
+    board = _board(tmp_path / "board.yml")
+    agent = _agent(tmp_path / "agent")
+    output_root = tmp_path / "current-board"
+    output_root.mkdir()
+
+    with pytest.raises(CurrentBoardError, match="surface slug must be exactly"):
+        publish_current_board(
+            board_path=board,
+            agent_dir=agent,
+            output_root=output_root,
+            surface_slug=surface_slug,
+        )
+
+    assert list(output_root.iterdir()) == []
+
+
+def test_output_root_symlink_is_rejected(tmp_path: Path) -> None:
+    board = _board(tmp_path / "board.yml")
+    agent = _agent(tmp_path / "agent")
+    real_root = tmp_path / "real-root"
+    real_root.mkdir()
+    output_root = tmp_path / "current-board"
+    output_root.symlink_to(real_root, target_is_directory=True)
+
+    with pytest.raises(CurrentBoardError, match="output root must not be a symlink"):
+        publish_current_board(board_path=board, agent_dir=agent, output_root=output_root)
+
+
+def test_missing_output_root_is_rejected(tmp_path: Path) -> None:
+    board = _board(tmp_path / "board.yml")
+    agent = _agent(tmp_path / "agent")
+
+    with pytest.raises(CurrentBoardError, match="must be an existing directory"):
+        publish_current_board(
+            board_path=board,
+            agent_dir=agent,
+            output_root=tmp_path / "missing",
+        )
+
+
+def test_surface_directory_symlink_to_outside_is_rejected(tmp_path: Path) -> None:
+    board = _board(tmp_path / "board.yml")
+    agent = _agent(tmp_path / "agent")
+    output_root = tmp_path / "current-board"
+    output_root.mkdir()
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (output_root / "stray-ai").symlink_to(outside, target_is_directory=True)
+
+    with pytest.raises(CurrentBoardError, match="directory must not be a symlink"):
+        publish_current_board(board_path=board, agent_dir=agent, output_root=output_root)
+
+    assert list(outside.iterdir()) == []
+
+
+def test_destination_symlink_is_rejected(tmp_path: Path) -> None:
+    board = _board(tmp_path / "board.yml")
+    agent = _agent(tmp_path / "agent")
+    surface = tmp_path / "current-board" / "stray-ai"
+    surface.mkdir(parents=True)
+    outside = tmp_path / "outside.html"
+    outside.write_text("outside", encoding="utf-8")
+    (surface / "index.html").symlink_to(outside)
+
+    with pytest.raises(CurrentBoardError, match="must not be a symlink"):
+        publish_current_board(
+            board_path=board,
+            agent_dir=agent,
+            output_root=tmp_path / "current-board",
+        )
+
+    assert outside.read_text(encoding="utf-8") == "outside"
+
+
+def test_publisher_script_uses_shared_namespace_without_legacy_deletion() -> None:
+    script = (
+        Path(__file__).parents[1]
+        / "scripts/devbox/publish-stray-ai-current-board-v0.sh"
+    ).read_text(encoding="utf-8")
+
+    assert 'OUTPUT_ROOT="/srv/sgos/data/current-board"' in script
+    assert 'SURFACE_DIR="$OUTPUT_ROOT/stray-ai"' in script
+    assert "/srv/sgos/data/stray-ai/reports/current/index.html" in script
+    assert "http://192.168.1.20/current-board/stray-ai/" in script
+    assert "http://100.79.124.53/current-board/stray-ai/" in script
+    assert "rm " not in script
