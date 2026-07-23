@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from bs4 import BeautifulSoup
+
 from stray_ai.report_archive import generate_archive, render_index
 
 
@@ -90,8 +92,19 @@ def test_generate_archive_renders_all_reports_index_and_latest(tmp_path: Path) -
     assert "resting" in index
     assert "qwen3.5:9b" in index
     assert "LATEST" in index
-    assert "http://" not in index
-    assert "https://" not in index
+    assert not BeautifulSoup(index, "html.parser").select(
+        'a[href^="http://"],a[href^="https://"],link[href^="http://"],link[href^="https://"]'
+    )
+
+    soup = BeautifulSoup(index, "html.parser")
+    title = soup.select_one("header .title-row h1")
+    assert title is not None
+    assert title.find_previous_sibling("svg", class_="stray-mark") is not None
+    assert soup.select_one('link[rel="icon"][href^="data:image/svg+xml,"]') is not None
+    assert "--bg-0:#05070b" in index
+    assert "--magenta:#ff4fd8" in index
+    assert "Current Board" not in index
+    assert "/current/" not in index
 
 
 def test_generate_archive_skips_malformed_json_without_blocking_valid_record(

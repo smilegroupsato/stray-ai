@@ -29,7 +29,7 @@ This file is the source of truth for:
 - `PARKING LOT`
 - `NOT DOING`
 
-`NOW` requires a title, stage, next action, and explicit implementation-authorization boolean.
+`NOW` requires a title, standalone purpose, stage, next action, and explicit implementation-authorization boolean. Board sections continue to accept strings and simple mappings; a mapping may also define validated `children` with a title and one-line detail for a subordinate group hierarchy.
 
 ### Live source
 
@@ -70,7 +70,7 @@ The publisher performs an atomic replacement. A source-validation or safety fail
 
 Current Board is an operational current-state view. Visit Report remains an observation archive.
 
-No Current Board link is added to Visit Reports, maps, world views, or source archive navigation in v0.
+Current Board LIVE contains one read-only relative link to the Visit Report entrance. No reverse Current Board link is added to Visit Reports, maps, world views, or source archive navigation.
 
 ## Safety boundary
 

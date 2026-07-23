@@ -11,6 +11,8 @@ from zoneinfo import ZoneInfo
 
 import yaml
 
+from .brand import cyberpunk_css, favicon_link_html, inline_title_mark_svg
+
 _JST = ZoneInfo("Asia/Tokyo")
 _PUBLISHED_RELATIVE_PATH = Path("current/index.html")
 _FORBIDDEN_HTML_MARKERS = (
@@ -53,7 +55,7 @@ def _normalize_item(value: Any, *, section: str) -> dict[str, Any]:
         title = _clean_text(value)
         if not title:
             raise CurrentBoardError(f"{section} contains an empty item")
-        return {"title": title, "detail": "", "items": []}
+        return {"title": title, "detail": "", "items": [], "children": []}
     if not isinstance(value, dict):
         raise CurrentBoardError(f"{section} items must be strings or mappings")
     title = _clean_text(value.get("title"))
@@ -66,7 +68,25 @@ def _normalize_item(value: Any, *, section: str) -> dict[str, Any]:
     if not isinstance(nested, list):
         raise CurrentBoardError(f"{section} item items must be a list")
     items = [_clean_text(item) for item in nested if _clean_text(item)]
-    return {"title": title, "detail": detail, "items": items[:24]}
+    children_value = value.get("children", [])
+    if children_value is None:
+        children_value = []
+    if not isinstance(children_value, list):
+        raise CurrentBoardError(f"{section} item children must be a list")
+    children: list[dict[str, str]] = []
+    for child in children_value:
+        if not isinstance(child, dict):
+            raise CurrentBoardError(f"{section} child must be a mapping")
+        child_title_value = child.get("title")
+        child_detail_value = child.get("detail")
+        if not isinstance(child_title_value, str) or not isinstance(child_detail_value, str):
+            raise CurrentBoardError(f"{section} child title and detail must be strings")
+        child_title = _clean_text(child_title_value)
+        child_detail = _clean_text(child_detail_value)
+        if not child_title or not child_detail:
+            raise CurrentBoardError(f"{section} child requires title and detail")
+        children.append({"title": child_title, "detail": child_detail})
+    return {"title": title, "detail": detail, "items": items[:24], "children": children[:24]}
 
 
 def load_current_board(board_path: Path) -> dict[str, Any]:
@@ -95,6 +115,10 @@ def load_current_board(board_path: Path) -> dict[str, Any]:
     if not isinstance(notes_value, list):
         raise CurrentBoardError("NOW notes must be a list")
     now_title = _clean_text(now_value.get("title"))
+    purpose_value = now_value.get("purpose")
+    if not isinstance(purpose_value, str) or not _clean_text(purpose_value):
+        raise CurrentBoardError("NOW purpose must be a non-empty scalar string")
+    purpose = _clean_text(purpose_value)
     stage = _clean_text(now_value.get("stage"))
     next_action = _clean_text(now_value.get("next_action"))
     authorized = now_value.get("implementation_authorized")
@@ -104,6 +128,7 @@ def load_current_board(board_path: Path) -> dict[str, Any]:
         )
     now = {
         "title": now_title,
+        "purpose": purpose,
         "stage": stage,
         "next_action": next_action,
         "implementation_authorized": authorized,
@@ -218,6 +243,18 @@ def _render_item(item: dict[str, Any]) -> str:
         nested = '<ul class="nested">' + "".join(
             f"<li>{html.escape(entry)}</li>" for entry in item["items"]
         ) + "</ul>"
+    if item["children"]:
+        children = "".join(
+            '<li class="board-child">'
+            f'<strong>{html.escape(child["title"])}</strong>'
+            f'<p class="detail">{html.escape(child["detail"])}</p></li>'
+            for child in item["children"]
+        )
+        return (
+            '<li class="board-group">'
+            f'<strong class="board-group-title">{html.escape(item["title"])}</strong>'
+            f'{detail}<ul class="board-children">{children}</ul></li>'
+        )
     return f'<li><strong>{html.escape(item["title"])}</strong>{detail}{nested}</li>'
 
 
@@ -273,32 +310,39 @@ def render_current_board_html(
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{html.escape(board["title"])}</title>
+{favicon_link_html()}
 <style>
-:root {{ color-scheme: light dark; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }}
-body {{ margin: 0; background: #111; color: #f3f3ef; line-height: 1.55; }}
+{cyberpunk_css()}
+:root {{ color-scheme: dark; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }}
+* {{ box-sizing: border-box; }}
+body {{ margin: 0; line-height: 1.55; }}
 main {{ width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 32px 0 64px; }}
 header {{ margin-bottom: 24px; }}
 h1 {{ margin: 0 0 8px; font-size: clamp(1.8rem, 5vw, 3.3rem); letter-spacing: -0.04em; }}
-.subtitle, .generated {{ color: #aaa; margin: 4px 0; }}
-.readonly {{ border: 1px solid #4c4c48; border-radius: 12px; padding: 10px 14px; display: inline-block; margin-top: 12px; }}
-.now {{ border: 1px solid #d7c56e; background: #242116; border-radius: 18px; padding: 22px; margin-bottom: 20px; }}
-.now h2 {{ margin: 0 0 8px; font-size: .85rem; letter-spacing: .18em; color: #e8d77d; }}
+.subtitle, .generated {{ color: var(--muted); margin: 4px 0; }}
+.readonly {{ border: 1px solid var(--line); background:var(--panel); border-radius: 12px; padding: 10px 14px; display: inline-block; margin-top: 12px; }}
+.now {{ border: 1px solid rgba(255,230,109,.5); background:linear-gradient(135deg,rgba(255,230,109,.08),var(--panel)); box-shadow:0 0 24px rgba(255,230,109,.05); border-radius: 18px; padding: 22px; margin-bottom: 20px; }}
+.now h2 {{ margin: 0 0 8px; font-size: .85rem; letter-spacing: .18em; color: var(--yellow); }}
 .now h3 {{ margin: 0; font-size: clamp(1.45rem, 4vw, 2.35rem); }}
+.now-purpose {{ margin:8px 0 0;color:var(--text);max-width:78ch; }}
 .now-grid {{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 18px; }}
 .now-cell, .metric {{ background: rgba(255,255,255,.045); border-radius: 12px; padding: 14px; }}
-.label {{ display: block; color: #aaa; font-size: .78rem; letter-spacing: .08em; margin-bottom: 4px; }}
-.meta-chip {{ display: inline-block; border: 1px solid #58584f; border-radius: 999px; padding: 3px 9px; margin-top: 10px; font-size: .82rem; }}
+.label {{ display: block; color: var(--muted); font-size: .78rem; letter-spacing: .08em; margin-bottom: 4px; }}
+.meta-chip {{ display: inline-block; border: 1px solid var(--line-magenta); color:var(--magenta); border-radius: 999px; padding: 3px 9px; margin-top: 10px; font-size: .82rem; }}
 .live {{ margin: 20px 0; }}
-.live h2, .panel h2 {{ font-size: .85rem; letter-spacing: .16em; color: #bdbdb6; }}
+.live h2, .panel h2 {{ font-size: .85rem; letter-spacing: .16em; color: var(--cyan); }}
+.live > a {{display:inline-block;margin-top:12px;color:var(--cyan);text-underline-offset:3px}}
 .metrics {{ display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }}
 .metric strong {{ display: block; font-size: 1.15rem; overflow-wrap: anywhere; }}
 .metric small {{ display: block; color: #aaa; font-size: .75rem; margin-top: 3px; }}
 .boards {{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }}
-.panel {{ border: 1px solid #363632; border-radius: 14px; padding: 18px; background: #181816; }}
+.panel {{ border: 1px solid var(--line); border-radius: 14px; padding: 18px; background: var(--panel); box-shadow:0 0 18px rgba(57,246,255,.035); }}
 .panel ul {{ margin: 0; padding-left: 1.2rem; }}
 .panel li + li {{ margin-top: 10px; }}
-.detail {{ margin: 2px 0 0; color: #aaa; }}
-.nested {{ margin-top: 5px !important; color: #bbb; }}
+.detail {{ margin: 2px 0 0; color: var(--muted); }}
+.nested {{ margin-top: 5px !important; color: var(--muted); }}
+.board-group {{list-style:none;margin-left:-1.2rem;border-left:2px solid var(--magenta);padding-left:14px}}
+.board-group-title {{color:var(--magenta);letter-spacing:.04em}}.board-children {{margin-top:12px!important;padding-left:1.15rem!important}}.board-child::marker {{color:var(--cyan)}}
 .empty {{ color: #777; }}
 .footer-note {{ margin-top: 24px; color: #888; font-size: .88rem; }}
 @media (max-width: 820px) {{
@@ -310,7 +354,7 @@ h1 {{ margin: 0 0 8px; font-size: clamp(1.8rem, 5vw, 3.3rem); letter-spacing: -0
 <body>
 <main>
 <header>
-<h1>{html.escape(board["title"])}</h1>
+<div class="title-row">{inline_title_mark_svg()}<h1>{html.escape(board["title"])}</h1></div>
 <p class="subtitle">全体像・現在地・次の一手を一枚で見る暫定Current-State interface</p>
 <p class="generated">計画更新: {html.escape(board["updated_at"])} ／ 生成: {html.escape(generated.isoformat(timespec="seconds"))}</p>
 <p class="readonly">このページは読み取り専用です。ここから承認・取消し・wake・Visitは実行できません。</p>
@@ -318,6 +362,7 @@ h1 {{ margin: 0 0 8px; font-size: clamp(1.8rem, 5vw, 3.3rem); letter-spacing: -0
 <section class="now">
 <h2>NOW</h2>
 <h3>{html.escape(now["title"])}</h3>
+<p class="now-purpose">{html.escape(now["purpose"])}</p>
 {issue}
 <div class="now-grid">
 <div class="now-cell"><span class="label">STAGE</span><strong>{html.escape(now["stage"])}</strong></div>
@@ -335,6 +380,7 @@ h1 {{ margin: 0 0 8px; font-size: clamp(1.8rem, 5vw, 3.3rem); letter-spacing: -0
 <div class="metric"><span class="label">VISITS</span><strong>{live["visit_count"]}</strong><small>persistent counter</small></div>
 <div class="metric"><span class="label">INVALID LOCAL RECORDS</span><strong>{wake["invalid_file_count"] + live["invalid_request_count"]}</strong><small>wake / request files skipped</small></div>
 </div>
+<a href="../index.html">Stray AI · 訪問レポートを見る</a>
 </section>
 <div class="boards">{sections_html}</div>
 <p class="footer-note">手動生成・HTMLのみ。Visit Reportとは分離され、外部fetch、scheduler、自動publishはありません。</p>

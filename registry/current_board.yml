@@ -7,11 +7,11 @@ updated_at: 2026-07-23
 
 now:
   title: Multi-Venue Wake Selection v0
+  purpose: 複数のVenue候補から、本文を読まずに本人が「眠り続ける」または検討したい場所を一つ選べるようにする
   stage: design
   next_action: Issueを作成し、Venue候補提示と選択の安全境界を確定する
   implementation_authorized: false
   notes:
-    - 目的: 複数のVenue候補から、本文を読まずに本人が「眠り続ける」または検討したい場所を一つ選べるようにする
     - Venue本文は読まない
     - snapshot取得・Request作成・Visitは別工程のまま保つ
     - remain_asleepを有効な選択として維持する
@@ -44,18 +44,19 @@ recently_done:
       - Wake-to-Visit Handoff v0
   - title: 完了済み基盤
     detail: Stray AIが安全に生まれ、訪れ、帰り、休み、観察記録を残すための基礎機能群
-  - title: v0.1 The First Visitor
-    detail: 一人のpersistent visitorがbounded Venueを訪れ、何かを持ち帰り、同じ個体として帰還できるようにする
-  - title: v0.1.1 The First Persistent Visitor
-    detail: Visitをまたいで個体の状態・記憶・疲労・休息を保持し、現在地と過去の場所を分離する
-  - title: v0.2 The First Wake Judgment
-    detail: Venue本文を読まず、休息と疲労とsnapshot identityだけで、起きる理由があるかを手動判断する
-  - title: Visit Report v0
-    detail: Visitの経路・観察・Trace・source coordinatesを、操作機能のない静的な観察アーカイブとして閲覧する
-  - title: Venue Operations v0
-    detail: 訪問先をbounded Venueとして登録し、固定manifestとcommit-addressed snapshotで安全に準備する
-  - title: Memory provenance v0
-    detail: 記憶本文と、systemが記録した時刻・source Visit・stepを分離して由来を追跡可能にする
+    children:
+      - title: v0.1 The First Visitor
+        detail: 一人のpersistent visitorがbounded Venueを訪れ、何かを持ち帰り、同じ個体として帰還できるようにする
+      - title: v0.1.1 The First Persistent Visitor
+        detail: Visitをまたいで個体の状態・記憶・疲労・休息を保持し、現在地と過去の場所を分離する
+      - title: v0.2 The First Wake Judgment
+        detail: Venue本文を読まず、休息と疲労とsnapshot identityだけで、起きる理由があるかを手動判断する
+      - title: Visit Report v0
+        detail: Visitの経路・観察・Trace・source coordinatesを、操作機能のない静的な観察アーカイブとして閲覧する
+      - title: Venue Operations v0
+        detail: 訪問先をbounded Venueとして登録し、固定manifestとcommit-addressed snapshotで安全に準備する
+      - title: Memory provenance v0
+        detail: 記憶本文と、systemが記録した時刻・source Visit・stepを分離して由来を追跡可能にする
 
 parking_lot:
   - title: EFP SNS投稿

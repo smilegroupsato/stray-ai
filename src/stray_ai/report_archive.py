@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import quote
 
+from .brand import cyberpunk_css, favicon_link_html, inline_title_mark_svg
 from .report import render_report
 
 _SAFE_STEM = re.compile(r"^[A-Za-z0-9._-]+$")
@@ -135,13 +136,15 @@ def render_index(
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>The Visits of {agent_id}</title>
+{favicon_link_html()}
 <style>
-:root{{--bg:#0f1115;--panel:#171a21;--panel2:#1f2430;--text:#eef2f7;--muted:#9aa4b2;--line:#343b49;--accent:#d7ff62}}
-*{{box-sizing:border-box}}body{{margin:0;background:radial-gradient(circle at top left,#1a2030,#0f1115 42%);color:var(--text);font-family:Inter,system-ui,sans-serif}}
+{cyberpunk_css()}
+:root{{color-scheme:dark}}
+*{{box-sizing:border-box}}body{{margin:0;font-family:Inter,system-ui,sans-serif}}
 main{{max-width:980px;margin:auto;padding:52px 24px 80px}}a{{color:inherit;text-decoration:none}}a:hover{{color:var(--accent)}}
 .kicker{{color:var(--accent);text-transform:uppercase;letter-spacing:.18em;font-size:12px;margin-bottom:10px}}h1{{font-size:42px;line-height:1.08;margin:0 0 10px}}
 .intro{{color:var(--muted);max-width:680px;line-height:1.7;margin:0}}.state{{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:30px 0}}
-.state div,.visit-card,.empty{{background:rgba(23,26,33,.94);border:1px solid var(--line);border-radius:18px}}.state div{{padding:16px}}
+.state div,.visit-card,.empty{{background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:0 0 20px rgba(57,246,255,.035)}}.state div{{padding:16px}}
 .state span{{display:block;color:var(--muted);font-size:12px;margin-bottom:7px}}.state strong{{font-size:16px;overflow-wrap:anywhere}}
 .archive-head{{display:flex;justify-content:space-between;align-items:end;gap:20px;margin:38px 0 16px}}.archive-head h2{{margin:0;font-size:22px}}.archive-head p{{margin:0;color:var(--muted);font-size:13px}}
 .visits{{display:grid;gap:14px}}.visit-card{{padding:20px;display:grid;grid-template-columns:minmax(220px,1.1fr) 2fr;gap:24px;align-items:center}}
@@ -155,7 +158,7 @@ footer{{margin-top:24px;color:var(--muted);font-size:12px}}@media(max-width:800p
 <main>
 <header>
 <div class="kicker">Stray AI · Visit Report v0 · Archive</div>
-<h1>The Visits of {agent_id}</h1>
+<div class="title-row">{inline_title_mark_svg()}<h1>The Visits of {agent_id}</h1></div>
 <p class="intro">A local observation window into one visitor's recorded passages. This page offers no controls and starts no movement.</p>
 </header>
 <section class="state" aria-label="Persistent state">

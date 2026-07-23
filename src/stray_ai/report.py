@@ -7,6 +7,8 @@ from html import escape
 from pathlib import Path
 from typing import Any
 
+from .brand import cyberpunk_css, favicon_link_html, inline_title_mark_svg
+
 
 def _load_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
@@ -139,20 +141,22 @@ def render_report(visit: dict[str, Any], state: dict[str, Any] | None = None) ->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Visit Report — {agent_id}</title>
+{favicon_link_html()}
 <style>
-:root{{--bg:#0f1115;--panel:#171a21;--panel2:#1f2430;--text:#eef2f7;--muted:#9aa4b2;--line:#343b49;--accent:#d7ff62;--bad:#ff9d9d}}
-*{{box-sizing:border-box}}body{{margin:0;background:radial-gradient(circle at top left,#1a2030,#0f1115 42%);color:var(--text);font-family:Inter,system-ui,sans-serif}}
+{cyberpunk_css()}
+:root{{--bad:#ff9d9d;color-scheme:dark}}
+*{{box-sizing:border-box}}body{{margin:0;font-family:Inter,system-ui,sans-serif}}
 main{{max-width:1100px;margin:auto;padding:48px 24px 72px}}header{{display:flex;justify-content:space-between;gap:24px;align-items:flex-start;margin-bottom:28px}}
 .kicker{{color:var(--accent);text-transform:uppercase;letter-spacing:.18em;font-size:12px;margin-bottom:8px}}h1{{font-size:40px;margin:0 0 8px}}
 .subtitle,.muted{{color:var(--muted)}}.status{{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:10px 14px;color:var(--accent)}}
-.grid{{display:grid;grid-template-columns:2fr 1fr;gap:18px}}.panel{{background:rgba(23,26,33,.94);border:1px solid var(--line);border-radius:20px;padding:22px}}
+.grid{{display:grid;grid-template-columns:2fr 1fr;gap:18px}}.panel{{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:22px;box-shadow:0 0 20px rgba(57,246,255,.035)}}
 .wide{{grid-column:1/-1}}.panel h2{{margin:0 0 18px;font-size:18px}}.route{{display:flex;align-items:center;overflow-x:auto;padding:8px 2px 14px}}
 .node{{min-width:170px;border:1px solid var(--line);background:var(--panel2);border-radius:16px;padding:16px}}.node.terminal{{border-color:var(--accent)}}
 .badge{{color:var(--accent);font-size:11px;letter-spacing:.14em;margin-bottom:10px}}.title{{font-weight:700;font-size:17px;margin-bottom:6px}}
 .path{{color:var(--muted);font-size:12px}}.arrow{{color:var(--muted);font-size:24px;padding:0 12px}}.metrics{{display:grid;gap:12px}}
 .metric{{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding-bottom:12px}}.metric:last-child{{border-bottom:0;padding-bottom:0}}
 .metric span{{color:var(--muted)}}.result{{display:grid;gap:12px}}.card{{border:1px solid var(--line);border-radius:14px;padding:14px 16px;background:var(--panel2)}}
-.card strong{{display:block;margin-bottom:5px}}.card p{{margin:0 0 7px;color:var(--muted)}}.note{{margin-top:18px;border-left:3px solid var(--accent);padding:12px 14px;background:rgba(215,255,98,.06);color:#e9f7b9;border-radius:8px}}
+.card strong{{display:block;margin-bottom:5px}}.card p{{margin:0 0 7px;color:var(--muted)}}.note{{margin-top:18px;border-left:3px solid var(--magenta);padding:12px 14px;background:rgba(255,79,216,.06);color:var(--text);border-radius:8px}}
 .brain-head{{display:flex;justify-content:space-between;gap:16px;align-items:center}}.brain-status{{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent)}}
 .brain-status.rejected,.brain-error{{color:var(--bad)!important}}.brain-card+.brain-card{{margin-top:12px}}
 footer{{margin-top:18px;color:var(--muted);font-size:12px}}@media(max-width:800px){{header{{flex-direction:column}}.grid{{grid-template-columns:1fr}}.wide{{grid-column:auto}}h1{{font-size:32px}}}}
@@ -161,7 +165,7 @@ footer{{margin-top:18px;color:var(--muted);font-size:12px}}@media(max-width:800p
 <body>
 <main>
 <header>
-<div><div class="kicker">Stray AI · Visit Report v0</div><h1>{agent_id}</h1>
+<div><div class="kicker">Stray AI · Visit Report v0</div><div class="title-row">{inline_title_mark_svg()}<h1>{agent_id}</h1></div>
 <div class="subtitle">{started_at} · backend: {backend}</div></div>
 <div class="status">{escape(exit_label)}</div>
 </header>

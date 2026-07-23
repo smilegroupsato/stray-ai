@@ -124,3 +124,9 @@ def test_archive_reports_linked_and_unlinked_filenames(tmp_path: Path) -> None:
             "html.parser",
         )
         assert soup.select_one('.kicker a[href="index.html"]') is not None
+        title = soup.select_one("header .title-row h1")
+        assert title is not None
+        assert title.find_previous_sibling("svg", class_="stray-mark") is not None
+        assert soup.select_one('link[rel="icon"][href^="data:image/svg+xml,"]') is not None
+        assert soup.select_one('a[href*="current"]') is None
+        assert "--bg-0:#05070b" in str(soup)
