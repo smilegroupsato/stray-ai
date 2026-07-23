@@ -6,30 +6,29 @@ title: Stray AI Current Board
 updated_at: 2026-07-23
 
 now:
-  title: Multi-Venue Wake Selection v0
-  purpose: 複数の登録Venueについて本文を読まず、trusted Venue IDとsnapshot identityだけから一つの候補を安全に選ぶ手動selection layerを、persistent stateを変えずdevboxへ導入・検証する
-  stage: validation
-  next_action: main同期後、real selectionを実行せずにCLI・launcherを導入し、persistent hash guard・help・構造確認でpost-merge validationを行う
-  implementation_authorized: true
-  issue: Issue #56 / PR #58
+  title: First real Multi-Venue Selection decision gate
+  purpose: post-merge validationを完了した手動selection layerについて、stray-001がtrusted Venue候補から最初のreal selectionを行うか、人間が明示的に判断する
+  stage: decision
+  next_action: real selectionを実行するか、実行する場合はdeterministic modeとoptional LLM selectorのどちらを使うかを人間が決める
+  implementation_authorized: false
+  issue: Issue未作成
   notes:
-    - implementationはPR #58でmainへmerge済み
-    - selection record以外は完全にside-effect-freeとし、state・memory・impulse・Visit・wake・Trace・Request・reportを変更しない
-    - trusted Venueの正本はregistry/venues.ymlとする
-    - deterministic body gateとoptional bounded selector adapterをv0に含む
-    - selectionはappend-only recordを書いた時点で停止し、single-Venue wakeへ自動接続しない
-    - post-merge validation中もpersistent stray-001に対するreal selectionを実行しない
-    - wake・snapshot・Request・Visit・scheduler・report publishを実行しない
+    - Multi-Venue Wake Selection v0の実装・CI・devbox導入・post-merge validationは完了
+    - editable install・CLI help・launcher構文・禁止command不在を確認済み
+    - persistent agent hashに差分はなく、wake_selections record数は0から0のまま
+    - selectionはappend-only recordを1件書いて停止し、state・memory・impulse・Visit・wake・Trace・Request・reportを変更しない
+    - selectionはwakeではなく、single-Venue wakeへ自動接続しない
+    - deterministic modeは候補を自動選択せずremain_asleepとなる
+    - optional LLM selectorを使うreal selectionは別の明示承認まで実行しない
+    - wake・snapshot・Request・Visit・scheduler・automatic publishを実行しない
 
 next:
-  - title: Devbox installation without selection
-    detail: mainを同期し、console entry pointとmanual launchersを導入する。導入操作そのものがselectionを起動しないことを確認する
-  - title: Post-merge safety validation
-    detail: CLI help・launcher内容・registered Venue current symlink参照境界・persistent hash同一性を確認する
-  - title: First real multi-Venue selection decision gate
-    detail: validation完了後、stray-001に対する最初のselectionを実行するか人間が別途判断する
+  - title: First real multi-Venue selection
+    detail: 人間が承認した場合のみ、既存のtrusted current snapshot identitiesを候補として手動selectionを1回実行し、append-only recordを書いて停止する
+  - title: Selection record review
+    detail: decision・selected Venue ID・reason code・selector status・候補比較scopeを人間が確認し、wakeへ進むかは別途判断する
   - title: Stray-002 birth decision
-    detail: Multi-Venue Wake Selection v0完了後、二番目のindividualを誕生させるか検討する
+    detail: Multi-Venue Wake Selection v0の最初の運用確認後、二番目のindividualを誕生させるか検討する
 
 hold:
   - title: SGOS ConsoleからRequest Reviewへのread-only導線
@@ -40,6 +39,8 @@ hold:
     detail: Current Board YAMLを将来のConsole入力候補とするが、現時点では実装しない
 
 recently_done:
+  - title: Multi-Venue Wake Selection v0 post-merge validation
+    detail: devboxへCLIとmanual launchersを導入し、persistent hash同一・selection records 0→0・resting維持・pending Request 0・Visit count 5・read-only Current Board publishを確認
   - title: Multi-Venue Wake Selection v0 implementation
     detail: Issue #56 / PR #58でtrusted registry・same-Venue比較・deterministic body gate・optional bounded selector・append-only selection record・manual launchers・fail-closed testsを実装し、Python 3.11 / 3.12 CIに成功
   - title: Multi-Venue Wake Selection v0 design decisions
