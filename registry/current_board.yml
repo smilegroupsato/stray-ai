@@ -6,23 +6,26 @@ title: Stray AI Current Board
 updated_at: 2026-07-23
 
 now:
-  title: Multi-Venue Wake Selection v0
-  purpose: 複数のVenue候補から、本文を読まずに本人が「眠り続ける」または検討したい場所を一つ選べるようにする
-  stage: design
-  next_action: Issueを作成し、Venue候補提示と選択の安全境界を確定する
-  implementation_authorized: false
+  title: Cyberpunk Visual Pass v1
+  purpose: Current BoardとVisit Reportを、汎用的なdark UIではなくStray AI固有の観察端末として視覚的に完成させる
+  stage: implementation
+  next_action: devboxのCodex CLIでCSSとinline SVGだけのvisual passを実装し、テスト後にブラウザ確認する
+  implementation_authorized: true
+  issue: Issue #45
   notes:
-    - Venue本文は読まない
-    - snapshot取得・Request作成・Visitは別工程のまま保つ
-    - remain_asleepを有効な選択として維持する
+    - binary asset・外部font・CDN・JavaScriptは使わない
+    - schema・live state・Visit Reportのデータと導線ロジックは変更しない
+    - persistent agent dataを変更せず、HTMLの再生成と公開は人間が明示的に行う
 
 next:
-  - title: Multi-Venue Wake Selection設計レビュー
-    detail: Venue Registryから提示できるtrusted metadataと、本人へ渡す情報の上限を確認する
-  - title: 実装着手Decision
-    detail: 設計承認後に、synthetic agentだけで検証するか判断する
-  - title: devbox synthetic validation
-    detail: persistent stray-001を変更せず、複数Venueを交互に扱う選択を検証する
+  - title: Shared visual language refinement
+    detail: brand.pyへ外周frame・scanline・grid・neon depthなど再利用可能なCSS表現を集約する
+  - title: Current Board / Visit Report surface refinement
+    detail: 情報階層を維持したまま、title zone・section identity・panel depth・mobile表示を強化する
+  - title: devbox publication and browser review
+    detail: persistent stray-001を変更せずHTMLだけ再生成し、LAN・Tailscale・mobile表示を確認する
+  - title: Multi-Venue Wake Selection v0
+    detail: Visual Pass v1完了後、Venue本文を読まない候補提示と選択の安全設計へ戻る
 
 hold:
   - title: SGOS ConsoleからRequest Reviewへのread-only導線
@@ -34,7 +37,7 @@ hold:
 
 recently_done:
   - title: Current Board v0
-    detail: 計画YAMLとlive状態を一枚のread-only HTMLへ統合し、現在地と次の一手を一望するための暫定interface
+    detail: 計画とlive状態の一望、read-only境界、目的表示、完了基盤階層、アイコン・favicon、Visit Report導線まで機能面を完了
   - title: 最新の安全修正
     items:
       - Venue単位のwake snapshot比較
