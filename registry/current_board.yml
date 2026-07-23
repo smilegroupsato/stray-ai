@@ -6,29 +6,28 @@ title: Stray AI Current Board
 updated_at: 2026-07-23
 
 now:
-  title: First real Multi-Venue Selection decision gate
-  purpose: post-merge validationを完了した手動selection layerについて、stray-001がtrusted Venue候補から最初のreal selectionを行うか、人間が明示的に判断する
+  title: Stray-002 birth decision
+  purpose: Multi-Venue Wake Selection v0の最初のreal運用まで完了したため、二番目のpersistent individualを誕生させるか、人間が明示的に判断する
   stage: decision
-  next_action: real selectionを実行するか、実行する場合はdeterministic modeとoptional LLM selectorのどちらを使うかを人間が決める
+  next_action: Stray-002の誕生を承認するか、承認する場合はidentity・初期状態・記憶・wake・Visit境界を先に設計するかを人間が決める
   implementation_authorized: false
   issue: Issue未作成
   notes:
-    - Multi-Venue Wake Selection v0の実装・CI・devbox導入・post-merge validationは完了
-    - editable install・CLI help・launcher構文・禁止command不在を確認済み
-    - persistent agent hashに差分はなく、wake_selections record数は0から0のまま
-    - selectionはappend-only recordを1件書いて停止し、state・memory・impulse・Visit・wake・Trace・Request・reportを変更しない
-    - selectionはwakeではなく、single-Venue wakeへ自動接続しない
-    - deterministic modeは候補を自動選択せずremain_asleepとなる
-    - optional LLM selectorを使うreal selectionは別の明示承認まで実行しない
-    - wake・snapshot・Request・Visit・scheduler・automatic publishを実行しない
+    - 最初のreal Multi-Venue SelectionはIssue #61でLLM selectorを使い1回だけ実行済み
+    - qwen3.5:9bはacceptedでremain_asleepを返し、selected Venueはnull
+    - eternal-free-partyとgenai-ron-rcはいずれもsame_venue_historyかつchanged false
+    - wake_selections record数は0から1へ増え、protected persistent hashは不変
+    - stray-001はresting、current_locationはnullのまま
+    - wake・snapshot・Request・Visit・Trace・report regeneration・automatic publishは実行していない
+    - Stray-002は自動生成せず、誕生・wake・Visitをindividual単位の明示承認に分離する
 
 next:
-  - title: First real multi-Venue selection
-    detail: 人間が承認した場合のみ、既存のtrusted current snapshot identitiesを候補として手動selectionを1回実行し、append-only recordを書いて停止する
-  - title: Selection record review
-    detail: decision・selected Venue ID・reason code・selector status・候補比較scopeを人間が確認し、wakeへ進むかは別途判断する
-  - title: Stray-002 birth decision
-    detail: Multi-Venue Wake Selection v0の最初の運用確認後、二番目のindividualを誕生させるか検討する
+  - title: Stray-002 birth charter
+    detail: 承認された場合のみ、identity・profile・initial state・memory・home・権限境界・人間との関係を先に定義する
+  - title: Multi-individual isolation validation
+    detail: state・memory・Visit・wake・selection・reportがindividual間で混線せず、観測surfaceだけが安全に集約されることをsynthetic fixtureで確認する
+  - title: Stray-002 birth execution decision
+    detail: charterと安全検証の後、persistent Stray-002を実際に誕生させるかを改めて人間が判断する
 
 hold:
   - title: SGOS ConsoleからRequest Reviewへのread-only導線
@@ -39,6 +38,8 @@ hold:
     detail: Current Board YAMLを将来のConsole入力候補とするが、現時点では実装しない
 
 recently_done:
+  - title: First real Multi-Venue Selection
+    detail: Issue #61でlocal qwen3.5:9b selectorを1回だけ実行し、両Venueともchanged falseのためremain_asleep・selected Venue nullとなった。selection recordのみ1件追加し、protected stateは不変
   - title: Multi-Venue Wake Selection v0 post-merge validation
     detail: devboxへCLIとmanual launchersを導入し、persistent hash同一・selection records 0→0・resting維持・pending Request 0・Visit count 5・read-only Current Board publishを確認
   - title: Multi-Venue Wake Selection v0 implementation
@@ -82,10 +83,9 @@ parking_lot:
       - Instagram
   - title: 新しいVenue候補
     detail: Venue Registryとbounded snapshot手順が整ったものだけを候補化する
-  - title: 複数individualの追加
-    detail: 観測対応のみ完了。誕生・wake・Visitの自動化はしない
 
 not_doing:
+  - automatic individual birth
   - automatic selection
   - automatic wake
   - automatic Visit
