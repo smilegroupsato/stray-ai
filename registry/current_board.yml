@@ -6,13 +6,16 @@ title: Stray AI Current Board
 updated_at: 2026-07-23
 
 now:
-  title: Current Board shared namespace migration
-  purpose: Current BoardをSGOS共通の固定surface namespaceへ移し、Stray AI固有のVisit Report namespaceと分離する
-  stage: implementation
-  next_action: merge implementation, confirm shared route, publish new output, verify LAN/Tailscale and hashes while preserving the legacy output
-  implementation_authorized: true
-  issue: Issue #62 / sgos-pkm-core Issue #88
+  title: Stray-002 birth decision
+  purpose: Multi-Venue Wake Selection v0とCurrent Board共通namespace移行が完了したため、二番目のpersistent individualを設計するかを人間が判断する
+  stage: decision
+  next_action: Stray-002のbirth charter設計を開始するか、開始する場合もidentity・initial state・memory・home・wake・Visit境界を先に定義するかを人間が決める
+  implementation_authorized: false
+  issue: Issue未作成
   notes:
+    - Current Boardは新canonical /current-board/stray-ai/でLAN・TailscaleともHTTP 200を確認済み
+    - local・LAN・Tailscaleの新Surface SHA-256は一致し、persistent agent hashとlegacy output hashは不変
+    - 旧/stray-ai/current/は現在も元のSurfaceを200で配信し、redirectは未依頼・未実装
     - 最初のreal Multi-Venue SelectionはIssue #61でLLM selectorを使い1回だけ実行済み
     - qwen3.5:9bはacceptedでremain_asleepを返し、selected Venueはnull
     - eternal-free-partyとgenai-ron-rcはいずれもsame_venue_historyかつchanged false
@@ -30,6 +33,8 @@ next:
     detail: charterと安全検証の後、persistent Stray-002を実際に誕生させるかを改めて人間が判断する
 
 hold:
+  - title: Legacy Current Board redirect
+    detail: 旧/stray-ai/current/から新/current-board/stray-ai/へのredirectは別の明示指示まで依頼・実装しない。legacy runtime fileも保持する
   - title: SGOS ConsoleからRequest Reviewへのread-only導線
     detail: Console Home・read-only view配置方針・安全確認・昇格Decisionの全条件待ち
   - title: execution_failedの人間レビュー型recovery
@@ -38,6 +43,8 @@ hold:
     detail: Current Board YAMLを将来のConsole入力候補とするが、現時点では実装しない
 
 recently_done:
+  - title: Current Board shared namespace migration
+    detail: Issue #62 / PR #64でcanonical URLを/current-board/stray-ai/へ移し、Area directory taku:taku 0755、LAN/Tailscale 200、local/HTTP hash一致、persistent agent hash不変、legacy hash不変を確認。sgos-pkm-core PR #93でShared Surface Registryをactiveへ更新し、redirectは未依頼のまま保持
   - title: First real Multi-Venue Selection
     detail: Issue #61でlocal qwen3.5:9b selectorを1回だけ実行し、両Venueともchanged falseのためremain_asleep・selected Venue nullとなった。selection recordのみ1件追加し、protected stateは不変
   - title: Multi-Venue Wake Selection v0 post-merge validation
