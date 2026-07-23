@@ -107,6 +107,14 @@ def test_adds_narrow_window_layout_guards() -> None:
     assert soup.select_one('link[rel="icon"][href^="data:image/svg+xml,"]') is not None
     assert "--bg-0:#05070b" in html
     assert "--cyan:#39f6ff" in html
+    assert soup.select_one("main.terminal-shell.visit-report-shell") is not None
+    assert soup.select_one("header.title-zone") is not None
+    assert soup.select_one(".brain-records.evidence-module") is not None
+    assert soup.select_one(".brain-card.observation-record") is not None
+    assert soup.select_one(".trace-memory-module.evidence-module") is not None
+    assert soup.select_one(".current-state-module.evidence-module") is not None
+    assert "repeating-linear-gradient" in html
+    assert "url(http" not in html
     assert "Current Board" not in html
     assert "/current/" not in html
     for marker in (

@@ -141,13 +141,13 @@ def render_index(
 {cyberpunk_css()}
 :root{{color-scheme:dark}}
 *{{box-sizing:border-box}}body{{margin:0;font-family:Inter,system-ui,sans-serif}}
-main{{max-width:980px;margin:auto;padding:52px 24px 80px}}a{{color:inherit;text-decoration:none}}a:hover{{color:var(--accent)}}
+main{{max-width:980px;margin:24px auto 48px;padding:42px 28px 64px}}a{{color:inherit;text-decoration:none}}a:hover{{color:var(--accent)}}
 .kicker{{color:var(--accent);text-transform:uppercase;letter-spacing:.18em;font-size:12px;margin-bottom:10px}}h1{{font-size:42px;line-height:1.08;margin:0 0 10px}}
 .intro{{color:var(--muted);max-width:680px;line-height:1.7;margin:0}}.state{{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:30px 0}}
-.state div,.visit-card,.empty{{background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:0 0 20px rgba(57,246,255,.035)}}.state div{{padding:16px}}
+.state div,.visit-card,.empty{{background:var(--panel);border:1px solid var(--line);border-radius:4px 16px 16px 4px;box-shadow:inset 0 0 18px rgba(57,246,255,.018),0 0 20px rgba(57,246,255,.035)}}.state div{{padding:16px;border-top:2px solid var(--cyan)}}
 .state span{{display:block;color:var(--muted);font-size:12px;margin-bottom:7px}}.state strong{{font-size:16px;overflow-wrap:anywhere}}
 .archive-head{{display:flex;justify-content:space-between;align-items:end;gap:20px;margin:38px 0 16px}}.archive-head h2{{margin:0;font-size:22px}}.archive-head p{{margin:0;color:var(--muted);font-size:13px}}
-.visits{{display:grid;gap:14px}}.visit-card{{padding:20px;display:grid;grid-template-columns:minmax(220px,1.1fr) 2fr;gap:24px;align-items:center}}
+.visits{{display:grid;gap:14px}}.visit-card{{position:relative;padding:20px 20px 20px 24px;display:grid;grid-template-columns:minmax(220px,1.1fr) 2fr;gap:24px;align-items:center;border-left:3px solid var(--magenta);background:linear-gradient(110deg,rgba(255,79,216,.055),var(--panel) 32%)}}
 .visit-time{{color:var(--muted);font-size:13px;display:flex;align-items:center;gap:10px}}.latest-badge{{color:var(--accent);font-size:10px;letter-spacing:.12em}}
 .visit-main h2{{font-size:22px;margin:8px 0 6px}}.result{{color:var(--muted);margin:0}}.visit-facts{{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:0}}
 .visit-facts div{{min-width:0}}dt{{color:var(--muted);font-size:11px;margin-bottom:5px}}dd{{margin:0;font-size:13px;overflow-wrap:anywhere}}.empty{{padding:28px;color:var(--muted)}}
@@ -155,8 +155,8 @@ footer{{margin-top:24px;color:var(--muted);font-size:12px}}@media(max-width:800p
 </style>
 </head>
 <body>
-<main>
-<header>
+<main class="terminal-shell visit-archive-shell">
+<header class="title-zone">
 <div class="kicker">Stray AI · Visit Report v0 · Archive</div>
 <div class="title-row">{inline_title_mark_svg()}<h1>The Visits of {agent_id}</h1></div>
 <p class="intro">A local observation window into one visitor's recorded passages. This page offers no controls and starts no movement.</p>

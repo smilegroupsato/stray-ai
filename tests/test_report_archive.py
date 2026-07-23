@@ -103,8 +103,24 @@ def test_generate_archive_renders_all_reports_index_and_latest(tmp_path: Path) -
     assert soup.select_one('link[rel="icon"][href^="data:image/svg+xml,"]') is not None
     assert "--bg-0:#05070b" in index
     assert "--magenta:#ff4fd8" in index
+    assert soup.select_one("main.terminal-shell.visit-archive-shell") is not None
+    assert soup.select_one("header.title-zone") is not None
+    assert "repeating-linear-gradient" in index
+    assert "url(http" not in index
+    assert "@media(max-width:800px)" in index
     assert "Current Board" not in index
     assert "/current/" not in index
+    assert index.lower().count('href="../index.html"') == 0
+    for marker in (
+        "<script",
+        "<button",
+        "<form",
+        "javascript:",
+        "file://",
+        "snapshot_root",
+        "brain_command",
+    ):
+        assert marker not in index.lower()
 
 
 def test_generate_archive_skips_malformed_json_without_blocking_valid_record(
