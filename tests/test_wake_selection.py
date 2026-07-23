@@ -247,6 +247,48 @@ def test_duplicate_unknown_disabled_missing_and_symlink_fail_closed(tmp_path: Pa
     assert result["candidate_validation"]["status"] == "rejected"  # type: ignore[index]
 
 
+def test_explicit_candidate_rejects_symlinked_venue_without_reading_content(
+    tmp_path: Path,
+) -> None:
+    agent, venues, registry = _habitat(tmp_path)
+    outside = tmp_path / "outside"
+    snapshot = _snapshot(outside, "unused", "snap")
+    secret = snapshot / "secret.txt"
+    secret.write_text("must not be read", encoding="utf-8")
+    (venues / "venue-a").symlink_to(outside / "unused", target_is_directory=True)
+
+    result = _run(agent, venues, registry, ["venue-a=snap"])
+
+    assert result["candidate_validation"]["status"] == "rejected"  # type: ignore[index]
+    assert result["decision"] == "remain_asleep"
+    assert result["candidates"] == []
+    assert result["content_was_not_read"] is True
+    assert "must not be read" not in json.dumps(result)
+
+
+def test_current_mode_omits_symlinked_venue_without_reading_content(
+    tmp_path: Path,
+) -> None:
+    agent, venues, registry = _habitat(tmp_path)
+    outside = tmp_path / "outside"
+    snapshot = _snapshot(outside, "unused", "snap")
+    secret = snapshot / "secret.txt"
+    secret.write_text("must not be read", encoding="utf-8")
+    (outside / "unused" / "current").symlink_to("snap")
+    (venues / "venue-a").symlink_to(outside / "unused", target_is_directory=True)
+
+    result = _run(agent, venues, registry, use_current_snapshots=True)
+
+    assert result["candidate_validation"]["status"] == "accepted"  # type: ignore[index]
+    assert result["decision"] == "remain_asleep"
+    assert result["candidates"] == []
+    assert {"venue_id": "venue-a", "reason": "Venue directory is unsafe"} in result[
+        "current_snapshot_omissions"
+    ]
+    assert result["content_was_not_read"] is True
+    assert "must not be read" not in json.dumps(result)
+
+
 @pytest.mark.parametrize(
     "text",
     [
@@ -313,6 +355,51 @@ def test_bad_selector_outputs_fail_closed(tmp_path: Path, body: str) -> None:
     )
     assert result["decision"] == "remain_asleep"
     assert result["selector"]["status"] == "rejected"  # type: ignore[index]
+
+
+@pytest.mark.parametrize(
+    ("field", "malformed"),
+    [
+        ("decision", []),
+        ("decision", {}),
+        ("reason_code", []),
+        ("reason_code", {}),
+        ("selected_venue_id", []),
+        ("selected_venue_id", {}),
+    ],
+)
+def test_non_scalar_selector_contract_fields_write_rejected_record_only(
+    tmp_path: Path, field: str, malformed: object
+) -> None:
+    agent, venues, registry = _habitat(tmp_path)
+    _snapshot(venues, "venue-a", "snap")
+    protected_before = {
+        path.relative_to(agent): path.read_bytes()
+        for path in agent.rglob("*")
+        if path.is_file()
+    }
+    output = {
+        "decision": "select_venue",
+        "selected_venue_id": "venue-a",
+        "observation": "opaque choice",
+        "reason": "bounded",
+        "reason_code": "no_specific_reason",
+    }
+    output[field] = malformed
+    selector = _selector(
+        tmp_path,
+        f"import json\nprint(json.dumps({output!r}))\n",
+    )
+
+    result = _run(agent, venues, registry, ["venue-a=snap"], selector=selector)
+
+    assert result["decision"] == "remain_asleep"
+    assert result["selector"]["status"] == "rejected"  # type: ignore[index]
+    records = list((agent / "wake_selections").glob("*.json"))
+    assert len(records) == 1
+    assert json.loads(records[0].read_text(encoding="utf-8"))["decision"] == "remain_asleep"
+    for relative, content in protected_before.items():
+        assert (agent / relative).read_bytes() == content
 
 
 def test_timeout_fails_closed(tmp_path: Path) -> None:

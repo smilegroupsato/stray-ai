@@ -67,6 +67,12 @@ def normalize_selection_decision(
     decision = value.get("decision")
     selected = value.get("selected_venue_id")
     reason_code = value.get("reason_code")
+    if not isinstance(decision, str):
+        raise ValueError("selector decision must be a string")
+    if selected is not None and not isinstance(selected, str):
+        raise ValueError("selected venue must be a string or null")
+    if not isinstance(reason_code, str):
+        raise ValueError("selector reason code must be a string")
     if decision not in {"remain_asleep", "select_venue"}:
         raise ValueError("selector decision is not allowed")
     if reason_code not in _REASON_CODES:
@@ -180,14 +186,31 @@ def _load_registry(path: Path) -> tuple[dict[str, bool], str]:
     return venues, hashlib.sha256(raw).hexdigest()
 
 
+def _venue_directory(venues_root: Path, venue_id: str) -> tuple[Path, Path]:
+    resolved_root = venues_root.resolve()
+    directory = venues_root / venue_id
+    if directory.is_symlink():
+        raise ValueError("Venue directory must not be a symlink")
+    if not directory.is_dir():
+        raise ValueError("Venue directory does not exist")
+    resolved_directory = directory.resolve()
+    if resolved_directory.parent != resolved_root:
+        raise ValueError("Venue directory escapes the Venues root")
+    return directory, resolved_directory
+
+
 def _snapshot_directory(venues_root: Path, venue_id: str, snapshot_id: str) -> Path:
-    directory = venues_root / venue_id / snapshot_id
+    venue_directory, resolved_venue_directory = _venue_directory(venues_root, venue_id)
+    directory = venue_directory / snapshot_id
     if directory.is_symlink():
         raise ValueError("snapshot directory must not be a symlink")
     if not directory.is_dir():
         raise ValueError("snapshot directory does not exist")
-    expected_parent = (venues_root / venue_id).resolve()
-    if directory.resolve().parent != expected_parent:
+    resolved_directory = directory.resolve()
+    if (
+        resolved_directory.parent != resolved_venue_directory
+        or resolved_venue_directory.parent != venues_root.resolve()
+    ):
         raise ValueError("snapshot directory escapes its Venue root")
     return directory
 
@@ -222,7 +245,19 @@ def _construct_candidates(
             candidates.append((venue_id, snapshot_id))
     elif use_current_snapshots:
         for venue_id in sorted(venue for venue, enabled in venues.items() if enabled):
-            current = venues_root / venue_id / "current"
+            venue_path = venues_root / venue_id
+            if venue_path.is_symlink():
+                omissions.append({"venue_id": venue_id, "reason": "Venue directory is unsafe"})
+                continue
+            if not venue_path.is_dir():
+                omissions.append({"venue_id": venue_id, "reason": "usable current symlink absent"})
+                continue
+            try:
+                venue_directory, _ = _venue_directory(venues_root, venue_id)
+            except (OSError, ValueError):
+                omissions.append({"venue_id": venue_id, "reason": "Venue directory is unsafe"})
+                continue
+            current = venue_directory / "current"
             if not current.is_symlink():
                 omissions.append({"venue_id": venue_id, "reason": "usable current symlink absent"})
                 continue
