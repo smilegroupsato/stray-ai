@@ -36,6 +36,7 @@ The first manual wake judgment has also occurred. The trusted body gate saw insu
 - [`docs/lifecycle.md`](docs/lifecycle.md) — return, rest, counters, and fatigue recovery
 - [`docs/memory-provenance.md`](docs/memory-provenance.md) — structured recording time and Visit source for memories
 - [`docs/wake-decision.md`](docs/wake-decision.md) — deciding whether there is a reason to wake
+- [`docs/multi-venue-wake-selection.md`](docs/multi-venue-wake-selection.md) — choosing one trusted Venue candidate without reading Venue content
 - [`docs/wake-to-visit-handoff.md`](docs/wake-to-visit-handoff.md) — preparing a pending approval envelope without starting a Visit
 - [`docs/human-approved-visit-execution.md`](docs/human-approved-visit-execution.md) — explicit approval and one-shot bounded execution
 - [`docs/visit-request-review-cancellation.md`](docs/visit-request-review-cancellation.md) — read-only Request presentation and pending-only cancellation
@@ -60,6 +61,8 @@ Visit Report v0 is complete through the observed world map. It provides static i
 
 Venue Operations v0 is also complete for the first two bounded venues: Eternal Free Party and GENAI-RON Repository Context. The first separately approved GENAI-RON Visit has completed, and `stray-001` returned to rest.
 
+Multi-Venue Wake Selection v0 is authorized for implementation. Its contract permits one append-only local selection record, uses a repository-managed trusted Venue registry, may call an optional bounded selector, and stops before the existing single-Venue wake command. No real multi-Venue selection has occurred yet.
+
 The report presentation now supports narrow-window layouts, Japanese interface labels, stable navigation between the collection and individual reports, an `/individuals/` entrance, and optional Japanese display translations that preserve the original free text without mutating Visit JSON.
 
 Memory provenance v0 keeps `memory.md` as human-readable continuity while storing system-recorded time and source Visit separately in append-only structured records. Timestamps inside model-authored text remain untrusted content rather than system time.
@@ -72,7 +75,7 @@ The read-only Request review may also be published manually as HTML only under t
 
 Current Board v0 combines one repository-managed planning source with bounded local agent metadata into one manually published read-only HTML page. It is a temporary current-state interface, not SGOS Console, and remains separate from Visit Report navigation and all action surfaces.
 
-Snapshot creation, wake judgment, handoff preparation, review generation, Gateway publication, cancellation, approval, and Visit execution remain separate operations. No scheduler, automatic approval, automatic cancellation, automatic retry, automatic revisit, or automatic crawling is part of the current state.
+Snapshot creation, wake selection, wake judgment, handoff preparation, review generation, Gateway publication, cancellation, approval, and Visit execution remain separate operations. No scheduler, automatic selection, automatic wake, automatic approval, automatic cancellation, automatic retry, automatic revisit, or automatic crawling is part of the current state.
 
 ## Related currents
 

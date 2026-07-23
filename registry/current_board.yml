@@ -7,28 +7,28 @@ updated_at: 2026-07-23
 
 now:
   title: Multi-Venue Wake Selection v0
-  purpose: 複数の登録Venueについて本文を読まず、trusted Venue IDとsnapshot identityだけから、起きる理由がある候補を安全に一つ選ぶ設計を確定する
-  stage: design
-  next_action: Issue #53のDecision Gateを確認し、side effect・trusted Venue registry・selector範囲・実装可否を確定する
-  implementation_authorized: false
-  issue: Issue #53
+  purpose: 複数の登録Venueについて本文を読まず、trusted Venue IDとsnapshot identityだけから一つの候補を安全に選ぶ手動selection layerを実装する
+  stage: implementation
+  next_action: main同期後、Codex work orderに従ってside-effect-freeなselection command・Venue registry・optional selector・synthetic testsを実装する
+  implementation_authorized: true
+  issue: Issue #56
   notes:
-    - Venue本文・snapshot本文は読まない
-    - 入力はtrusted Venue ID・snapshot identity・休息と疲労などの既存safe stateに限定する
-    - 出力はasleepの維持、または後続の人間検討用に一つのVenue候補を示すことだけとする
-    - selectionは既存のsingle-Venue wakeより前で停止し、自動接続しない
-    - wake・Request・Visit・snapshot fetchを実行しない
-    - 実装はまだ承認しない
+    - selection record以外は完全にside-effect-freeとし、state・memory・impulse・Visit・wake・Trace・Request・reportを変更しない
+    - trusted Venueの正本はregistry/venues.ymlとする
+    - deterministic body gateとoptional bounded selector adapterをv0に含める
+    - selectionはappend-only recordを書いた時点で停止し、single-Venue wakeへ自動接続しない
+    - 実装中はpersistent stray-001に対するreal selectionを実行しない
+    - wake・snapshot・Request・Visit・scheduler・report publishを実行しない
 
 next:
-  - title: Decision Gate 1 — state side effect
-    detail: selection recordを完全にside-effect-freeとするか、選択時だけ一つのdeduplicated impulseを許すか決める
-  - title: Decision Gate 2 — trusted Venue source
-    detail: trusted Venue allowlistまたはregistryの正本位置と、unknown・duplicate・malformed時のfail-closedを確定する
-  - title: Decision Gate 3 — selector scope
-    detail: deterministic-onlyで開始するか、bounded selector adapterまでv0に含めるか決める
-  - title: Implementation decision gate
-    detail: synthetic fixture方針を確認した後、実装範囲と人間承認点を改めて決定する
+  - title: Codex implementation and synthetic tests
+    detail: wake_selection module・CLI・selector adapter・setup launcherを実装し、persistent dataを使わないfixtureで安全分岐を検証する
+  - title: Implementation diff and CI review
+    detail: side-effect-free境界・same-Venue比較・order非依存・fail-closed・no automatic chainingを確認する
+  - title: Merge and manual validation plan
+    detail: main反映後もreal selectionは自動実行せず、launcherとpersistent hash確認の手順を先に確定する
+  - title: First real multi-Venue selection decision gate
+    detail: 実装完了後、stray-001に対する最初のselectionを実行するか人間が別途判断する
 
 hold:
   - title: SGOS ConsoleからRequest Reviewへのread-only導線
@@ -39,8 +39,8 @@ hold:
     detail: Current Board YAMLを将来のConsole入力候補とするが、現時点では実装しない
 
 recently_done:
-  - title: Multi-Venue Wake Selection v0 Design Issue
-    detail: Issue #53でcandidate contract・body gate・同率・unknown・comparison unavailable・fail-closed・append-only observationの境界を定義
+  - title: Multi-Venue Wake Selection v0 design decisions
+    detail: Issue #53でside-effect-free・registry正本・optional bounded selector・single-Venue wake前停止の4つを確定
   - title: Cyberpunk Visual Pass v1
     detail: Current Board・Visit Report archive・個別Visit Report・Observed Venue Mapをshared terminal identityへ統合し、desktop・mobileで表示確認
   - title: Current Board v0
