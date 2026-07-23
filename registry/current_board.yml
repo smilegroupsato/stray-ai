@@ -8,8 +8,8 @@ updated_at: 2026-07-23
 now:
   title: Cyberpunk Visual Pass v1
   purpose: Current BoardとVisit Reportを、汎用的なdark UIではなくStray AI固有の観察端末として視覚的に完成させる
-  stage: implementation
-  next_action: devboxのCodex CLIでCSSとinline SVGだけのvisual passを実装し、テスト後にブラウザ確認する
+  stage: validation
+  next_action: main同期後にHTMLを手動再生成・公開し、LAN・Tailscale・desktop・mobileで視覚と安全境界を確認する
   implementation_authorized: true
   issue: Issue #45
   notes:
@@ -18,12 +18,10 @@ now:
     - persistent agent dataを変更せず、HTMLの再生成と公開は人間が明示的に行う
 
 next:
-  - title: Shared visual language refinement
-    detail: brand.pyへ外周frame・scanline・grid・neon depthなど再利用可能なCSS表現を集約する
-  - title: Current Board / Visit Report surface refinement
-    detail: 情報階層を維持したまま、title zone・section identity・panel depth・mobile表示を強化する
   - title: devbox publication and browser review
-    detail: persistent stray-001を変更せずHTMLだけ再生成し、LAN・Tailscale・mobile表示を確認する
+    detail: persistent stray-001を変更せずHTMLだけ再生成し、LAN・Tailscale・desktop・mobile表示を確認する
+  - title: Visual Pass completion sync
+    detail: ブラウザ確認後、Cyberpunk Visual Pass v1を完了済みへ移し、次のNOWを確定する
   - title: Multi-Venue Wake Selection v0
     detail: Visual Pass v1完了後、Venue本文を読まない候補提示と選択の安全設計へ戻る
 
@@ -36,6 +34,8 @@ hold:
     detail: Current Board YAMLを将来のConsole入力候補とするが、現時点では実装しない
 
 recently_done:
+  - title: Cyberpunk Visual Pass v1 implementation
+    detail: CSSと既存inline SVGだけでterminal shell・title zone・scanline・section identity・report continuityを実装し、Python 3.11／3.12 CIを通過
   - title: Current Board v0
     detail: 計画とlive状態の一望、read-only境界、目的表示、完了基盤階層、アイコン・favicon、Visit Report導線まで機能面を完了
   - title: 最新の安全修正
