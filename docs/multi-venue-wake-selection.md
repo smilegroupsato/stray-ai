@@ -242,6 +242,24 @@ select-wake-venue-llm.sh
 
 They may inspect only repository registry data, local `current` symlink targets, and existing snapshot directory identities. Setup creates `wake_selections/` but does not run selection.
 
+## CLI
+
+Deterministic mode over safe existing `current` symlinks is manual and always
+remains asleep:
+
+```bash
+stray-ai-select-wake-venue \
+  --agent /srv/sgos/data/stray-ai/agents/stray-001 \
+  --registry registry/venues.yml \
+  --venues-root /srv/sgos/data/stray-ai/venues \
+  --use-current-snapshots
+```
+
+Explicit candidates use repeated `--candidate venue_id=snapshot_id`. Explicit and
+current-snapshot modes are mutually exclusive. Command mode additionally requires
+`--selector command` and `--selector-command`; it still writes only a selection
+record and never invokes the wake command.
+
 ## Testing boundary
 
 Implementation tests use synthetic agent habitats and synthetic snapshot directories only. No test or implementation step uses persistent `stray-001` data or Venue content.

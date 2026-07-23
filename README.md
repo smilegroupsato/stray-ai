@@ -61,7 +61,7 @@ Visit Report v0 is complete through the observed world map. It provides static i
 
 Venue Operations v0 is also complete for the first two bounded venues: Eternal Free Party and GENAI-RON Repository Context. The first separately approved GENAI-RON Visit has completed, and `stray-001` returned to rest.
 
-Multi-Venue Wake Selection v0 is authorized for implementation. Its contract permits one append-only local selection record, uses a repository-managed trusted Venue registry, may call an optional bounded selector, and stops before the existing single-Venue wake command. No real multi-Venue selection has occurred yet.
+Multi-Venue Wake Selection v0 is implemented for manual use. Its contract permits one append-only local selection record, uses a repository-managed trusted Venue registry, may call an optional bounded selector, and stops before the existing single-Venue wake command. No real multi-Venue selection has occurred yet.
 
 The report presentation now supports narrow-window layouts, Japanese interface labels, stable navigation between the collection and individual reports, an `/individuals/` entrance, and optional Japanese display translations that preserve the original free text without mutating Visit JSON.
 
