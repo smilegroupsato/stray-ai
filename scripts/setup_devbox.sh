@@ -14,6 +14,7 @@ fi
 mkdir -p \
   "$DATA_DIR/agents/stray-001" \
   "$DATA_DIR/agents/stray-001/wake_checks" \
+  "$DATA_DIR/agents/stray-001/wake_selections" \
   "$DATA_DIR/sources" \
   "$DATA_DIR/venues" \
   "$DATA_DIR/outbox/traces" \
@@ -174,6 +175,41 @@ exec "$DATA_DIR/check-wake-eternal-free-party.sh" \
 EOF
 chmod 750 "$DATA_DIR/check-wake-eternal-free-party-llm.sh"
 
+cat > "$DATA_DIR/select-wake-venue.sh" <<EOF
+#!/usr/bin/env bash
+set -euo pipefail
+exec "$REPO_DIR/.venv/bin/stray-ai-select-wake-venue" \
+  --agent "$DATA_DIR/agents/stray-001" \
+  --registry "$REPO_DIR/registry/venues.yml" \
+  --venues-root "$DATA_DIR/venues" \
+  --use-current-snapshots \
+  "\$@"
+EOF
+chmod 750 "$DATA_DIR/select-wake-venue.sh"
+
+cat > "$DATA_DIR/select-wake-venue-llm.sh" <<EOF
+#!/usr/bin/env bash
+set -euo pipefail
+if [[ -z "\${STRAY_LLM_MODEL:-}" ]]; then
+  echo "STRAY_LLM_MODEL is required." >&2
+  exit 1
+fi
+export STRAY_LLM_BASE_URL="\${STRAY_LLM_BASE_URL:-http://127.0.0.1:11434/v1}"
+export STRAY_LLM_JSON_MODE="\${STRAY_LLM_JSON_MODE:-1}"
+export STRAY_LLM_REASONING_EFFORT="\${STRAY_LLM_REASONING_EFFORT:-none}"
+export STRAY_LLM_HTTP_TIMEOUT="\${STRAY_LLM_HTTP_TIMEOUT:-120}"
+export STRAY_LLM_MAX_TOKENS="\${STRAY_LLM_MAX_TOKENS:-300}"
+export STRAY_SELECTOR_TIMEOUT="\${STRAY_SELECTOR_TIMEOUT:-150}"
+SELECTOR_COMMAND="$REPO_DIR/.venv/bin/python $REPO_DIR/scripts/openai_compatible_wake_selector.py"
+exec "$DATA_DIR/select-wake-venue.sh" \
+  --selector command \
+  --selector-command "\$SELECTOR_COMMAND" \
+  --selector-label "\$STRAY_LLM_MODEL" \
+  --selector-timeout "\$STRAY_SELECTOR_TIMEOUT" \
+  "\$@"
+EOF
+chmod 750 "$DATA_DIR/select-wake-venue-llm.sh"
+
 "$REPO_DIR/.venv/bin/python" -m pytest "$REPO_DIR/tests"
 
 echo "Devbox habitat prepared."
@@ -187,3 +223,5 @@ echo "Mock EFP visit: $DATA_DIR/visit-eternal-free-party.sh"
 echo "LLM EFP visit: $DATA_DIR/visit-eternal-free-party-llm.sh"
 echo "Deterministic EFP wake check: $DATA_DIR/check-wake-eternal-free-party.sh"
 echo "LLM EFP wake check: $DATA_DIR/check-wake-eternal-free-party-llm.sh"
+echo "Deterministic multi-Venue wake selection: $DATA_DIR/select-wake-venue.sh"
+echo "LLM multi-Venue wake selection: $DATA_DIR/select-wake-venue-llm.sh"
