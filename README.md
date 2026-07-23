@@ -46,6 +46,7 @@ The first manual wake judgment has also occurred. The trusted body gate saw insu
 - [`docs/visit-report-source-coordinates.md`](docs/visit-report-source-coordinates.md) — exact source coordinates and report navigation
 - [`docs/visit-report-observed-map.md`](docs/visit-report-observed-map.md) — observed pages, routes, and venue boundaries
 - [`docs/visit-report-multiple-individuals.md`](docs/visit-report-multiple-individuals.md) — isolated report namespaces and primary compatibility
+- [`docs/repository-document-maniac.md`](docs/repository-document-maniac.md) — a Stray AI disposition for obsessively reading repository documents as places
 - [`docs/roadmap.md`](docs/roadmap.md) — current milestone state
 - [`agents/stray-001/`](agents/stray-001/) — the first individual
 
