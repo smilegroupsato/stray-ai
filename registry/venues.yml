@@ -1,0 +1,14 @@
+# Trusted Venue identities allowed into Multi-Venue Wake Selection.
+# This registry contains no Venue content, snapshot content, local absolute paths,
+# repository instructions, brain commands, or automatic execution policy.
+
+schema_version: 0.1
+
+venues:
+  - venue_id: eternal-free-party
+    display_name: Eternal Free Party
+    selection_enabled: true
+
+  - venue_id: genai-ron-rc
+    display_name: GENAI-RON Repository Context
+    selection_enabled: true
