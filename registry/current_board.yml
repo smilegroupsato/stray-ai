@@ -1,0 +1,74 @@
+# Stray AI Current Board v0
+# 計画上の現在地を保持する正本。live状態はpublish時にpersistent agent dataから読む。
+
+schema_version: 0.1
+title: Stray AI Current Board
+updated_at: 2026-07-23
+
+now:
+  title: Multi-Venue Wake Selection v0
+  stage: design
+  next_action: Issueを作成し、Venue候補提示と選択の安全境界を確定する
+  implementation_authorized: false
+  notes:
+    - Venue本文は読まない
+    - snapshot取得・Request作成・Visitは別工程のまま保つ
+    - remain_asleepを有効な選択として維持する
+
+next:
+  - title: Multi-Venue Wake Selection設計レビュー
+    detail: Venue Registryから提示できるtrusted metadataと、本人へ渡す情報の上限を確認する
+  - title: 実装着手Decision
+    detail: 設計承認後に、synthetic agentだけで検証するか判断する
+  - title: devbox synthetic validation
+    detail: persistent stray-001を変更せず、複数Venueを交互に扱う選択を検証する
+
+hold:
+  - title: SGOS ConsoleからRequest Reviewへのread-only導線
+    detail: Console Home・read-only view配置方針・安全確認・昇格Decisionの全条件待ち
+  - title: execution_failedの人間レビュー型recovery
+    detail: 自動retryを導入せず、別の安全レビューで扱う
+  - title: Console統合
+    detail: Current Board YAMLを将来のConsole入力候補とするが、現時点では実装しない
+
+recently_done:
+  - title: Current Board v0
+    detail: 計画YAMLとlive状態を一枚のread-only HTMLへ統合する暫定interface
+  - title: 最新の安全修正
+    items:
+      - Venue単位のwake snapshot比較
+      - Internal Gateway Request Review v0
+      - Visit Request Review & Cancellation v0
+      - Human-approved Visit Execution v0
+      - Wake-to-Visit Handoff v0
+  - title: 完了済み基盤
+    items:
+      - v0.1 The First Visitor
+      - v0.1.1 The First Persistent Visitor
+      - v0.2 The First Wake Judgment
+      - Visit Report v0
+      - Venue Operations v0
+      - Memory provenance v0
+
+parking_lot:
+  - title: EFP SNS投稿
+    items:
+      - Bluesky
+      - Mastodon / indieweb.social
+      - defcon.social
+      - X
+      - Instagram
+  - title: 新しいVenue候補
+    detail: Venue Registryとbounded snapshot手順が整ったものだけを候補化する
+  - title: 複数individualの追加
+    detail: 観測対応のみ完了。誕生・wake・Visitの自動化はしない
+
+not_doing:
+  - automatic wake
+  - automatic Visit
+  - scheduler / cron / systemd timer
+  - automatic snapshot fetch
+  - automatic approval / cancellation / retry
+  - automatic Gateway publish
+  - Visit ReportからCurrent BoardやRequest Reviewへの運用導線追加
+  - SGOS Consoleの先取り実装
