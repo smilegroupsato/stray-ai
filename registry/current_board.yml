@@ -4,7 +4,7 @@
 schema_version: 0.1
 title: Stray AI Current Board
 updated_at: 2026-07-24
-last_updated_at: 2026-07-24 12:37 JST
+last_updated_at: 2026-07-24 12:41 JST
 
 now:
   title: Stray-002 persistent runtime birth implementation
@@ -12,7 +12,7 @@ now:
   stage: runtime birth implementation
   next_action: birth実装をreview・mergeし、承認済みcommitを固定してdevboxで一度だけ実行する
   implementation_authorized: true
-  issue: pending PR
+  issue: PR #70
   notes:
     - 2026-07-24に人間がpersistent runtime birthを明示承認した
     - 専用birth scriptは既存stray-002を上書きせず、stagingから一度だけ配置する
@@ -102,6 +102,7 @@ parking_lot:
     detail: Venue Registryとbounded snapshot手順が整ったものだけを候補化する
 
 update_history:
+  - "2026-07-24 12:41 JST：persistent runtime birth実装をdraft PR #70として公開。persistent data・wake・Visit・Report publish・schedulerは未実行。"
   - "2026-07-24 12:37 JST：persistent runtime birthの明示承認を受け、専用profile・一回限りのfail-closed birth script・検証test・手順文書の実装段階へ移行。wake・Visit・Report publish・schedulerは未承認のまま保持。"
   - "2026-07-24 12:28 JST：共有 Current Board IndexへのリンクをLIVE欄からページトップ左上へ移動。"
   - "2026-07-24 12:19 JST：synthetic isolation validationをdraft PR #68として公開し、persistent runtime birthは別承認のまま保持。"
