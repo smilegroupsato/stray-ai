@@ -1,7 +1,7 @@
 # Stray-002 Persistent Runtime Birth
 
 - ページ作成日時：2026-07-24 12:37 JST
-- 最終更新日時：2026-07-24 12:37 JST
+- 最終更新日時：2026-07-24 12:52 JST
 
 ## Purpose
 
@@ -65,6 +65,27 @@ bash scripts/devbox/birth-stray-002-v0.sh
 The command is intentionally not idempotent. A second invocation fails instead
 of treating an existing individual as replaceable setup state.
 
+## Verified birth
+
+The one-time birth completed on the devbox at `2026-07-24 12:50 JST` from
+source commit `9291bed8fd9dab0eb77ddea65ddc7d09e5d06669`.
+
+Verification confirmed:
+
+- persistent path:
+  `/srv/sgos/data/stray-ai/agents/stray-002`;
+- `status: resting`;
+- `visit_count: 0`;
+- `document_rummage_count: 1`;
+- empty `visits/`, `wake_checks/`, `wake_selections/`, and
+  `visit_requests/` namespaces;
+- no wake, Visit, scheduler, or Report publication effect;
+- `stray-001` remained the unchanged primary individual.
+
+The repository-backed first home-shelf rummage remains part of the initial
+body. The first rummage that changes the devbox-backed persistent body is a
+separate, unapproved operation.
+
 ## Remaining boundaries
 
 Persistent birth does not authorize:
@@ -81,5 +102,8 @@ Each is a later explicit decision.
 
 ## Update History
 
+- 2026-07-24 12:52 JST：Recorded the verified devbox birth, source commit,
+  initial persistent state, empty runtime namespaces, and unchanged execution
+  boundaries.
 - 2026-07-24 12:37 JST：Defined the one-time fail-closed persistent birth
   procedure, namespace, invariants, and post-birth boundaries for `stray-002`.

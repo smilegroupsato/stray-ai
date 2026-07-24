@@ -4,37 +4,33 @@
 schema_version: 0.1
 title: Stray AI Current Board
 updated_at: 2026-07-24
-last_updated_at: 2026-07-24 12:41 JST
+last_updated_at: 2026-07-24 12:52 JST
 
 now:
-  title: Stray-002 persistent runtime birth implementation
-  purpose: 承認済みのstray-002を、stray-001を変更せず、一回限りのfail-closed手順でdevbox persistent dataへ誕生させる
-  stage: runtime birth implementation
-  next_action: birth実装をreview・mergeし、承認済みcommitを固定してdevboxで一度だけ実行する
-  implementation_authorized: true
-  issue: PR #70
+  title: Stray-002 first devbox-backed rummage decision
+  purpose: persistent bodyとして誕生したstray-002に、実データを使う最初のbounded document rummageを許可するか、その範囲と不変条件を明示判断する
+  stage: execution decision
+  next_action: first devbox-backed rummageの対象・最大範囲・記録先・停止条件をreviewし、実行可否を人間が明示判断する
+  implementation_authorized: false
+  issue: null
   notes:
-    - 2026-07-24に人間がpersistent runtime birthを明示承認した
-    - 専用birth scriptは既存stray-002を上書きせず、stagingから一度だけ配置する
-    - profile・memory・state・observation logと空の個体別runtime namespaceだけを作成する
-    - birth.jsonにsource commit・template hash・非実行effectを記録する
-    - stray-001のprofile・memory・state hash不変をbirth処理内で確認する
+    - 2026-07-24 12:50 JSTにsource commit 9291bed8fd9dab0eb77ddea65ddc7d09e5d06669からpersistent stray-002が誕生した
+    - persistent namespaceは/srv/sgos/data/stray-ai/agents/stray-002
+    - birth verificationはborn true、resting、visit_count 0、document_rummage_count 1を確認した
+    - wake・Visit・scheduler・Report publishは実行されず、個体別runtime directoryは空のまま
+    - stray-001はprimary individualのままで、birth処理による変更はない
     - synthetic fixture上でstate・memory・wake・selection・Visit Request・reportの二個体分離を統合検証した
     - 他個体のwake recordと移植されたVisit Requestは実行前にfail-closedで拒否された
     - root compatibility aliasは明示したprimary individualであるstray-001に固定された
-    - production code・persistent runtime data・live Venue・published Surfaceには変更を加えていない
-    - Visit approval・Visit execution・wake/selection自動化・schedulerは実行または導入していない
     - stray-002はstray-001とは別個体で、湿った地下図書室の書架の隙間をhomeとする
-    - 最初のhome-shelf rummageは2026-07-23 21:56 JSTに1回だけ記録済み
-    - repository上のstateはresting、visit_count 0、document_rummage_count 1
-    - devbox persistent dataとしてのstray-002はまだ作成していない
-    - stray-001のpersistent stateには変更を加えていない
+    - repository上の最初のhome-shelf rummageは2026-07-23 21:56 JSTに1回だけ記録済み
+    - first devbox-backed rummageはpersistent bodyを初めて変化させる別工程で、まだ承認・実行していない
 
 next:
-  - title: Persistent Stray-002 runtime birth verification
-    detail: approved commitから一度だけbirthを実行し、個体別namespace・birth manifest・stray-001 hash不変を確認する
-  - title: First devbox-backed rummage decision
-    detail: persistent runtime birthが承認・完了した場合に限り、実データを使う最初のbounded rummageを別の明示判断として扱う
+  - title: First devbox-backed rummage boundary
+    detail: repository documentsだけを候補とし、対象数・読み方・memory/state/observation-logへの最大変更・失敗時停止を実行前に固定する
+  - title: Explicit rummage authorization
+    detail: 設計確認後、人間が明示承認した場合だけ一度実行する。wake・Visit・scheduler・Report publishの承認には含めない
 
 hold:
   - title: Legacy Current Board redirect
@@ -47,6 +43,8 @@ hold:
     detail: Current Board YAMLを将来のConsole入力候補とするが、現時点では実装しない
 
 recently_done:
+  - title: Stray-002 persistent runtime birth
+    detail: 2026-07-24 12:50 JST、source commit 9291bed8fd9dab0eb77ddea65ddc7d09e5d06669からdevbox persistent namespaceへ一度だけ誕生。resting、visit_count 0、document_rummage_count 1、runtime directory空、stray-001 primary不変、wake・Visit・scheduler・Report publish未実行を確認
   - title: Stray-002 synthetic multi-individual isolation validation
     detail: temporaryな二個体fixtureでselection・wake・Visit Request境界・reportを統合検証し、state/memory不変、他個体record拒否、個体別report namespace、stray-001 primary互換を確認。production codeとpersistent dataは不変
   - title: Stray-002 repository birth
@@ -102,6 +100,7 @@ parking_lot:
     detail: Venue Registryとbounded snapshot手順が整ったものだけを候補化する
 
 update_history:
+  - "2026-07-24 12:52 JST：persistent stray-002の誕生と非実行effectを確認し、現在地をfirst devbox-backed rummageの明示判断へ移行。rummage・wake・Visit・scheduler・Report publishは未承認・未実行。"
   - "2026-07-24 12:41 JST：persistent runtime birth実装をdraft PR #70として公開。persistent data・wake・Visit・Report publish・schedulerは未実行。"
   - "2026-07-24 12:37 JST：persistent runtime birthの明示承認を受け、専用profile・一回限りのfail-closed birth script・検証test・手順文書の実装段階へ移行。wake・Visit・Report publish・schedulerは未承認のまま保持。"
   - "2026-07-24 12:28 JST：共有 Current Board IndexへのリンクをLIVE欄からページトップ左上へ移動。"
