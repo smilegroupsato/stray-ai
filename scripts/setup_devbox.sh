@@ -5,7 +5,7 @@ REPO_DIR="${REPO_DIR:-/srv/sgos/repos/stray-ai}"
 DATA_DIR="${DATA_DIR:-/srv/sgos/data/stray-ai}"
 PYTHON_BIN="${PYTHON_BIN:-python3}"
 
-if [[ ! -d "$REPO_DIR/.git" ]]; then
+if ! git -C "$REPO_DIR" rev-parse --git-dir >/dev/null 2>&1; then
   echo "Expected an existing clone at $REPO_DIR" >&2
   echo "Clone first: git clone https://github.com/smilegroupsato/stray-ai.git $REPO_DIR" >&2
   exit 1
@@ -20,6 +20,10 @@ mkdir -p \
   "$DATA_DIR/outbox/traces" \
   "$DATA_DIR/reports" \
   "$DATA_DIR/backups"
+
+if [[ -d "$DATA_DIR/agents/stray-002" && ! -L "$DATA_DIR/agents/stray-002" ]]; then
+  mkdir -p "$DATA_DIR/agents/stray-002/rummages"
+fi
 
 if [[ ! -d "$REPO_DIR/.venv" ]]; then
   "$PYTHON_BIN" -m venv "$REPO_DIR/.venv"
@@ -210,6 +214,13 @@ exec "$DATA_DIR/select-wake-venue.sh" \
 EOF
 chmod 750 "$DATA_DIR/select-wake-venue-llm.sh"
 
+cat > "$DATA_DIR/rummage-stray-002-llm.sh" <<EOF
+#!/usr/bin/env bash
+set -euo pipefail
+exec bash "$REPO_DIR/scripts/rummage_stray_002_llm.sh" "\$@"
+EOF
+chmod 750 "$DATA_DIR/rummage-stray-002-llm.sh"
+
 "$REPO_DIR/.venv/bin/python" -m pytest "$REPO_DIR/tests"
 
 echo "Devbox habitat prepared."
@@ -225,3 +236,4 @@ echo "Deterministic EFP wake check: $DATA_DIR/check-wake-eternal-free-party.sh"
 echo "LLM EFP wake check: $DATA_DIR/check-wake-eternal-free-party-llm.sh"
 echo "Deterministic multi-Venue wake selection: $DATA_DIR/select-wake-venue.sh"
 echo "LLM multi-Venue wake selection: $DATA_DIR/select-wake-venue-llm.sh"
+echo "LLM Stray-002 document rummage: $DATA_DIR/rummage-stray-002-llm.sh"
