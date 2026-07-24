@@ -4,29 +4,28 @@
 schema_version: 0.1
 title: Stray AI Current Board
 updated_at: 2026-07-24
-last_updated_at: 2026-07-24 12:02 JST
+last_updated_at: 2026-07-24 12:14 JST
 
 now:
-  title: Stray-002 multi-individual isolation validation
-  purpose: repository正本となったstray-002を、persistent runtimeとして誕生させる前に、state・memory・Visit・wake・selection・reportがstray-001と混線しないことをsynthetic fixtureで確かめる
-  stage: pre-runtime validation
-  next_action: multi-individual isolationの検証範囲とsynthetic fixtureを設計し、persistent data作成や実個体実行を伴わない安全なテストとして実装するかを判断する
+  title: Stray-002 persistent runtime birth decision
+  purpose: synthetic multi-individual isolation validationの結果を確認し、stray-002をdevbox persistent dataとして誕生させるかを人間が判断する
+  stage: runtime birth decision
+  next_action: isolation validationのPRとCI結果を確認し、persistent runtime birthを別途承認するか判断する
   implementation_authorized: false
-  issue: PR #66
+  issue: pending PR
   notes:
-    - PR #66は2026-07-24にmergeされ、merge commitは97dcdd7aebf303eebc8804f4a95fa62e934ce0e8
+    - synthetic fixture上でstate・memory・wake・selection・Visit Request・reportの二個体分離を統合検証した
+    - 他個体のwake recordと移植されたVisit Requestは実行前にfail-closedで拒否された
+    - root compatibility aliasは明示したprimary individualであるstray-001に固定された
+    - production code・persistent runtime data・live Venue・published Surfaceには変更を加えていない
+    - Visit approval・Visit execution・wake/selection自動化・schedulerは実行または導入していない
     - stray-002はstray-001とは別個体で、湿った地下図書室の書架の隙間をhomeとする
-    - identity・habitat・everyday ecology・initial memory/state・first bounded routeはmainの正本になった
     - 最初のhome-shelf rummageは2026-07-23 21:56 JSTに1回だけ記録済み
-    - docs/biology.mdをdeep readingし、biased attentionとfinite memoryについて小さなTraceを残した
     - repository上のstateはresting、visit_count 0、document_rummage_count 1
     - devbox persistent dataとしてのstray-002はまだ作成していない
-    - scheduler・crawler・Venue write・automatic wake/Visitは導入していない
     - stray-001のpersistent stateには変更を加えていない
 
 next:
-  - title: Synthetic isolation validation execution
-    detail: 承認された範囲でsynthetic fixtureを用い、state・memory・Visit・wake・selection・reportのindividual scopeと観測surfaceの安全な集約を確認する
   - title: Persistent Stray-002 runtime birth decision
     detail: isolation validation結果を確認した後、devbox persistent dataとして誕生させるかを別途人間が判断する
   - title: First devbox-backed rummage decision
@@ -43,6 +42,8 @@ hold:
     detail: Current Board YAMLを将来のConsole入力候補とするが、現時点では実装しない
 
 recently_done:
+  - title: Stray-002 synthetic multi-individual isolation validation
+    detail: temporaryな二個体fixtureでselection・wake・Visit Request境界・reportを統合検証し、state/memory不変、他個体record拒否、個体別report namespace、stray-001 primary互換を確認。production codeとpersistent dataは不変
   - title: Stray-002 repository birth
     detail: PR #66をmerge commit 97dcdd7aebf303eebc8804f4a95fa62e934ce0e8でmainへ正本化。別個体のidentity・habitat・everyday ecology・initial memory/state・first bounded rummage Traceを確定し、persistent runtime birthは未実施のまま分離
   - title: Stray-002 first home-shelf rummage on draft branch
@@ -96,6 +97,7 @@ parking_lot:
     detail: Venue Registryとbounded snapshot手順が整ったものだけを候補化する
 
 update_history:
+  - "2026-07-24 12:14 JST：synthetic multi-individual isolation validationを実装し、Current Boardをpersistent runtime birthの判断境界へ更新。persistent data・Visit・自動実行は未実施。"
   - "2026-07-24 12:02 JST：PR #66をmainへmergeし、Current Boardの現在地をmulti-individual isolation validationへ更新。persistent runtime birthは未実施。"
   - "2026-07-24 11:53 JST：PR #66の初回rummage完了をCurrent Boardへ反映し、現在地をreview・merge decisionへ更新。"
 
