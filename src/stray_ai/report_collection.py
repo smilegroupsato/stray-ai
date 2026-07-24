@@ -147,6 +147,11 @@ def render_collection_index(
             links.insert(1, _link(f"{individual.relative_root}/latest.html", "Latest"))
 
         last_visit = escape(individual.last_visit or "No visit recorded")
+        visit_state = (
+            '<span class="visit-state">NO VISITS YET</span>'
+            if individual.visit_count == 0
+            else ""
+        )
         cards.append(
             '<article class="individual-card">'
             f'<div class="card-head"><div><h2>{identity}</h2>{primary_badge}</div>'
@@ -155,6 +160,7 @@ def render_collection_index(
             f'<div><span>Visits</span><strong>{individual.visit_count}</strong></div>'
             f'<div><span>Last visit</span><strong>{last_visit}</strong></div>'
             '</div>'
+            f"{visit_state}"
             f'<nav aria-label="Reports for {escape(individual.agent_id, quote=True)}">'
             + "".join(links)
             + '</nav></article>'
@@ -188,7 +194,7 @@ h1{{font-size:42px;margin:9px 0 10px}}.intro{{color:var(--muted);max-width:720px
 .card-head{{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}}h2{{margin:0;font-size:24px}}.name{{display:block;color:var(--muted);font-size:13px;font-weight:400;margin-top:5px}}
 .badge{{display:inline-block;margin-top:10px;color:var(--accent);font-size:10px;letter-spacing:.14em}}.status{{border:1px solid var(--line);border-radius:999px;padding:7px 10px;color:var(--accent);font-size:12px}}
 .metrics{{display:grid;gap:10px;margin:22px 0}}.metrics div{{display:flex;justify-content:space-between;gap:16px;border-bottom:1px solid var(--line);padding-bottom:10px}}
-.metrics span{{color:var(--muted)}}.metrics strong{{font-size:13px;text-align:right;overflow-wrap:anywhere}}nav{{display:flex;gap:9px;flex-wrap:wrap}}nav a{{color:var(--text);text-decoration:none;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:9px 11px}}nav a:hover,nav a:focus-visible{{border-color:var(--accent);color:var(--accent)}}
+.metrics span{{color:var(--muted)}}.metrics strong{{font-size:13px;text-align:right;overflow-wrap:anywhere}}.visit-state{{display:block;margin:-6px 0 16px;color:var(--muted);font-size:10px;letter-spacing:.14em}}nav{{display:flex;gap:9px;flex-wrap:wrap}}nav a{{color:var(--text);text-decoration:none;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:9px 11px}}nav a:hover,nav a:focus-visible{{border-color:var(--accent);color:var(--accent)}}
 .empty p,footer{{color:var(--muted)}}footer{{margin-top:24px;font-size:12px}}@media(max-width:600px){{h1{{font-size:34px}}}}
 </style>
 </head>

@@ -256,3 +256,72 @@ def test_empty_collection_is_truthful_and_has_no_primary_aliases(tmp_path: Path)
     assert not (output_dir / "latest.html").exists()
     assert not (output_dir / "map.html").exists()
     assert not (output_dir / "visits.html").exists()
+
+
+def test_collection_displays_born_individual_without_visits(tmp_path: Path) -> None:
+    agents_dir = tmp_path / "agents"
+    output_dir = tmp_path / "reports"
+    _write_agent(
+        agents_dir,
+        "stray-001",
+        name="unnamed",
+        status="resting",
+        visit_stem="2026-07-20_104432",
+        started_at="2026-07-20T10:44:32+09:00",
+        page_prefix="Alpha",
+    )
+    second = agents_dir / "stray-002"
+    (second / "visits").mkdir(parents=True)
+    (second / "profile.yml").write_text(
+        "id: stray-002\nname: Repository Document Maniac\nkind: visitor\n",
+        encoding="utf-8",
+    )
+    (second / "state.json").write_text(
+        json.dumps({"status": "resting", "visit_count": 0}),
+        encoding="utf-8",
+    )
+
+    result = generate_report_collection(agents_dir, output_dir, "stray-001")
+
+    assert result["individual_count"] == 2
+    assert result["total_visit_count"] == 1
+    assert result["individuals"][1] == {
+        "agent_id": "stray-002",
+        "visit_count": 0,
+        "status": "resting",
+        "last_visit": None,
+        "index_file": str(
+            output_dir / "individuals" / "stray-002" / "index.html"
+        ),
+        "latest_report": None,
+        "map_file": str(output_dir / "individuals" / "stray-002" / "map.html"),
+        "observed_venue_count": 0,
+        "observed_node_count": 0,
+        "observed_edge_count": 0,
+    }
+
+    soup = BeautifulSoup(
+        (output_dir / "index.html").read_text(encoding="utf-8"),
+        "html.parser",
+    )
+    second_card = next(
+        card
+        for card in soup.select(".individual-card")
+        if card.select_one("h2").get_text(" ", strip=True).startswith("stray-002")
+    )
+    assert "Repository Document Maniac" in second_card.get_text(" ", strip=True)
+    assert second_card.select_one(".status").get_text(strip=True) == "resting"
+    assert second_card.select_one(".visit-state").get_text(strip=True) == (
+        "NO VISITS YET"
+    )
+    assert second_card.select_one(
+        'a[href="individuals/stray-002/index.html"]'
+    ) is not None
+    assert second_card.select_one(
+        'a[href="individuals/stray-002/map.html"]'
+    ) is not None
+    assert second_card.select_one(
+        'a[href="individuals/stray-002/latest.html"]'
+    ) is None
+    assert (output_dir / "individuals" / "stray-002" / "index.html").is_file()
+    assert (output_dir / "individuals" / "stray-002" / "map.html").is_file()
