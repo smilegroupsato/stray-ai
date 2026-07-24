@@ -17,6 +17,7 @@ from stray_ai.rummage import (
 
 _JST = ZoneInfo("Asia/Tokyo")
 _WHEN = datetime(2026, 7, 24, 16, 20, tzinfo=_JST)
+_HOME_LOCATION = "damp-underground-library-shelf-gap"
 
 
 def _agent(root: Path) -> Path:
@@ -45,7 +46,7 @@ trace:
             {
                 "status": "resting",
                 "visit_count": 0,
-                "current_location": None,
+                "current_location": _HOME_LOCATION,
                 "document_rummage_count": 1,
                 "unrelated_preserved_field": {"keep": True},
             }
@@ -182,7 +183,7 @@ def test_command_rummage_deep_reads_multiple_documents_and_preserves_visit_state
 
     state = json.loads((agent / "state.json").read_text(encoding="utf-8"))
     assert state["status"] == "resting"
-    assert state["current_location"] is None
+    assert state["current_location"] == _HOME_LOCATION
     assert state["visit_count"] == 0
     assert state["document_rummage_count"] == 2
     assert state["runtime_rummage_count"] == 1
@@ -254,6 +255,32 @@ def test_exact_identity_and_bounded_route_are_required(tmp_path: Path) -> None:
             confirm_agent_id="stray-002",
             now=_WHEN,
         )
+
+
+def test_rummage_requires_the_individuals_home_shelf_gap(tmp_path: Path) -> None:
+    agent = _agent(tmp_path)
+    repository, route = _repository(tmp_path)
+    state_path = agent / "state.json"
+    state = json.loads(state_path.read_text(encoding="utf-8"))
+    state["current_location"] = None
+    state_path.write_text(json.dumps(state) + "\n", encoding="utf-8")
+    brain = CommandRummageBrain(
+        [sys.executable, str(_adapter(tmp_path))],
+        label="synthetic-qwen",
+        timeout_seconds=5,
+    )
+
+    with pytest.raises(RummageError, match="underground library shelf gap"):
+        run_rummage(
+            agent_dir=agent,
+            repository_root=repository,
+            route=route,
+            brain=brain,
+            confirm_agent_id="stray-002",
+            now=_WHEN,
+        )
+
+    assert list((agent / "rummages").iterdir()) == []
 
 
 def test_symlinked_rummage_namespace_is_rejected(tmp_path: Path) -> None:

@@ -19,6 +19,7 @@ _JST = ZoneInfo("Asia/Tokyo")
 _TEXT_SUFFIXES = {".json", ".md", ".markdown", ".txt", ".yaml", ".yml"}
 _MAX_DOCUMENT_CHARACTERS = 12_000
 _MAX_COVER_CHARACTERS = 1_600
+_HOME_LOCATION = "damp-underground-library-shelf-gap"
 
 
 class RummageError(RuntimeError):
@@ -94,8 +95,10 @@ def _read_state(agent_dir: Path) -> dict[str, Any]:
         raise RummageError("state.json must contain an object")
     if value.get("status") != "resting":
         raise RummageError("the individual must be resting before a rummage")
-    if value.get("current_location") is not None:
-        raise RummageError("a resting individual must not have a current location")
+    if value.get("current_location") != _HOME_LOCATION:
+        raise RummageError(
+            "the individual must be resting in its damp underground library shelf gap"
+        )
     return value
 
 
@@ -698,8 +701,8 @@ def run_rummage(
 
     updated_state = dict(state)
     updated_state["status"] = "resting"
-    updated_state["current_location"] = None
-    updated_state["last_location"] = "damp-underground-library-shelf-gap"
+    updated_state["current_location"] = _HOME_LOCATION
+    updated_state["last_location"] = _HOME_LOCATION
     updated_state["last_rummage_exit_reason"] = (
         "returned_after_runtime_document_rummage"
     )
