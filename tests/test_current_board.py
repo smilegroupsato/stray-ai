@@ -365,6 +365,14 @@ def test_destination_symlink_is_rejected(tmp_path: Path) -> None:
     assert outside.read_text(encoding="utf-8") == "outside"
 
 
+def test_repository_current_board_source_does_not_expose_host_paths() -> None:
+    source = (
+        Path(__file__).parents[1] / "registry/current_board.yml"
+    ).read_text(encoding="utf-8")
+
+    assert "/srv/" not in source
+
+
 def test_publisher_script_uses_shared_namespace_without_legacy_deletion() -> None:
     script = (
         Path(__file__).parents[1]
