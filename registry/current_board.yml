@@ -4,16 +4,21 @@
 schema_version: 0.1
 title: Stray AI Current Board
 updated_at: 2026-07-24
-last_updated_at: 2026-07-24 12:28 JST
+last_updated_at: 2026-07-24 12:37 JST
 
 now:
-  title: Stray-002 persistent runtime birth decision
-  purpose: synthetic multi-individual isolation validationの結果を確認し、stray-002をdevbox persistent dataとして誕生させるかを人間が判断する
-  stage: runtime birth decision
-  next_action: isolation validationのPRとCI結果を確認し、persistent runtime birthを別途承認するか判断する
-  implementation_authorized: false
-  issue: PR #68
+  title: Stray-002 persistent runtime birth implementation
+  purpose: 承認済みのstray-002を、stray-001を変更せず、一回限りのfail-closed手順でdevbox persistent dataへ誕生させる
+  stage: runtime birth implementation
+  next_action: birth実装をreview・mergeし、承認済みcommitを固定してdevboxで一度だけ実行する
+  implementation_authorized: true
+  issue: pending PR
   notes:
+    - 2026-07-24に人間がpersistent runtime birthを明示承認した
+    - 専用birth scriptは既存stray-002を上書きせず、stagingから一度だけ配置する
+    - profile・memory・state・observation logと空の個体別runtime namespaceだけを作成する
+    - birth.jsonにsource commit・template hash・非実行effectを記録する
+    - stray-001のprofile・memory・state hash不変をbirth処理内で確認する
     - synthetic fixture上でstate・memory・wake・selection・Visit Request・reportの二個体分離を統合検証した
     - 他個体のwake recordと移植されたVisit Requestは実行前にfail-closedで拒否された
     - root compatibility aliasは明示したprimary individualであるstray-001に固定された
@@ -26,8 +31,8 @@ now:
     - stray-001のpersistent stateには変更を加えていない
 
 next:
-  - title: Persistent Stray-002 runtime birth decision
-    detail: isolation validation結果を確認した後、devbox persistent dataとして誕生させるかを別途人間が判断する
+  - title: Persistent Stray-002 runtime birth verification
+    detail: approved commitから一度だけbirthを実行し、個体別namespace・birth manifest・stray-001 hash不変を確認する
   - title: First devbox-backed rummage decision
     detail: persistent runtime birthが承認・完了した場合に限り、実データを使う最初のbounded rummageを別の明示判断として扱う
 
@@ -97,6 +102,7 @@ parking_lot:
     detail: Venue Registryとbounded snapshot手順が整ったものだけを候補化する
 
 update_history:
+  - "2026-07-24 12:37 JST：persistent runtime birthの明示承認を受け、専用profile・一回限りのfail-closed birth script・検証test・手順文書の実装段階へ移行。wake・Visit・Report publish・schedulerは未承認のまま保持。"
   - "2026-07-24 12:28 JST：共有 Current Board IndexへのリンクをLIVE欄からページトップ左上へ移動。"
   - "2026-07-24 12:19 JST：synthetic isolation validationをdraft PR #68として公開し、persistent runtime birthは別承認のまま保持。"
   - "2026-07-24 12:14 JST：synthetic multi-individual isolation validationを実装し、Current Boardをpersistent runtime birthの判断境界へ更新。persistent data・Visit・自動実行は未実施。"
