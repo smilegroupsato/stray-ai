@@ -4,7 +4,7 @@
 schema_version: 0.1
 title: Stray AI Current Board
 updated_at: 2026-07-24
-last_updated_at: 2026-07-24 12:52 JST
+last_updated_at: 2026-07-24 13:01 JST
 
 now:
   title: Stray-002 first devbox-backed rummage decision
@@ -15,7 +15,7 @@ now:
   issue: null
   notes:
     - 2026-07-24 12:50 JSTにsource commit 9291bed8fd9dab0eb77ddea65ddc7d09e5d06669からpersistent stray-002が誕生した
-    - persistent namespaceは/srv/sgos/data/stray-ai/agents/stray-002
+    - stray-002は独立したpersistent namespaceに保存され、stray-001とは分離されている
     - birth verificationはborn true、resting、visit_count 0、document_rummage_count 1を確認した
     - wake・Visit・scheduler・Report publishは実行されず、個体別runtime directoryは空のまま
     - stray-001はprimary individualのままで、birth処理による変更はない
@@ -100,6 +100,7 @@ parking_lot:
     detail: Venue Registryとbounded snapshot手順が整ったものだけを候補化する
 
 update_history:
+  - "2026-07-24 13:01 JST：公開Current Boardに含まれたdevbox内部パスを論理namespace表現へ置換し、static safety checkを維持したまま再公開可能に修正。"
   - "2026-07-24 12:52 JST：persistent stray-002の誕生と非実行effectを確認し、現在地をfirst devbox-backed rummageの明示判断へ移行。rummage・wake・Visit・scheduler・Report publishは未承認・未実行。"
   - "2026-07-24 12:41 JST：persistent runtime birth実装をdraft PR #70として公開。persistent data・wake・Visit・Report publish・schedulerは未実行。"
   - "2026-07-24 12:37 JST：persistent runtime birthの明示承認を受け、専用profile・一回限りのfail-closed birth script・検証test・手順文書の実装段階へ移行。wake・Visit・Report publish・schedulerは未承認のまま保持。"
