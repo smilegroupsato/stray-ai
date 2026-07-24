@@ -1,5 +1,9 @@
 # Stray AI Current Board v0
 
+ページ作成日時：2026-07-23 10:18 JST
+
+最終更新日時：2026-07-24 12:28 JST
+
 ## Purpose
 
 `Current Board` is a temporary read-only current-state interface used before SGOS Console exists.
@@ -84,7 +88,7 @@ creates nor claims completion of that redirect.
 
 Current Board is an operational current-state view. Visit Report remains an observation archive.
 
-Current Board LIVE contains one read-only relative link to the retained Visit Report entrance and a restrained link to the shared Current Board Index. No reverse Current Board link is added to Visit Reports, maps, world views, or source archive navigation.
+The page top-left contains one restrained relative link to the shared Current Board Index. Current Board LIVE contains one read-only relative link to the retained Visit Report entrance. No reverse Current Board link is added to Visit Reports, maps, world views, or source archive navigation.
 
 ## Safety boundary
 
@@ -102,3 +106,7 @@ Current Board v0 adds no:
 - SGOS Console implementation
 
 The YAML may later become an input to a Console card, but Console remains a separate future design decision.
+
+## 更新履歴
+
+- 2026-07-24 12:28 JST：共有 Current Board IndexへのリンクをLIVE欄からページトップ左上へ移動。
