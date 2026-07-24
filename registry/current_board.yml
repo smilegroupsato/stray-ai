@@ -4,7 +4,7 @@
 schema_version: 0.1
 title: Stray AI Current Board
 updated_at: 2026-07-24
-last_updated_at: 2026-07-24 12:14 JST
+last_updated_at: 2026-07-24 12:19 JST
 
 now:
   title: Stray-002 persistent runtime birth decision
@@ -12,7 +12,7 @@ now:
   stage: runtime birth decision
   next_action: isolation validationのPRとCI結果を確認し、persistent runtime birthを別途承認するか判断する
   implementation_authorized: false
-  issue: pending PR
+  issue: PR #68
   notes:
     - synthetic fixture上でstate・memory・wake・selection・Visit Request・reportの二個体分離を統合検証した
     - 他個体のwake recordと移植されたVisit Requestは実行前にfail-closedで拒否された
@@ -97,6 +97,7 @@ parking_lot:
     detail: Venue Registryとbounded snapshot手順が整ったものだけを候補化する
 
 update_history:
+  - "2026-07-24 12:19 JST：synthetic isolation validationをdraft PR #68として公開し、persistent runtime birthは別承認のまま保持。"
   - "2026-07-24 12:14 JST：synthetic multi-individual isolation validationを実装し、Current Boardをpersistent runtime birthの判断境界へ更新。persistent data・Visit・自動実行は未実施。"
   - "2026-07-24 12:02 JST：PR #66をmainへmergeし、Current Boardの現在地をmulti-individual isolation validationへ更新。persistent runtime birthは未実施。"
   - "2026-07-24 11:53 JST：PR #66の初回rummage完了をCurrent Boardへ反映し、現在地をreview・merge decisionへ更新。"
