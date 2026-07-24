@@ -256,3 +256,96 @@ def test_empty_collection_is_truthful_and_has_no_primary_aliases(tmp_path: Path)
     assert not (output_dir / "latest.html").exists()
     assert not (output_dir / "map.html").exists()
     assert not (output_dir / "visits.html").exists()
+
+
+def test_collection_displays_born_individual_without_visits(tmp_path: Path) -> None:
+    agents_dir = tmp_path / "agents"
+    output_dir = tmp_path / "reports"
+    _write_agent(
+        agents_dir,
+        "stray-001",
+        name="unnamed",
+        status="resting",
+        visit_stem="2026-07-20_104432",
+        started_at="2026-07-20T10:44:32+09:00",
+        page_prefix="Alpha",
+    )
+    second = agents_dir / "stray-002"
+    (second / "visits").mkdir(parents=True)
+    (second / "profile.yml").write_text(
+        "id: stray-002\nname: Repository Document Maniac\nkind: visitor\n",
+        encoding="utf-8",
+    )
+    (second / "state.json").write_text(
+        json.dumps({"status": "resting", "visit_count": 0}),
+        encoding="utf-8",
+    )
+
+    result = generate_report_collection(agents_dir, output_dir, "stray-001")
+
+    assert result["individual_count"] == 2
+    assert result["total_visit_count"] == 1
+    assert result["individuals"][1] == {
+        "agent_id": "stray-002",
+        "visit_count": 0,
+        "status": "resting",
+        "last_visit": None,
+        "index_file": str(
+            output_dir / "individuals" / "stray-002" / "index.html"
+        ),
+        "latest_report": None,
+        "map_file": str(output_dir / "individuals" / "stray-002" / "map.html"),
+        "observed_venue_count": 0,
+        "observed_node_count": 0,
+        "observed_edge_count": 0,
+    }
+
+    soup = BeautifulSoup(
+        (output_dir / "index.html").read_text(encoding="utf-8"),
+        "html.parser",
+    )
+    second_card = next(
+        card
+        for card in soup.select(".individual-card")
+        if card.select_one("h2").get_text(" ", strip=True).startswith("stray-002")
+    )
+    assert "Repository Document Maniac" in second_card.get_text(" ", strip=True)
+    assert second_card.select_one(".status").get_text(strip=True) == "resting"
+    assert second_card.select_one(".visit-state").get_text(strip=True) == (
+        "NO VISITS YET"
+    )
+    assert second_card.select_one(
+        'a[href="individuals/stray-002/index.html"]'
+    ) is not None
+    assert second_card.select_one(
+        'a[href="individuals/stray-002/map.html"]'
+    ) is not None
+    assert second_card.select_one(
+        'a[href="individuals/stray-002/latest.html"]'
+    ) is None
+    second_archive = (
+        output_dir / "individuals" / "stray-002" / "index.html"
+    ).read_text(encoding="utf-8")
+    second_archive_soup = BeautifulSoup(second_archive, "html.parser")
+    assert second_archive_soup.title is not None
+    assert second_archive_soup.title.get_text(strip=True) == (
+        "The Visits of stray-002"
+    )
+    assert second_archive_soup.select_one("h1").get_text(
+        " ", strip=True
+    ) == "The Visits of stray-002"
+    assert "No visit has entered the archive yet." in second_archive
+    assert "Silence here is an observed absence, not an error." in second_archive
+    assert "stray-001" not in second_archive
+    assert str(tmp_path) not in second_archive
+    assert (output_dir / "individuals" / "stray-002" / "map.html").is_file()
+
+    primary_archive = (output_dir / "visits.html").read_text(encoding="utf-8")
+    primary_archive_soup = BeautifulSoup(primary_archive, "html.parser")
+    assert primary_archive_soup.title is not None
+    assert primary_archive_soup.title.get_text(strip=True) == (
+        "The Visits of stray-001"
+    )
+    assert primary_archive_soup.select_one("h1").get_text(
+        " ", strip=True
+    ) == "The Visits of stray-001"

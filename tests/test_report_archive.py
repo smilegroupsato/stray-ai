@@ -172,3 +172,20 @@ def test_render_index_escapes_record_derived_strings() -> None:
     assert "<b>awake</b>" not in html
     assert "&lt;b&gt;awake&lt;/b&gt;" in html
     assert "<img src=x onerror=alert(1)>" not in html
+
+
+def test_render_index_resolves_agent_identity_in_documented_priority() -> None:
+    visit = _visit("2026-07-20T12:19:35+09:00")
+    visit["agent_id"] = "visit-agent"
+    path = Path("2026-07-20_121935.json")
+    state = {"agent_id": "state-agent", "id": "state-id"}
+
+    assert "The Visits of explicit-agent" in render_index(
+        [(path, visit)],
+        state,
+        agent_id="explicit-agent",
+    )
+    assert "The Visits of visit-agent" in render_index([(path, visit)], state)
+    assert "The Visits of state-agent" in render_index([], state)
+    assert "The Visits of state-id" in render_index([], {"id": "state-id"})
+    assert "The Visits of stray-001" in render_index([])

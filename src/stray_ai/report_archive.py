@@ -101,6 +101,7 @@ def _record_card(path: Path, visit: dict[str, Any], *, latest: bool) -> str:
 def render_index(
     records: list[tuple[Path, dict[str, Any]]],
     state: dict[str, Any] | None = None,
+    agent_id: str | None = None,
 ) -> str:
     state = state or {}
     newest_first = sorted(
@@ -109,8 +110,14 @@ def render_index(
         reverse=True,
     )
     latest_visit = newest_first[0][1] if newest_first else {}
-    agent_id = escape(
-        str(latest_visit.get("agent_id") or state.get("agent_id") or "stray-001")
+    display_agent_id = escape(
+        str(
+            agent_id
+            or latest_visit.get("agent_id")
+            or state.get("agent_id")
+            or state.get("id")
+            or "stray-001"
+        )
     )
     lifecycle = escape(str(state.get("status") or "unknown"))
     persistent_count = escape(str(state.get("visit_count", len(newest_first))))
@@ -135,7 +142,7 @@ def render_index(
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>The Visits of {agent_id}</title>
+<title>The Visits of {display_agent_id}</title>
 {favicon_link_html()}
 <style>
 {cyberpunk_css()}
@@ -158,7 +165,7 @@ footer{{margin-top:24px;color:var(--muted);font-size:12px}}@media(max-width:800p
 <main class="terminal-shell visit-archive-shell">
 <header class="title-zone">
 <div class="kicker">Stray AI · Visit Report v0 · Archive</div>
-<div class="title-row">{inline_title_mark_svg()}<h1>The Visits of {agent_id}</h1></div>
+<div class="title-row">{inline_title_mark_svg()}<h1>The Visits of {display_agent_id}</h1></div>
 <p class="intro">A local observation window into one visitor's recorded passages. This page offers no controls and starts no movement.</p>
 </header>
 <section class="state" aria-label="Persistent state">
@@ -179,6 +186,7 @@ def generate_archive(
     visits_dir: Path,
     output_dir: Path,
     state_path: Path | None = None,
+    agent_id: str | None = None,
 ) -> dict[str, Any]:
     visits_dir = visits_dir.resolve()
     output_dir = output_dir.resolve()
@@ -215,7 +223,11 @@ def generate_archive(
 
     index_path = output_dir / "index.html"
     index_path.write_text(
-        render_index([(path, visit) for path, visit, _ in rendered], state),
+        render_index(
+            [(path, visit) for path, visit, _ in rendered],
+            state,
+            agent_id=agent_id,
+        ),
         encoding="utf-8",
     )
     return {

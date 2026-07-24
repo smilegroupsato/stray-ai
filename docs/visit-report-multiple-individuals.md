@@ -30,6 +30,12 @@ The root collection entrance shows bounded metadata only:
 - last Visit time
 - relative links to that individual's archive, latest Report, and observed map
 
+An already born individual remains visible when its preserved Visit count is
+zero. Its card is marked `NO VISITS YET`, links to its empty archive and
+observed map, and does not expose a nonexistent latest Report. This lets a new
+individual such as `stray-002` appear truthfully without creating or simulating
+a Visit.
+
 Memory content, absolute local paths, secrets, and raw venue content are not rendered in the collection entrance.
 
 ## Isolation
@@ -96,3 +102,7 @@ The existing `--visit` and `--visits-dir` modes remain available for single-indi
 ## Boundaries
 
 Phase 4 adds no automatic birth, wake decision, Visit, scheduler, remote fetch, or remote write. It is a static observation surface only.
+
+Generating or publishing the persistent devbox Report remains a separate,
+explicit manual operation. Repository implementation and tests do not modify
+persistent agent data or the served Report tree.
