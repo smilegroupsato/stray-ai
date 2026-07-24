@@ -23,6 +23,8 @@
   ],
   "observation_log": "agents/stray-002/observation-log.md",
   "document_rummage_count": 1,
+  "runtime_rummage_count": 0,
+  "llm_rummage_count": 0,
   "last_document_rummage": "2026-07-23T21:56:00+09:00",
   "last_trace": "agents/stray-002/observation-log.md#2026-07-23-2156-jst--first-home-shelf-rummage"
 }

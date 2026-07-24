@@ -75,17 +75,27 @@ def test_birth_creates_one_isolated_persistent_individual(tmp_path: Path) -> Non
         "memory.md",
         "observation-log.md",
         "profile.yml",
+        "rummages",
         "state.json",
         "visit_requests",
         "visits",
         "wake_checks",
         "wake_selections",
     }
-    for directory in ("visit_requests", "visits", "wake_checks", "wake_selections"):
+    for directory in (
+        "rummages",
+        "visit_requests",
+        "visits",
+        "wake_checks",
+        "wake_selections",
+    ):
         assert (born / directory).is_dir()
         assert list((born / directory).iterdir()) == []
 
     manifest = json.loads((born / "birth.json").read_text(encoding="utf-8"))
+    state = json.loads((born / "state.json").read_text(encoding="utf-8"))
+    assert state["runtime_rummage_count"] == 0
+    assert state["llm_rummage_count"] == 0
     assert manifest["schema"] == "stray-persistent-birth-v0"
     assert manifest["agent_id"] == "stray-002"
     assert manifest["source_commit"]

@@ -290,6 +290,8 @@ def test_collection_displays_born_individual_without_visits(tmp_path: Path) -> N
         "visit_count": 0,
         "status": "resting",
         "last_visit": None,
+        "rummage_count": 0,
+        "rummage_report": None,
         "index_file": str(
             output_dir / "individuals" / "stray-002" / "index.html"
         ),

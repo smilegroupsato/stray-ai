@@ -10,6 +10,7 @@ from typing import Any
 
 import yaml
 
+from .report_rummage import generate_rummage_report
 from .report_source_archive import generate_source_aware_archive
 
 _AGENT_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$")
@@ -25,6 +26,8 @@ class IndividualReport:
     last_visit: str | None
     output_dir: Path
     archive_result: dict[str, Any]
+    rummage_count: int
+    rummage_report: str | None
 
     @property
     def relative_root(self) -> str:
@@ -142,6 +145,8 @@ def render_collection_index(
             _link(f"{individual.relative_root}/index.html", "Visits"),
             _link(f"{individual.relative_root}/map.html", "Observed map"),
         ]
+        if individual.rummage_report:
+            links.append(_link(f"{individual.relative_root}/rummages.html", "Rummages"))
         latest_path = individual.output_dir / "latest.html"
         if latest_path.is_file():
             links.insert(1, _link(f"{individual.relative_root}/latest.html", "Latest"))
@@ -158,6 +163,7 @@ def render_collection_index(
             f'<span class="status">{escape(individual.status)}</span></div>'
             '<div class="metrics">'
             f'<div><span>Visits</span><strong>{individual.visit_count}</strong></div>'
+            f'<div><span>Rummages</span><strong>{individual.rummage_count}</strong></div>'
             f'<div><span>Last visit</span><strong>{last_visit}</strong></div>'
             '</div>'
             f"{visit_state}"
@@ -247,6 +253,17 @@ def generate_report_collection(
             state_path if state_path.is_file() else None,
             agent_id=agent_id,
         )
+        rummage_result: dict[str, Any] = {
+            "rummage_count": 0,
+            "rummage_report": None,
+        }
+        rummages_dir = agent_dir / "rummages"
+        if rummages_dir.is_dir():
+            rummage_result = generate_rummage_report(
+                rummages_dir,
+                individual_output / "rummages.html",
+                agent_id=agent_id,
+            )
         individuals.append(
             IndividualReport(
                 agent_id=agent_id,
@@ -256,6 +273,8 @@ def generate_report_collection(
                 last_visit=_last_visit(agent_dir / "visits"),
                 output_dir=individual_output,
                 archive_result=archive_result,
+                rummage_count=int(rummage_result["rummage_count"]),
+                rummage_report=rummage_result["rummage_report"],
             )
         )
 
@@ -292,6 +311,8 @@ def generate_report_collection(
                 "visit_count": individual.visit_count,
                 "status": individual.status,
                 "last_visit": individual.last_visit,
+                "rummage_count": individual.rummage_count,
+                "rummage_report": individual.rummage_report,
                 "index_file": str(individual.output_dir / "index.html"),
                 "latest_report": individual.archive_result.get("latest_report"),
                 "map_file": individual.archive_result.get("map_file"),

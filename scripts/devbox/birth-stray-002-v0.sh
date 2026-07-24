@@ -11,7 +11,7 @@ AGENTS_DIR="$DATA_DIR/agents"
 TARGET_DIR="$AGENTS_DIR/$AGENT_ID"
 PRIMARY_DIR="$AGENTS_DIR/$PRIMARY_ID"
 
-if [[ ! -d "$REPO_DIR/.git" ]]; then
+if ! git -C "$REPO_DIR" rev-parse --git-dir >/dev/null 2>&1; then
   echo "Expected an existing repository clone at $REPO_DIR" >&2
   exit 1
 fi
@@ -75,6 +75,8 @@ if state.get("visit_count") != 0:
     raise SystemExit("birth state must have visit_count 0")
 if state.get("document_rummage_count") != 1:
     raise SystemExit("birth state must preserve exactly one repository home-shelf rummage")
+if state.get("runtime_rummage_count") != 0 or state.get("llm_rummage_count") != 0:
+    raise SystemExit("birth state must not claim a runtime rummage")
 PY
 
 STAGING_DIR="$(mktemp -d "$AGENTS_DIR/.${AGENT_ID}.birth.XXXXXX")"
@@ -90,6 +92,7 @@ for file in "${TEMPLATE_FILES[@]}"; do
   install -m 0640 "$TEMPLATE_DIR/$file" "$STAGING_DIR/$file"
 done
 mkdir -m 0750 \
+  "$STAGING_DIR/rummages" \
   "$STAGING_DIR/visits" \
   "$STAGING_DIR/wake_checks" \
   "$STAGING_DIR/wake_selections" \

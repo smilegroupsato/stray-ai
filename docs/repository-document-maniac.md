@@ -1,7 +1,7 @@
 # Repository Document Maniac
 
 ページ作成日時：2026-07-23 17:58 JST  
-最終更新日時：2026-07-23 21:49 JST
+最終更新日時：2026-07-24 16:05 JST
 
 The Repository Document Maniac is not a disposition of `stray-001`.
 
@@ -126,8 +126,25 @@ The first candidate route is now recorded in [`stray-002-first-rummage.md`](stra
 
 If it becomes too managerial, it should rest. If it becomes too exhaustive, it should stop. If it becomes merely obedient, it has stopped being stray.
 
+## Executable Rummage Body
+
+`stray-ai-rummage` is the first real runtime body for this ecology. It is separate from Visit, wake, and scheduler mechanics.
+
+The host validates a human-approved route of three to seven repository documents and exposes only cover excerpts during the first model call. `stray-002` may then choose zero to three documents for a second, deeper reading. A second model call returns bounded deep-reading residues, margin notes, optional sunlit thought, up to five memories, and at most one Trace.
+
+Every runtime rummage preserves:
+
+- the exact relative route and source hashes
+- which covers were skimmed and which documents were deeply read
+- the command-brain model and two protocol versions
+- human-readable memories and the shelf-gap observation log
+- an append-only JSON event under the persistent individual's `rummages/`
+
+The runtime count is stored separately from the earlier hand-authored prototype. A rummage does not increment `visit_count`, invoke wake, create a scheduler, edit repository content, or publish a Report by itself.
+
 ## Update History
 
+- 2026-07-24 16:05 JST：Defined the executable two-stage rummage body, multi-document deep reading, persistent event record, and separation from the hand-authored prototype.
 - 2026-07-23 21:49 JST：Added the first bounded home-shelf rummage route reference for `stray-002`.
 - 2026-07-23 21:09 JST：Added `stray-002`'s everyday document-rummaging ecology: skimming covers, deep reading, note taking, and sunlit thinking.
 - 2026-07-23 18:04 JST：Reframed the concept as a separate individual from `stray-001` and added its damp underground library habitat.

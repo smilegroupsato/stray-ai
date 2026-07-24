@@ -1,7 +1,7 @@
 # Stray-002 Persistent Runtime Birth
 
 - ページ作成日時：2026-07-24 12:37 JST
-- 最終更新日時：2026-07-24 12:52 JST
+- 最終更新日時：2026-07-24 16:05 JST
 
 ## Purpose
 
@@ -25,6 +25,7 @@ The birth target is:
 ├── memory.md
 ├── state.json
 ├── observation-log.md
+├── rummages/
 ├── visits/
 ├── wake_checks/
 ├── wake_selections/
@@ -83,14 +84,15 @@ Verification confirmed:
 - `stray-001` remained the unchanged primary individual.
 
 The repository-backed first home-shelf rummage remains part of the initial
-body. The first rummage that changes the devbox-backed persistent body is a
-separate, unapproved operation.
+body. It is a hand-authored prototype, not a runtime event. The first rummage
+that changes the devbox-backed persistent body uses a separate command-brain
+execution and records its own `runtime_rummage_count`.
 
 ## Remaining boundaries
 
-Persistent birth does not authorize:
+Persistent birth alone does not authorize:
 
-- the first devbox-backed document rummage;
+- an unconfirmed devbox-backed document rummage;
 - wake judgment or wake selection;
 - creation, approval, or execution of a Visit Request;
 - Visit Report regeneration or publication;
@@ -100,8 +102,13 @@ Persistent birth does not authorize:
 
 Each is a later explicit decision.
 
+The first command-brain rummage has since received explicit human
+authorization, but it remains unexecuted until the runtime implementation is
+merged, installed on devbox, and invoked with exact `stray-002` confirmation.
+
 ## Update History
 
+- 2026-07-24 16:05 JST：Separated the hand-authored prototype from runtime rummage records, added the persistent `rummages/` namespace, and recorded authorization without claiming execution.
 - 2026-07-24 12:52 JST：Recorded the verified devbox birth, source commit,
   initial persistent state, empty runtime namespaces, and unchanged execution
   boundaries.

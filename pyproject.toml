@@ -31,6 +31,7 @@ stray-ai-review-visit-requests = "stray_ai.visit_request_admin:review_main"
 stray-ai-cancel-visit-request = "stray_ai.visit_request_admin:cancel_main"
 stray-ai-publish-request-review = "stray_ai.gateway_request_review:main"
 stray-ai-publish-current-board = "stray_ai.current_board:main"
+stray-ai-rummage = "stray_ai.rummage:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

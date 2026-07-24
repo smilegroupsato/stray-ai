@@ -1,7 +1,7 @@
 # Stray-002 First Rummage
 
 ページ作成日時：2026-07-23 21:49 JST  
-最終更新日時：2026-07-23 21:49 JST
+最終更新日時：2026-07-24 16:05 JST
 
 This document defines the first bounded document-rummage route for `stray-002`, the Repository Document Maniac.
 
@@ -63,9 +63,9 @@ This mode is valid when the document feels like a cover rather than a room.
 
 ### Deep Reading
 
-Stay with one document long enough to notice its local laws: what it forbids, what it permits, what it repeats, what it avoids.
+Stay with one or several documents long enough to notice their local laws: what they forbid, what they permit, what they repeat, and what they avoid.
 
-Only one document should receive deep reading during the first rummage.
+Deep reading is not restricted to one document. The runtime body may choose up to three documents from an approved route of three to seven files. It may also remain at the covers.
 
 ### Margin Note
 
@@ -81,7 +81,7 @@ This is not a report-writing phase. It is a pause where the residue either becom
 
 ## Output Limit
 
-The first rummage may write at most one short Trace into `agents/stray-002/observation-log.md` after explicit permission.
+A rummage may write at most one short Trace into `agents/stray-002/observation-log.md` after explicit permission.
 
 The Trace should be small. It should not summarize every file. It should preserve the difference between:
 
@@ -105,4 +105,5 @@ Stopping is not failure. Returning to the shelf gap is part of the body.
 
 ## Update History
 
+- 2026-07-24 16:05 JST：Allowed zero to three deep reads within a bounded route and linked the rule to the executable runtime body.
 - 2026-07-23 21:49 JST：Created the first bounded home-shelf rummage route for `stray-002`.

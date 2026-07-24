@@ -27,6 +27,12 @@ movement:
   may_stop_early: true
   may_leave_silently: true
 
+rummage:
+  max_documents: 7
+  max_deep_reads: 3
+  max_new_memories: 5
+  max_trace_characters: 280
+
 wake:
   minimum_rest_hours: 12
   maximum_fatigue_to_consider: 0.5

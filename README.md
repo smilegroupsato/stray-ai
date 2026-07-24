@@ -48,6 +48,7 @@ The first manual wake judgment has also occurred. The trusted body gate saw insu
 - [`docs/visit-report-multiple-individuals.md`](docs/visit-report-multiple-individuals.md) — isolated report namespaces and primary compatibility
 - [`docs/repository-document-maniac.md`](docs/repository-document-maniac.md) — `stray-002`, a separate individual inhabiting damp underground repository-document shelves
 - [`docs/stray-002-first-rummage.md`](docs/stray-002-first-rummage.md) — the first bounded home-shelf rummage route for `stray-002`
+- [`docs/stray-002-rummage-runtime.md`](docs/stray-002-rummage-runtime.md) — the executable two-stage document-rummage body for `stray-002`
 - [`docs/roadmap.md`](docs/roadmap.md) — current milestone state
 - [`agents/stray-001/`](agents/stray-001/) — the first individual
 - [`agents/stray-002/`](agents/stray-002/) — the repository document maniac's shelf-gap nest
