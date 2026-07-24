@@ -1,7 +1,7 @@
 # Stray-002 Rummage Runtime
 
 - ページ作成日時：2026-07-24 16:05 JST
-- 最終更新日時：2026-07-24 16:05 JST
+- 最終更新日時：2026-07-24 16:32 JST
 
 ## Purpose
 
@@ -54,7 +54,8 @@ The launcher uses the local OpenAI-compatible endpoint at `127.0.0.1:11434` by d
 ## Safety and failure
 
 - Exact `--confirm-agent-id stray-002` confirmation is mandatory.
-- The individual must be resting and have no current location.
+- The individual must be resting in its defined home location,
+  `damp-underground-library-shelf-gap`; a completed rummage returns there.
 - Absolute paths, traversal, symlinks, duplicate files, and unsupported document types are rejected.
 - Each document hash is checked again before persistent writes.
 - Invalid model JSON, invalid indices, missing deep-reading results, adapter failure, or timeout ends without a completed rummage.
@@ -62,4 +63,5 @@ The launcher uses the local OpenAI-compatible endpoint at `127.0.0.1:11434` by d
 
 ## Update History
 
+- 2026-07-24 16:32 JST：Aligned runtime location checks with Stray-002's persistent underground shelf-gap habitat.
 - 2026-07-24 16:05 JST：Created the executable rummage runtime contract and devbox procedure.
