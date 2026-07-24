@@ -172,6 +172,15 @@ def test_publish_combines_plan_and_live_state_without_exposing_local_paths(
     assert soup.select_one('link[rel="icon"][href^="data:image/svg+xml,"]') is not None
     assert len(soup.select('a[href="../../stray-ai/"]')) == 1
     assert len(soup.select('a[href="../"]')) == 1
+    board_shell = soup.select_one("main.current-board-shell")
+    board_index_nav = soup.select_one("nav.board-index-nav")
+    assert board_shell is not None
+    assert board_index_nav is not None
+    assert board_shell.find(recursive=False) == board_index_nav
+    assert board_index_nav.select_one('a[href="../"]').get_text(strip=True) == (
+        "← 共有 Current Board Index"
+    )
+    assert soup.select_one('.live a[href="../"]') is None
     assert soup.select_one('a[href="../../stray-ai/"] [role="button"]') is None
     assert "--bg-0:#05070b" in rendered
     assert "--cyan:#39f6ff" in rendered

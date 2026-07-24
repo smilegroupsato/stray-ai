@@ -321,6 +321,8 @@ body {{ margin: 0; line-height: 1.55; }}
 main {{ width: min(1120px, calc(100% - 32px)); margin: 24px auto 48px; padding: 28px; }}
 header {{ margin-bottom: 24px; }}
 h1 {{ margin: 0 0 8px; font-size: clamp(1.8rem, 5vw, 3.3rem); letter-spacing: -0.04em; }}
+.board-index-nav {{ margin: 0 0 14px; }}
+.board-index-nav a {{ color: var(--cyan); text-underline-offset: 3px; }}
 .subtitle, .generated {{ color: var(--muted); margin: 4px 0; }}
 .readonly {{ border: 1px solid var(--line); background:var(--panel); border-radius: 12px; padding: 10px 14px; display: inline-block; margin-top: 12px; }}
 .now {{ position:relative;border: 1px solid rgba(255,230,109,.62); border-left:4px solid var(--yellow); background:linear-gradient(135deg,rgba(255,230,109,.12),var(--panel) 48%); box-shadow:inset 0 0 24px rgba(255,230,109,.035),0 0 26px rgba(255,230,109,.08); border-radius: 4px 18px 18px 4px; padding: 22px; margin-bottom: 20px; }}
@@ -356,6 +358,9 @@ h1 {{ margin: 0 0 8px; font-size: clamp(1.8rem, 5vw, 3.3rem); letter-spacing: -0
 </head>
 <body>
 <main class="terminal-shell current-board-shell">
+<nav class="board-index-nav" aria-label="Current Board navigation">
+<a href="../">← 共有 Current Board Index</a>
+</nav>
 <header class="title-zone">
 <div class="title-row">{inline_title_mark_svg()}<h1>{html.escape(board["title"])}</h1></div>
 <p class="subtitle">全体像・現在地・次の一手を一枚で見る暫定Current-State interface</p>
@@ -384,7 +389,6 @@ h1 {{ margin: 0 0 8px; font-size: clamp(1.8rem, 5vw, 3.3rem); letter-spacing: -0
 <div class="metric"><span class="label">INVALID LOCAL RECORDS</span><strong>{wake["invalid_file_count"] + live["invalid_request_count"]}</strong><small>wake / request files skipped</small></div>
 </div>
 <a href="../../stray-ai/">Stray AI · 訪問レポートを見る</a>
-<a href="../">共有 Current Board Index</a>
 </section>
 <div class="boards">{sections_html}</div>
 <p class="footer-note">手動生成・HTMLのみ。Visit Reportとは分離され、外部fetch、scheduler、自動publishはありません。</p>
