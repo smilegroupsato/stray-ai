@@ -85,9 +85,15 @@ def generate_source_aware_archive(
     output_dir: Path,
     state_path: Path | None = None,
     translations_path: Path | None = None,
+    agent_id: str | None = None,
 ) -> dict[str, Any]:
     visits_dir = visits_dir.resolve()
-    result = generate_archive(visits_dir, output_dir, state_path)
+    result = generate_archive(
+        visits_dir,
+        output_dir,
+        state_path,
+        agent_id=agent_id,
+    )
     translations = load_report_translations(
         translations_path or _default_translations_path(visits_dir)
     )

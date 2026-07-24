@@ -245,6 +245,7 @@ def generate_report_collection(
             agent_dir / "visits",
             individual_output,
             state_path if state_path.is_file() else None,
+            agent_id=agent_id,
         )
         individuals.append(
             IndividualReport(

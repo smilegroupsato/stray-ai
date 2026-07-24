@@ -323,5 +323,29 @@ def test_collection_displays_born_individual_without_visits(tmp_path: Path) -> N
     assert second_card.select_one(
         'a[href="individuals/stray-002/latest.html"]'
     ) is None
-    assert (output_dir / "individuals" / "stray-002" / "index.html").is_file()
+    second_archive = (
+        output_dir / "individuals" / "stray-002" / "index.html"
+    ).read_text(encoding="utf-8")
+    second_archive_soup = BeautifulSoup(second_archive, "html.parser")
+    assert second_archive_soup.title is not None
+    assert second_archive_soup.title.get_text(strip=True) == (
+        "The Visits of stray-002"
+    )
+    assert second_archive_soup.select_one("h1").get_text(
+        " ", strip=True
+    ) == "The Visits of stray-002"
+    assert "No visit has entered the archive yet." in second_archive
+    assert "Silence here is an observed absence, not an error." in second_archive
+    assert "stray-001" not in second_archive
+    assert str(tmp_path) not in second_archive
     assert (output_dir / "individuals" / "stray-002" / "map.html").is_file()
+
+    primary_archive = (output_dir / "visits.html").read_text(encoding="utf-8")
+    primary_archive_soup = BeautifulSoup(primary_archive, "html.parser")
+    assert primary_archive_soup.title is not None
+    assert primary_archive_soup.title.get_text(strip=True) == (
+        "The Visits of stray-001"
+    )
+    assert primary_archive_soup.select_one("h1").get_text(
+        " ", strip=True
+    ) == "The Visits of stray-001"
