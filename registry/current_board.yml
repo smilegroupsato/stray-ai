@@ -4,35 +4,33 @@
 schema_version: 0.1
 title: Stray AI Current Board
 updated_at: 2026-07-24
-last_updated_at: 2026-07-24 11:53 JST
+last_updated_at: 2026-07-24 12:02 JST
 
 now:
-  title: Stray-002 first home-shelf rummage review
-  purpose: separate individualとして設計されたstray-002と、その最初のbounded home-shelf rummageを確認し、PR #66を正本へmergeするかを判断する
-  stage: review
-  next_action: draft PR #66のidentity・habitat・everyday ecology・initial memory/state・first Traceを確認し、merge可否を人間が決める。merge後のdevbox publicationとpersistent runtime birthは別の明示判断に分離する
+  title: Stray-002 multi-individual isolation validation
+  purpose: repository正本となったstray-002を、persistent runtimeとして誕生させる前に、state・memory・Visit・wake・selection・reportがstray-001と混線しないことをsynthetic fixtureで確かめる
+  stage: pre-runtime validation
+  next_action: multi-individual isolationの検証範囲とsynthetic fixtureを設計し、persistent data作成や実個体実行を伴わない安全なテストとして実装するかを判断する
   implementation_authorized: false
   issue: PR #66
   notes:
-    - draft PR #66はopen・mergeableで、headはcodex/repository-document-maniac
+    - PR #66は2026-07-24にmergeされ、merge commitは97dcdd7aebf303eebc8804f4a95fa62e934ce0e8
     - stray-002はstray-001とは別個体で、湿った地下図書室の書架の隙間をhomeとする
-    - README、個体文書、memory、observation log、state、最初のbounded routeの6ファイルがPR #66にある
+    - identity・habitat・everyday ecology・initial memory/state・first bounded routeはmainの正本になった
     - 最初のhome-shelf rummageは2026-07-23 21:56 JSTに1回だけ記録済み
     - docs/biology.mdをdeep readingし、biased attentionとfinite memoryについて小さなTraceを残した
-    - branch上のstateはresting、visit_count 0、document_rummage_count 1
-    - scheduler・crawler・Venue write・automatic wake/Visit・devbox publicationは導入していない
-    - mainと配信済みCurrent Boardは、PR #66がmerge・publishされるまで旧Stray-002 birth decisionを表示する
+    - repository上のstateはresting、visit_count 0、document_rummage_count 1
+    - devbox persistent dataとしてのstray-002はまだ作成していない
+    - scheduler・crawler・Venue write・automatic wake/Visitは導入していない
     - stray-001のpersistent stateには変更を加えていない
 
 next:
-  - title: PR #66 review and merge decision
-    detail: identity・habitat・生態・first rummage Trace・安全境界を確認し、repository正本へmergeするかを判断する
-  - title: Current Board post-merge publication
-    detail: merge後にdevboxへ正本を反映し、/current-board/stray-ai/を手動publishしてLAN・Tailscaleとhashを再確認する
-  - title: Multi-individual isolation validation
-    detail: state・memory・Visit・wake・selection・reportがindividual間で混線せず、観測surfaceだけが安全に集約されることをsynthetic fixtureで確認する
+  - title: Synthetic isolation validation execution
+    detail: 承認された範囲でsynthetic fixtureを用い、state・memory・Visit・wake・selection・reportのindividual scopeと観測surfaceの安全な集約を確認する
   - title: Persistent Stray-002 runtime birth decision
-    detail: repository上の個体記述と初回rummageを正本化した後、devbox persistent dataとして誕生させるかを別途人間が判断する
+    detail: isolation validation結果を確認した後、devbox persistent dataとして誕生させるかを別途人間が判断する
+  - title: First devbox-backed rummage decision
+    detail: persistent runtime birthが承認・完了した場合に限り、実データを使う最初のbounded rummageを別の明示判断として扱う
 
 hold:
   - title: Legacy Current Board redirect
@@ -45,6 +43,8 @@ hold:
     detail: Current Board YAMLを将来のConsole入力候補とするが、現時点では実装しない
 
 recently_done:
+  - title: Stray-002 repository birth
+    detail: PR #66をmerge commit 97dcdd7aebf303eebc8804f4a95fa62e934ce0e8でmainへ正本化。別個体のidentity・habitat・everyday ecology・initial memory/state・first bounded rummage Traceを確定し、persistent runtime birthは未実施のまま分離
   - title: Stray-002 first home-shelf rummage on draft branch
     detail: PR #66で別個体のhabitat・everyday ecology・initial memory/state・bounded routeを作り、docs/biology.mdをdeep readingする最初のrummageを1回記録。visit_count 0、document_rummage_count 1でrestingへ戻った
   - title: Current Board shared namespace migration
@@ -96,6 +96,7 @@ parking_lot:
     detail: Venue Registryとbounded snapshot手順が整ったものだけを候補化する
 
 update_history:
+  - "2026-07-24 12:02 JST：PR #66をmainへmergeし、Current Boardの現在地をmulti-individual isolation validationへ更新。persistent runtime birthは未実施。"
   - "2026-07-24 11:53 JST：PR #66の初回rummage完了をCurrent Boardへ反映し、現在地をreview・merge decisionへ更新。"
 
 not_doing:
