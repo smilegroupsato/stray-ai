@@ -22,7 +22,7 @@ mkdir -p \
   "$DATA_DIR/backups"
 
 if [[ -d "$DATA_DIR/agents/stray-002" && ! -L "$DATA_DIR/agents/stray-002" ]]; then
-  mkdir -p "$DATA_DIR/agents/stray-002/rummages"
+  install -d -m 0750 "$DATA_DIR/agents/stray-002/rummages"
 fi
 
 if [[ ! -d "$REPO_DIR/.venv" ]]; then

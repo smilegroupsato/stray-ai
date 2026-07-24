@@ -72,6 +72,7 @@ trace:
         "- 2026-07-23 21:56 JST：Initial record.\n",
         encoding="utf-8",
     )
+    (agent / "rummages").mkdir()
     return agent
 
 
@@ -221,7 +222,7 @@ def test_invalid_survey_fails_before_persistent_writes(tmp_path: Path) -> None:
             now=_WHEN,
         )
 
-    assert not (agent / "rummages").exists()
+    assert list((agent / "rummages").iterdir()) == []
     assert (agent / "state.json").read_bytes() == state_before
     assert (agent / "memory.md").read_bytes() == memory_before
 
@@ -253,6 +254,32 @@ def test_exact_identity_and_bounded_route_are_required(tmp_path: Path) -> None:
             confirm_agent_id="stray-002",
             now=_WHEN,
         )
+
+
+def test_symlinked_rummage_namespace_is_rejected(tmp_path: Path) -> None:
+    agent = _agent(tmp_path)
+    repository, route = _repository(tmp_path)
+    real_rummages = tmp_path / "elsewhere"
+    real_rummages.mkdir()
+    (agent / "rummages").rmdir()
+    (agent / "rummages").symlink_to(real_rummages, target_is_directory=True)
+    brain = CommandRummageBrain(
+        [sys.executable, str(_adapter(tmp_path))],
+        label="synthetic-qwen",
+        timeout_seconds=5,
+    )
+
+    with pytest.raises(RummageError, match="must not be a symlink"):
+        run_rummage(
+            agent_dir=agent,
+            repository_root=repository,
+            route=route,
+            brain=brain,
+            confirm_agent_id="stray-002",
+            now=_WHEN,
+        )
+
+    assert list(real_rummages.iterdir()) == []
 
 
 def test_rummage_report_renders_memories_and_escapes_model_content(

@@ -99,6 +99,21 @@ def _read_state(agent_dir: Path) -> dict[str, Any]:
     return value
 
 
+def _require_safe_agent_dir(agent_dir: Path) -> Path:
+    if not agent_dir.is_dir() or agent_dir.is_symlink():
+        raise RummageError("agent directory must be an existing non-symlink directory")
+    for name in ("profile.yml", "state.json", "memory.md", "observation-log.md"):
+        path = agent_dir / name
+        if not path.is_file() or path.is_symlink():
+            raise RummageError(f"agent file is missing or unsafe: {name}")
+    rummages_dir = agent_dir / "rummages"
+    if not rummages_dir.is_dir() or rummages_dir.is_symlink():
+        raise RummageError(
+            "agent rummages directory must exist and must not be a symlink"
+        )
+    return agent_dir.resolve()
+
+
 def _atomic_replace_text(path: Path, body: str) -> None:
     temporary = path.with_name(f".{path.name}.{os.getpid()}.tmp")
     try:
@@ -569,7 +584,7 @@ def run_rummage(
     confirm_agent_id: str,
     now: datetime | None = None,
 ) -> dict[str, Any]:
-    agent_dir = agent_dir.resolve()
+    agent_dir = _require_safe_agent_dir(agent_dir)
     repository_root = repository_root.resolve()
     if not repository_root.is_dir():
         raise RummageError("repository root does not exist")
@@ -685,9 +700,11 @@ def run_rummage(
     updated_state["status"] = "resting"
     updated_state["current_location"] = None
     updated_state["last_location"] = "damp-underground-library-shelf-gap"
-    updated_state["last_exit_reason"] = "returned_after_runtime_document_rummage"
-    updated_state["last_backend"] = "command"
-    updated_state["last_model"] = brain.label
+    updated_state["last_rummage_exit_reason"] = (
+        "returned_after_runtime_document_rummage"
+    )
+    updated_state["last_rummage_backend"] = "command"
+    updated_state["last_rummage_model"] = brain.label
     updated_state["document_rummage_count"] = (
         int(state.get("document_rummage_count", 0) or 0) + 1
     )
