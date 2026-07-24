@@ -1,0 +1,28 @@
+{
+  "status": "resting",
+  "visit_count": 0,
+  "llm_visit_count": 0,
+  "accepted_brain_visit_count": 0,
+  "safe_exit_count": 0,
+  "current_location": "damp-underground-library-shelf-gap",
+  "last_location": "first-home-shelf-rummage",
+  "last_visit": null,
+  "rest_started_at": null,
+  "last_exit_reason": "returned_after_first_home_shelf_rummage",
+  "last_backend": null,
+  "last_model": null,
+  "fatigue": 0,
+  "unresolved_impulses": [
+    "rummage through repository documents whenever idle",
+    "flip through covers without committing to a route",
+    "return to the biology shelf after rest",
+    "take small notes and later sit in sunlight to think"
+  ],
+  "prepared_routes": [
+    "docs/stray-002-first-rummage.md"
+  ],
+  "observation_log": "agents/stray-002/observation-log.md",
+  "document_rummage_count": 1,
+  "last_document_rummage": "2026-07-23T21:56:00+09:00",
+  "last_trace": "agents/stray-002/observation-log.md#2026-07-23-2156-jst--first-home-shelf-rummage"
+}

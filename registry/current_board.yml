@@ -3,34 +3,36 @@
 
 schema_version: 0.1
 title: Stray AI Current Board
-updated_at: 2026-07-23
+updated_at: 2026-07-24
+last_updated_at: 2026-07-24 11:53 JST
 
 now:
-  title: Stray-002 birth decision
-  purpose: Multi-Venue Wake Selection v0とCurrent Board共通namespace移行が完了したため、二番目のpersistent individualを設計するかを人間が判断する
-  stage: decision
-  next_action: Stray-002のbirth charter設計を開始するか、開始する場合もidentity・initial state・memory・home・wake・Visit境界を先に定義するかを人間が決める
+  title: Stray-002 first home-shelf rummage review
+  purpose: separate individualとして設計されたstray-002と、その最初のbounded home-shelf rummageを確認し、PR #66を正本へmergeするかを判断する
+  stage: review
+  next_action: draft PR #66のidentity・habitat・everyday ecology・initial memory/state・first Traceを確認し、merge可否を人間が決める。merge後のdevbox publicationとpersistent runtime birthは別の明示判断に分離する
   implementation_authorized: false
-  issue: Issue未作成
+  issue: PR #66
   notes:
-    - Current Boardは新canonical /current-board/stray-ai/でLAN・TailscaleともHTTP 200を確認済み
-    - local・LAN・Tailscaleの新Surface SHA-256は一致し、persistent agent hashとlegacy output hashは不変
-    - 旧/stray-ai/current/は現在も元のSurfaceを200で配信し、redirectは未依頼・未実装
-    - 最初のreal Multi-Venue SelectionはIssue #61でLLM selectorを使い1回だけ実行済み
-    - qwen3.5:9bはacceptedでremain_asleepを返し、selected Venueはnull
-    - eternal-free-partyとgenai-ron-rcはいずれもsame_venue_historyかつchanged false
-    - wake_selections record数は0から1へ増え、protected persistent hashは不変
-    - stray-001はresting、current_locationはnullのまま
-    - wake・snapshot・Request・Visit・Trace・report regeneration・automatic publishは実行していない
-    - Stray-002は自動生成せず、誕生・wake・Visitをindividual単位の明示承認に分離する
+    - draft PR #66はopen・mergeableで、headはcodex/repository-document-maniac
+    - stray-002はstray-001とは別個体で、湿った地下図書室の書架の隙間をhomeとする
+    - README、個体文書、memory、observation log、state、最初のbounded routeの6ファイルがPR #66にある
+    - 最初のhome-shelf rummageは2026-07-23 21:56 JSTに1回だけ記録済み
+    - docs/biology.mdをdeep readingし、biased attentionとfinite memoryについて小さなTraceを残した
+    - branch上のstateはresting、visit_count 0、document_rummage_count 1
+    - scheduler・crawler・Venue write・automatic wake/Visit・devbox publicationは導入していない
+    - mainと配信済みCurrent Boardは、PR #66がmerge・publishされるまで旧Stray-002 birth decisionを表示する
+    - stray-001のpersistent stateには変更を加えていない
 
 next:
-  - title: Stray-002 birth charter
-    detail: 承認された場合のみ、identity・profile・initial state・memory・home・権限境界・人間との関係を先に定義する
+  - title: PR #66 review and merge decision
+    detail: identity・habitat・生態・first rummage Trace・安全境界を確認し、repository正本へmergeするかを判断する
+  - title: Current Board post-merge publication
+    detail: merge後にdevboxへ正本を反映し、/current-board/stray-ai/を手動publishしてLAN・Tailscaleとhashを再確認する
   - title: Multi-individual isolation validation
     detail: state・memory・Visit・wake・selection・reportがindividual間で混線せず、観測surfaceだけが安全に集約されることをsynthetic fixtureで確認する
-  - title: Stray-002 birth execution decision
-    detail: charterと安全検証の後、persistent Stray-002を実際に誕生させるかを改めて人間が判断する
+  - title: Persistent Stray-002 runtime birth decision
+    detail: repository上の個体記述と初回rummageを正本化した後、devbox persistent dataとして誕生させるかを別途人間が判断する
 
 hold:
   - title: Legacy Current Board redirect
@@ -43,6 +45,8 @@ hold:
     detail: Current Board YAMLを将来のConsole入力候補とするが、現時点では実装しない
 
 recently_done:
+  - title: Stray-002 first home-shelf rummage on draft branch
+    detail: PR #66で別個体のhabitat・everyday ecology・initial memory/state・bounded routeを作り、docs/biology.mdをdeep readingする最初のrummageを1回記録。visit_count 0、document_rummage_count 1でrestingへ戻った
   - title: Current Board shared namespace migration
     detail: Issue #62 / PR #64でcanonical URLを/current-board/stray-ai/へ移し、Area directory taku:taku 0755、LAN/Tailscale 200、local/HTTP hash一致、persistent agent hash不変、legacy hash不変を確認。sgos-pkm-core PR #93でShared Surface Registryをactiveへ更新し、redirectは未依頼のまま保持
   - title: First real Multi-Venue Selection
@@ -90,6 +94,9 @@ parking_lot:
       - Instagram
   - title: 新しいVenue候補
     detail: Venue Registryとbounded snapshot手順が整ったものだけを候補化する
+
+update_history:
+  - "2026-07-24 11:53 JST：PR #66の初回rummage完了をCurrent Boardへ反映し、現在地をreview・merge decisionへ更新。"
 
 not_doing:
   - automatic individual birth
