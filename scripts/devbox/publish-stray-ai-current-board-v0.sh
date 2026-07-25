@@ -8,7 +8,10 @@ fi
 
 REPO_ROOT="/srv/sgos/repos/stray-ai"
 BOARD="$REPO_ROOT/registry/current_board.yml"
-AGENT_DIR="/srv/sgos/data/stray-ai/agents/stray-001"
+AGENT_DIRS=(
+  "/srv/sgos/data/stray-ai/agents/stray-001"
+  "/srv/sgos/data/stray-ai/agents/stray-002"
+)
 OUTPUT_ROOT="/srv/sgos/data/current-board"
 PYTHON="$REPO_ROOT/.venv/bin/python"
 SURFACE_DIR="$OUTPUT_ROOT/stray-ai"
@@ -17,7 +20,12 @@ LEGACY_OUTPUT="/srv/sgos/data/stray-ai/reports/current/index.html"
 
 [[ -x "$PYTHON" ]] || { echo "Missing virtualenv Python: $PYTHON" >&2; exit 1; }
 [[ -f "$BOARD" ]] || { echo "Missing Current Board source: $BOARD" >&2; exit 1; }
-[[ -d "$AGENT_DIR" ]] || { echo "Missing agent directory: $AGENT_DIR" >&2; exit 1; }
+for agent_dir in "${AGENT_DIRS[@]}"; do
+  [[ -d "$agent_dir" ]] || {
+    echo "Missing agent directory: $agent_dir" >&2
+    exit 1
+  }
+done
 [[ -d "$OUTPUT_ROOT" && ! -L "$OUTPUT_ROOT" ]] || {
   echo "Shared Current Board root must already exist and must not be a symlink: $OUTPUT_ROOT" >&2
   exit 1
@@ -32,7 +40,8 @@ cd "$REPO_ROOT"
 
 "$PYTHON" -m stray_ai.current_board \
   --board "$BOARD" \
-  --agent "$AGENT_DIR" \
+  --agent "${AGENT_DIRS[0]}" \
+  --agent "${AGENT_DIRS[1]}" \
   --output-root "$OUTPUT_ROOT" \
   --surface-slug "stray-ai"
 
