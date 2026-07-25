@@ -7,6 +7,8 @@ PYTHON_BIN="${PYTHON_BIN:-python3}"
 RUMMAGE_LAUNCHER="${STRAY_AUTONOMY_RUMMAGE_LAUNCHER:-$REPO_DIR/scripts/rummage_stray_002_llm.sh}"
 MIN_INTERVAL_SECONDS="${STRAY_AUTONOMY_MIN_INTERVAL_SECONDS:-72000}"
 RUN_TIMEOUT="${STRAY_AUTONOMY_RUN_TIMEOUT:-12m}"
+REPORT_LAUNCHER="${STRAY_AUTONOMY_REPORT_LAUNCHER:-$DATA_DIR/generate-latest-report.sh}"
+REPORT_TIMEOUT="${STRAY_AUTONOMY_REPORT_TIMEOUT:-2m}"
 AGENT_DIR="$DATA_DIR/agents/stray-002"
 STATE_FILE="$AGENT_DIR/state.json"
 AUTONOMY_DIR="$AGENT_DIR/autonomy"
@@ -27,6 +29,10 @@ if [[ ! -f "$STATE_FILE" || -L "$STATE_FILE" ]]; then
 fi
 if [[ ! -f "$RUMMAGE_LAUNCHER" || -L "$RUMMAGE_LAUNCHER" ]]; then
   echo "Rummage launcher is missing or unsafe: $RUMMAGE_LAUNCHER" >&2
+  exit 1
+fi
+if [[ ! -f "$REPORT_LAUNCHER" || -L "$REPORT_LAUNCHER" ]]; then
+  echo "Report launcher is missing or unsafe: $REPORT_LAUNCHER" >&2
   exit 1
 fi
 if ! [[ "$MIN_INTERVAL_SECONDS" =~ ^[0-9]+$ ]]; then
@@ -124,5 +130,17 @@ printf '%s\n' "$SUCCESS_EPOCH" >"$TMP_MARKER"
 chmod 0640 "$TMP_MARKER"
 mv -f "$TMP_MARKER" "$LAST_SUCCESS_FILE"
 trap - EXIT
-record_decision "rest" "rummage_complete" "$SOURCE_COMMIT"
-echo "COMPLETE: Stray-002 rummaged once and returned to rest."
+set +e
+timeout --signal=TERM --kill-after=10s "$REPORT_TIMEOUT" \
+  bash "$REPORT_LAUNCHER"
+REPORT_RESULT=$?
+set -e
+
+if (( REPORT_RESULT != 0 )); then
+  record_decision "rest_after_report_failure" "report_exit_$REPORT_RESULT" "$SOURCE_COMMIT"
+  echo "Stray-002 rummaged successfully, but the local individual page refresh failed with exit $REPORT_RESULT." >&2
+  exit "$REPORT_RESULT"
+fi
+
+record_decision "rest" "rummage_complete_report_refreshed" "$SOURCE_COMMIT"
+echo "COMPLETE: Stray-002 rummaged once, refreshed its local individual page, and returned to rest."
