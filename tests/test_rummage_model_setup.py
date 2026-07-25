@@ -63,8 +63,9 @@ def test_model_setup_creates_and_verifies_the_16k_derivative(tmp_path: Path) -> 
     assert "show qwen3.5:9b" in commands
     assert "create stray-qwen3.5-9b-16k -f" in commands
     assert "show stray-qwen3.5-9b-16k --modelfile" in commands
-    assert "pull" not in commands
-    assert "run" not in commands
+    subcommands = [line.split(maxsplit=1)[0] for line in commands.splitlines()]
+    assert "pull" not in subcommands
+    assert "run" not in subcommands
 
 
 def test_model_setup_fails_closed_when_the_base_model_is_absent(
