@@ -107,7 +107,7 @@ def test_autonomous_opportunity_runs_once_and_records_return(tmp_path: Path) -> 
         for line in (autonomy / "decisions.jsonl").read_text(encoding="utf-8").splitlines()
     ]
     assert [item["decision"] for item in decisions] == ["rummage", "rest"]
-    assert decisions[-1]["reason"] == "rummage_complete"
+    assert decisions[-1]["reason"] == "rummage_complete_report_refreshed"
 
 
 def test_cooldown_prevents_an_immediate_second_rummage(tmp_path: Path) -> None:
