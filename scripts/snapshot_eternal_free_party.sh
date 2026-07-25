@@ -77,7 +77,11 @@ for path in files:
     relative = path.relative_to(source)
     destination = target / relative
     destination.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(path, destination)
+    # A Venue snapshot carries bounded text content, not source filesystem
+    # metadata.  In particular, do not inherit executable bits or timestamps
+    # from an untrusted checkout.
+    shutil.copyfile(path, destination)
+    destination.chmod(0o440)
 
 print(len(files))
 PY
@@ -107,7 +111,17 @@ copied_text_files=$FILE_COUNT
 max_file_bytes=$MAX_FILE_BYTES
 EOF
 
-  chmod -R a-w "$TMP_DIR"
+  "$PYTHON_BIN" - "$TMP_DIR" <<'PY'
+from pathlib import Path
+import sys
+
+root = Path(sys.argv[1])
+(root / "SNAPSHOT.txt").chmod(0o440)
+directories = [path for path in root.rglob("*") if path.is_dir()]
+for path in sorted(directories, key=lambda item: len(item.parts), reverse=True):
+    path.chmod(0o550)
+root.chmod(0o550)
+PY
   mv "$TMP_DIR" "$SNAPSHOT_DIR"
   trap - EXIT
 fi
