@@ -64,16 +64,18 @@ not_doing:
     return path
 
 
-def _agent(path: Path) -> Path:
+def _agent(
+    path: Path, *, agent_id: str = "stray-001", visit_count: int = 5
+) -> Path:
     path.mkdir()
     (path / "state.json").write_text(
         json.dumps(
             {
-                "id": "stray-001",
+                "id": agent_id,
                 "status": "resting",
                 "current_location": None,
                 "last_location": "/srv/private/venue/README.md",
-                "visit_count": 5,
+                "visit_count": visit_count,
             }
         ),
         encoding="utf-8",
@@ -182,6 +184,13 @@ def test_publish_combines_plan_and_live_state_without_exposing_local_paths(
     )
     assert soup.select_one('.live a[href="../"]') is None
     assert soup.select_one('a[href="../../stray-ai/"] [role="button"]') is None
+    assert len(soup.select(".live-individual")) == 1
+    assert (
+        soup.select_one(
+            '.live-individual a[href="../../stray-ai/individuals/agent/index.html"]'
+        )
+        is not None
+    )
     assert "--bg-0:#05070b" in rendered
     assert "--cyan:#39f6ff" in rendered
     assert soup.select_one("main.terminal-shell.current-board-shell") is not None
@@ -192,6 +201,79 @@ def test_publish_combines_plan_and_live_state_without_exposing_local_paths(
     for section_class in ("next", "hold", "done", "parking", "not-doing"):
         assert soup.select_one(f".panel.{section_class}") is not None
     assert "@media (max-width: 820px)" in rendered
+
+
+def test_publish_shows_each_live_individual_with_its_visit_report(
+    tmp_path: Path,
+) -> None:
+    board = _board(tmp_path / "board.yml")
+    agents = tmp_path / "agents"
+    agents.mkdir()
+    stray_001 = _agent(
+        agents / "stray-001", agent_id="stray-001", visit_count=5
+    )
+    stray_002 = _agent(
+        agents / "stray-002", agent_id="stray-002", visit_count=3
+    )
+    output_root = tmp_path / "current-board"
+    output_root.mkdir()
+
+    result = publish_current_board(
+        board_path=board,
+        agent_dirs=[stray_001, stray_002],
+        output_root=output_root,
+        generated_at=datetime(2026, 7, 25, 15, 0, tzinfo=_JST),
+    )
+
+    rendered = (output_root / "stray-ai" / "index.html").read_text(
+        encoding="utf-8"
+    )
+    soup = BeautifulSoup(rendered, "html.parser")
+    cards = soup.select(".live-individual")
+
+    assert result["agent_count"] == 2
+    assert result["visit_count"] == 8
+    assert [agent["agent_id"] for agent in result["agents"]] == [
+        "stray-001",
+        "stray-002",
+    ]
+    assert len(cards) == 2
+    assert [card.select_one("h3").get_text(strip=True) for card in cards] == [
+        "stray-001",
+        "stray-002",
+    ]
+    assert (
+        cards[0].select_one(
+            'a[href="../../stray-ai/individuals/stray-001/index.html"]'
+        )
+        is not None
+    )
+    assert (
+        cards[1].select_one(
+            'a[href="../../stray-ai/individuals/stray-002/index.html"]'
+        )
+        is not None
+    )
+    assert "5" in cards[0].get_text(" ", strip=True)
+    assert "3" in cards[1].get_text(" ", strip=True)
+    assert len(soup.select('a[href="../../stray-ai/"]')) == 1
+
+
+def test_duplicate_live_individual_ids_fail_closed(tmp_path: Path) -> None:
+    board = _board(tmp_path / "board.yml")
+    agents = tmp_path / "agents"
+    agents.mkdir()
+    first = _agent(agents / "first", agent_id="stray-001")
+    second = _agent(agents / "second", agent_id="stray-001")
+    output_root = tmp_path / "current-board"
+    output_root.mkdir()
+
+    with pytest.raises(CurrentBoardError, match="ids must be unique"):
+        publish_current_board(
+            board_path=board,
+            agent_dirs=[first, second],
+            output_root=output_root,
+        )
 
 
 def test_now_must_be_exactly_one_mapping(tmp_path: Path) -> None:
@@ -381,6 +463,9 @@ def test_publisher_script_uses_shared_namespace_without_legacy_deletion() -> Non
 
     assert 'OUTPUT_ROOT="/srv/sgos/data/current-board"' in script
     assert 'SURFACE_DIR="$OUTPUT_ROOT/stray-ai"' in script
+    assert '"/srv/sgos/data/stray-ai/agents/stray-001"' in script
+    assert '"/srv/sgos/data/stray-ai/agents/stray-002"' in script
+    assert script.count('--agent "${AGENT_DIRS[') == 2
     assert "/srv/sgos/data/stray-ai/reports/current/index.html" in script
     assert "http://192.168.1.20/current-board/stray-ai/" in script
     assert "http://100.79.124.53/current-board/stray-ai/" in script
