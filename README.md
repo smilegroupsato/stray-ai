@@ -49,6 +49,7 @@ The first manual wake judgment has also occurred. The trusted body gate saw insu
 - [`docs/repository-document-maniac.md`](docs/repository-document-maniac.md) — `stray-002`, a separate individual inhabiting damp underground repository-document shelves
 - [`docs/stray-002-first-rummage.md`](docs/stray-002-first-rummage.md) — the first bounded home-shelf rummage route for `stray-002`
 - [`docs/stray-002-rummage-runtime.md`](docs/stray-002-rummage-runtime.md) — the executable two-stage document-rummage body for `stray-002`
+- [`docs/stray-002-autonomous-rummage.md`](docs/stray-002-autonomous-rummage.md) — the bounded local rhythm that lets `stray-002` rummage without a human starting each run
 - [`docs/roadmap.md`](docs/roadmap.md) — current milestone state
 - [`agents/stray-001/`](agents/stray-001/) — the first individual
 - [`agents/stray-002/`](agents/stray-002/) — the repository document maniac's shelf-gap nest
@@ -81,7 +82,7 @@ Current Board v0 combines one repository-managed planning source with bounded lo
 
 The Current Board publisher targets the shared SGOS namespace `/current-board/stray-ai/`. Migration is tracked in Issue #62; the old `/stray-ai/current/` path is intentionally retained until HTTP and hash validation succeeds over LAN and Tailscale, followed by a separately owned redirect. The `/stray-ai/` namespace remains owned by Stray AI reports and other project-specific read-only surfaces.
 
-Snapshot creation, wake selection, wake judgment, handoff preparation, review generation, Gateway publication, cancellation, approval, and Visit execution remain separate operations. No scheduler, automatic selection, automatic wake, automatic approval, automatic cancellation, automatic retry, automatic revisit, or automatic crawling is part of the current state.
+Snapshot creation, wake selection, wake judgment, handoff preparation, review generation, Gateway publication, cancellation, approval, and Visit execution remain separate operations. Those Visit and wake flows still have no scheduler, automatic selection, automatic approval, automatic cancellation, automatic retry, automatic revisit, or automatic crawling. `stray-002` alone now has an opt-in, local, low-frequency autonomous rummage timer whose guarded runtime can only read the fixed repository route and write the individual's private persistent records.
 
 ## Related currents
 
