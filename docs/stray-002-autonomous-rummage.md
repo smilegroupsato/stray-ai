@@ -1,7 +1,7 @@
 # Stray-002 Autonomous Rummage
 
 - ページ作成日時：2026-07-25 11:40 JST
-- 最終更新日時：2026-07-25 11:40 JST
+- 最終更新日時：2026-07-25 12:06 JST
 
 ## Purpose
 
@@ -10,8 +10,10 @@ repository's bounded document route once, and return to rest without a human
 starting each run.
 
 This is local biological rhythm, not task scheduling. It does not grant
-repository write authority, GitHub authority, Visit authority, web access,
-Trace publication, or report publication.
+repository write authority, GitHub authority, Visit authority, web access, or
+external publication. After a successful rummage, it refreshes the existing
+read-only local report collection so the individual's activity is visible
+inside the private Internal Service Gateway.
 
 ## Rhythm
 
@@ -56,7 +58,9 @@ agents/stray-002/autonomy/
 The append-only decision log records scheduler decisions and the exact
 repository commit. A successful rummage still writes its ordinary formal
 rummage record, memory projection, observation log, and state through the
-existing runtime.
+existing runtime. The guarded wrapper then regenerates the local report
+collection. For an individual with rummage records, `index.html` is the
+individual's rummage page and the Visit archive remains at `visits.html`.
 
 ## Enable on devbox
 
@@ -88,11 +92,13 @@ sudo bash scripts/install_stray_002_autonomy.sh disable
 - No automatic Git pull occurs.
 - No automatic retry occurs.
 - No Visit or wake flow is invoked.
-- No report is generated or published.
-- No Trace is published.
+- A successful rummage regenerates only the existing local read-only report collection.
+- The individual page is available under `/stray-ai/individuals/stray-002/index.html`.
+- No report or Trace is published to the public internet.
 - No external write occurs.
 - `stray-001` remains outside the write boundary.
 
 ## Update History
 
+- 2026-07-25 12:06 JST：Connected successful autonomous rummages to the private local individual page while preserving the separate Visit archive.
 - 2026-07-25 11:40 JST：Defined and implemented the first bounded autonomous rummage rhythm for Stray-002.

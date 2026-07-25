@@ -113,15 +113,18 @@ def _localize_collection(soup: BeautifulSoup) -> None:
         value = label.get_text(" ", strip=True)
         label.string = {
             "Visits": "訪問回数",
+            "Rummages": "文書漁り",
             "Last visit": "最終訪問",
         }.get(value, value)
 
     for link in soup.select(".individual-card nav a"):
         value = link.get_text(" ", strip=True)
         link.string = {
+            "Individual": "個体ページ",
             "Visits": "訪問一覧",
             "Latest": "最新レポート",
             "Observed map": "観測地図",
+            "Rummages": "文書漁り",
         }.get(value, value)
 
     empty_heading = soup.select_one(".empty h2")

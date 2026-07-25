@@ -28,6 +28,9 @@ jobs:
           bash -n
           scripts/setup_devbox.sh
           scripts/snapshot_eternal_free_party.sh
+          scripts/rummage_stray_002_llm.sh
+          scripts/autonomous_rummage_stray_002.sh
+          scripts/install_stray_002_autonomy.sh
           scripts/devbox/publish-stray-ai-request-review-v0.sh
           scripts/devbox/publish-stray-ai-current-board-v0.sh
       - name: Install

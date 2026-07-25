@@ -1,7 +1,7 @@
 # Stray-002 Rummage Runtime
 
 - ページ作成日時：2026-07-24 16:05 JST
-- 最終更新日時：2026-07-25 11:40 JST
+- 最終更新日時：2026-07-25 12:06 JST
 
 ## Purpose
 
@@ -38,7 +38,12 @@ The runtime explicitly records that it did not:
 - create a scheduler
 - edit repository content
 
-Report generation remains a later, separate command. When generated, `individuals/stray-002/rummages.html` presents the route, deep readings, notes, memories, sunlit thought, and Trace.
+Manual rummage execution still leaves report generation as a separate command.
+The autonomous wrapper refreshes the existing local report collection only
+after a successful rummage. The individual page at
+`individuals/stray-002/index.html` presents the route, deep readings, notes,
+memories, sunlit thought, and Trace; its separate Visit archive remains at
+`individuals/stray-002/visits.html`.
 
 ## Devbox execution
 
@@ -88,6 +93,7 @@ the rummage body.
 
 ## Update History
 
+- 2026-07-25 12:06 JST：Connected successful autonomous rummages to the private local Stray-002 individual page.
 - 2026-07-25 11:40 JST：Added the opt-in guarded autonomous opportunity layer without expanding the rummage body's authority.
 - 2026-07-25 10:24 JST：Recorded the successful first genuine runtime rummage and standardized the verified 16K Ollama model setup.
 - 2026-07-24 17:19 JST：Isolated reflection input to selected documents, raised the local model response budget, and exposed bounded adapter diagnostics.

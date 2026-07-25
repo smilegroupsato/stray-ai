@@ -65,6 +65,8 @@ def apply_individual_navigation(html: str, *, agent_id: str, page_name: str) -> 
         current.string = {
             "map.html": "観測地図",
             "latest.html": "最新レポート",
+            "visits.html": "訪問一覧",
+            "rummages.html": "文書漁り",
         }.get(page_name, "訪問記録")
         nav.append(current)
 

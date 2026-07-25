@@ -351,3 +351,62 @@ def test_collection_displays_born_individual_without_visits(tmp_path: Path) -> N
     assert primary_archive_soup.select_one("h1").get_text(
         " ", strip=True
     ) == "The Visits of stray-001"
+
+
+def test_rummaging_individual_uses_index_as_its_biological_home(tmp_path: Path) -> None:
+    agents_dir = tmp_path / "agents"
+    output_dir = tmp_path / "reports"
+    agent = _write_agent(
+        agents_dir,
+        "stray-002",
+        name="Repository Document Maniac",
+        status="resting",
+        visit_stem="2026-07-24_162000",
+        started_at="2026-07-24T16:20:00+09:00",
+        page_prefix="Shelf",
+    )
+    rummages = agent / "rummages"
+    rummages.mkdir()
+    (rummages / "2026-07-25_120000.json").write_text(
+        json.dumps(
+            {
+                "schema": "stray-rummage-v1",
+                "agent_id": "stray-002",
+                "started_at": "2026-07-25T12:00:00+09:00",
+                "brain_model": "stray-qwen3.5-9b-16k",
+                "repository": {"name": "stray-ai"},
+                "survey_observation": "The shelf opened.",
+                "documents": [
+                    {
+                        "path": "README.md",
+                        "title": "Entrance",
+                        "reading_mode": "deep-reading",
+                        "deep_reading": {
+                            "local_law": "Attention remains finite.",
+                            "residue": "One page stayed open.",
+                        },
+                    }
+                ],
+                "margin_notes": ["An old heading still presses on the shelf."],
+                "memories_added": ["The entrance remembers partial attention."],
+                "sunlit_thought": "Paper dust became visible.",
+                "trace": "One page remained open after the shelf went quiet.",
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    generate_report_collection(agents_dir, output_dir, "stray-002")
+
+    individual = output_dir / "individuals" / "stray-002"
+    home = (individual / "index.html").read_text(encoding="utf-8")
+    visits = (individual / "visits.html").read_text(encoding="utf-8")
+    rummages_html = (individual / "rummages.html").read_text(encoding="utf-8")
+    collection = (output_dir / "index.html").read_text(encoding="utf-8")
+
+    assert home == rummages_html
+    assert "The Rummages of stray-002" in home
+    assert "One page remained open" in home
+    assert "The Visits of stray-002" in visits
+    assert 'href="individuals/stray-002/index.html">Individual</a>' in collection
+    assert 'href="individuals/stray-002/visits.html">Visits</a>' in collection
