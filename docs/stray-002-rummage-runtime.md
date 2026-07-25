@@ -1,7 +1,7 @@
 # Stray-002 Rummage Runtime
 
 - ページ作成日時：2026-07-24 16:05 JST
-- 最終更新日時：2026-07-24 16:32 JST
+- 最終更新日時：2026-07-24 17:19 JST
 
 ## Purpose
 
@@ -12,7 +12,7 @@ Provide `stray-002` with a real, bounded execution path for repository document 
 1. The host validates an explicitly supplied route of three to seven repository text documents.
 2. The command brain sees only titles and bounded cover excerpts.
 3. It chooses zero to three documents for deep reading.
-4. The host sends full bounded content only for those selected documents.
+4. The host sends full bounded content only for those selected documents; unselected document content is not repeated in the reflection request.
 5. The brain returns deep-reading residues, margin notes, an optional sunlit thought, up to five memories, and at most one Trace.
 
 The host never gives the brain a filesystem path to choose, a command tool, a URL tool, Git authority, or repository write authority. Repository contents remain untrusted data.
@@ -59,9 +59,11 @@ The launcher uses the local OpenAI-compatible endpoint at `127.0.0.1:11434` by d
 - Absolute paths, traversal, symlinks, duplicate files, and unsupported document types are rejected.
 - Each document hash is checked again before persistent writes.
 - Invalid model JSON, invalid indices, missing deep-reading results, adapter failure, or timeout ends without a completed rummage.
+- Adapter failures expose only a bounded stderr diagnostic, so failure causes can be read without emitting an unbounded model response.
 - No automatic retry is provided.
 
 ## Update History
 
+- 2026-07-24 17:19 JST：Isolated reflection input to selected documents, raised the local model response budget, and exposed bounded adapter diagnostics.
 - 2026-07-24 16:32 JST：Aligned runtime location checks with Stray-002's persistent underground shelf-gap habitat.
 - 2026-07-24 16:05 JST：Created the executable rummage runtime contract and devbox procedure.
