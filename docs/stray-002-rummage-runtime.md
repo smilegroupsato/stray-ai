@@ -1,7 +1,7 @@
 # Stray-002 Rummage Runtime
 
 - ページ作成日時：2026-07-24 16:05 JST
-- 最終更新日時：2026-07-25 10:24 JST
+- 最終更新日時：2026-07-25 11:40 JST
 
 ## Purpose
 
@@ -66,6 +66,15 @@ endpoint, but the operator is responsible for providing at least the same
 effective context capacity. The route remains fixed in the launcher for this
 runtime. A different route is a separate reviewed change.
 
+## Autonomous opportunity
+
+The manual launcher may be placed behind the opt-in guarded systemd timer
+described in [`stray-002-autonomous-rummage.md`](stray-002-autonomous-rummage.md).
+The timer provides low-frequency opportunities; the guard remains asleep on a
+non-`main` branch, a dirty worktree, a non-resting individual, a cooldown, or a
+concurrent run. It neither changes the fixed route nor adds any authority to
+the rummage body.
+
 ## Safety and failure
 
 - Exact `--confirm-agent-id stray-002` confirmation is mandatory.
@@ -79,6 +88,7 @@ runtime. A different route is a separate reviewed change.
 
 ## Update History
 
+- 2026-07-25 11:40 JST：Added the opt-in guarded autonomous opportunity layer without expanding the rummage body's authority.
 - 2026-07-25 10:24 JST：Recorded the successful first genuine runtime rummage and standardized the verified 16K Ollama model setup.
 - 2026-07-24 17:19 JST：Isolated reflection input to selected documents, raised the local model response budget, and exposed bounded adapter diagnostics.
 - 2026-07-24 16:32 JST：Aligned runtime location checks with Stray-002's persistent underground shelf-gap habitat.
