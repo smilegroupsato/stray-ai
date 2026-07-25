@@ -15,6 +15,8 @@ from zoneinfo import ZoneInfo
 
 import yaml
 
+from .rummage_visit import rummage_to_visit
+
 _JST = ZoneInfo("Asia/Tokyo")
 _TEXT_SUFFIXES = {".json", ".md", ".markdown", ".txt", ".yaml", ".yml"}
 _MAX_DOCUMENT_CHARACTERS = 12_000
@@ -114,6 +116,11 @@ def _require_safe_agent_dir(agent_dir: Path) -> Path:
         raise RummageError(
             "agent rummages directory must exist and must not be a symlink"
         )
+    visits_dir = agent_dir / "visits"
+    if not visits_dir.is_dir() or visits_dir.is_symlink():
+        raise RummageError(
+            "agent visits directory must exist and must not be a symlink"
+        )
     return agent_dir.resolve()
 
 
@@ -127,22 +134,42 @@ def _atomic_replace_text(path: Path, body: str) -> None:
             temporary.unlink()
 
 
-def _atomic_write_new_json(path: Path, value: dict[str, Any]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    temporary = path.with_name(f".{path.name}.{os.getpid()}.tmp")
+def _atomic_write_new_json_pair(
+    left_path: Path,
+    left_value: dict[str, Any],
+    right_path: Path,
+    right_value: dict[str, Any],
+) -> None:
+    paths = (left_path, right_path)
+    if any(path.exists() for path in paths):
+        existing = next(path for path in paths if path.exists())
+        raise RummageError(f"record already exists: {existing.name}")
+    temporaries = [
+        path.with_name(f".{path.name}.{os.getpid()}.{index}.tmp")
+        for index, path in enumerate(paths)
+    ]
+    linked: list[Path] = []
     try:
-        with temporary.open("x", encoding="utf-8") as handle:
-            json.dump(value, handle, ensure_ascii=False, indent=2)
-            handle.write("\n")
-            handle.flush()
-            os.fsync(handle.fileno())
-        if path.exists():
-            raise RummageError(f"rummage record already exists: {path.name}")
-        os.link(temporary, path)
-        temporary.unlink()
+        for temporary, value in zip(
+            temporaries,
+            (left_value, right_value),
+            strict=True,
+        ):
+            with temporary.open("x", encoding="utf-8") as handle:
+                json.dump(value, handle, ensure_ascii=False, indent=2)
+                handle.write("\n")
+                handle.flush()
+                os.fsync(handle.fileno())
+        for temporary, path in zip(temporaries, paths, strict=True):
+            os.link(temporary, path)
+            linked.append(path)
+    except OSError as exc:
+        for path in linked:
+            path.unlink(missing_ok=True)
+        raise RummageError(f"could not preserve rummage Visit pair: {exc}") from exc
     finally:
-        if temporary.exists():
-            temporary.unlink()
+        for temporary in temporaries:
+            temporary.unlink(missing_ok=True)
 
 
 def _title(relative_path: str, content: str) -> str:
@@ -612,8 +639,9 @@ def run_rummage(
     started_at = started.isoformat(timespec="seconds")
     stamp = started.strftime("%Y-%m-%d_%H%M%S")
     record_path = agent_dir / "rummages" / f"{stamp}.json"
-    if record_path.exists():
-        raise RummageError(f"rummage record already exists: {record_path.name}")
+    visit_path = agent_dir / "visits" / f"{stamp}.json"
+    if record_path.exists() or visit_path.exists():
+        raise RummageError(f"rummage or Visit record already exists: {stamp}.json")
 
     survey = _normalize_survey(
         brain.ask(
@@ -677,13 +705,17 @@ def run_rummage(
         "memories_added": reflection["memories"],
         "trace": reflection["trace"],
         "effects": {
-            "visit_created": False,
+            "visit_created": True,
             "wake_invoked": False,
             "scheduler_created": False,
             "repository_content_changed": False,
         },
     }
-    _atomic_write_new_json(record_path, record)
+    visit_record = rummage_to_visit(
+        record,
+        rummage_record=f"rummages/{record_path.name}",
+    )
+    _atomic_write_new_json_pair(record_path, record, visit_path, visit_record)
 
     timestamp = _jst_label(ended)
     _update_memory(
@@ -719,6 +751,15 @@ def run_rummage(
     updated_state["llm_rummage_count"] = int(state.get("llm_rummage_count", 0) or 0) + 1
     updated_state["last_document_rummage"] = ended_at
     updated_state["last_rummage_record"] = f"rummages/{record_path.name}"
+    updated_state["visit_count"] = int(state.get("visit_count", 0) or 0) + 1
+    updated_state["llm_visit_count"] = int(state.get("llm_visit_count", 0) or 0) + 1
+    updated_state["rummage_visit_count"] = (
+        int(state.get("rummage_visit_count", 0) or 0) + 1
+    )
+    updated_state["last_visit"] = ended_at
+    updated_state["last_exit_reason"] = "returned_after_document_rummage"
+    updated_state["last_backend"] = "command"
+    updated_state["last_model"] = brain.label
     if reflection["trace"]:
         updated_state["last_trace"] = f"rummages/{record_path.name}#trace"
     _atomic_replace_text(
@@ -729,10 +770,11 @@ def run_rummage(
     return {
         **record,
         "rummage_file": str(record_path),
+        "visit_file": str(visit_path),
         "state": {
             "document_rummage_count": updated_state["document_rummage_count"],
             "runtime_rummage_count": updated_state["runtime_rummage_count"],
-            "visit_count": int(updated_state.get("visit_count", 0) or 0),
+            "visit_count": updated_state["visit_count"],
             "status": updated_state["status"],
         },
     }

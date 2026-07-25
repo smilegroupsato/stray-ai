@@ -40,6 +40,11 @@ for file in "${TEMPLATE_FILES[@]}"; do
     exit 1
   fi
 done
+SEED_VISIT="$TEMPLATE_DIR/visits/2026-07-23_215600.json"
+if [[ ! -f "$SEED_VISIT" || -L "$SEED_VISIT" ]]; then
+  echo "Required first-rummage Visit seed is missing or unsafe: $SEED_VISIT" >&2
+  exit 1
+fi
 
 PRIMARY_FILES=(profile.yml memory.md state.json)
 declare -A PRIMARY_HASHES
@@ -71,8 +76,8 @@ if not isinstance(state, dict):
     raise SystemExit("state template must contain a JSON object")
 if state.get("status") != "resting":
     raise SystemExit("birth state must be resting")
-if state.get("visit_count") != 0:
-    raise SystemExit("birth state must have visit_count 0")
+if state.get("visit_count") != 1:
+    raise SystemExit("birth state must preserve the first home-shelf Visit")
 if state.get("document_rummage_count") != 1:
     raise SystemExit("birth state must preserve exactly one repository home-shelf rummage")
 if state.get("runtime_rummage_count") != 0 or state.get("llm_rummage_count") != 0:
@@ -97,6 +102,9 @@ mkdir -m 0750 \
   "$STAGING_DIR/wake_checks" \
   "$STAGING_DIR/wake_selections" \
   "$STAGING_DIR/visit_requests"
+install -m 0640 \
+  "$SEED_VISIT" \
+  "$STAGING_DIR/visits/2026-07-23_215600.json"
 
 SOURCE_COMMIT="$(git -C "$REPO_DIR" rev-parse HEAD)"
 STRAY_BIRTH_SOURCE_COMMIT="$SOURCE_COMMIT" \
@@ -111,7 +119,13 @@ from zoneinfo import ZoneInfo
 
 staging = Path(sys.argv[1])
 agent_id = sys.argv[2]
-files = ("profile.yml", "memory.md", "state.json", "observation-log.md")
+files = (
+    "profile.yml",
+    "memory.md",
+    "state.json",
+    "observation-log.md",
+    "visits/2026-07-23_215600.json",
+)
 manifest = {
     "schema": "stray-persistent-birth-v0",
     "agent_id": agent_id,

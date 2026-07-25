@@ -5,7 +5,7 @@ import os
 from collections import Counter
 from dataclasses import dataclass, field
 from html import escape
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any
 
 from bs4 import BeautifulSoup
@@ -94,6 +94,17 @@ def _local_venue_key(root: Path | None, report_name: str) -> tuple[str, ...]:
     return ("local", str(root) if root is not None else report_name)
 
 
+def _recorded_venue(visit: dict[str, Any]) -> tuple[str, str] | None:
+    value = visit.get("venue")
+    if not isinstance(value, dict):
+        return None
+    venue_id = str(value.get("id") or "").strip()
+    label = str(value.get("label") or "").strip()
+    if not venue_id or not label:
+        return None
+    return venue_id, label
+
+
 def _display_local_path(location: Any, root: Path | None) -> str:
     try:
         path = Path(str(location)).resolve()
@@ -110,6 +121,7 @@ def _node_identity(
     location: Any,
     source: SourceCoordinates | None,
     local_root: Path | None,
+    recorded_venue_id: str | None = None,
 ) -> tuple[str, str, str | None]:
     if source is not None:
         relative = source.page_path(location)
@@ -119,6 +131,14 @@ def _node_identity(
                 relative,
                 source.page_url(location),
             )
+    if recorded_venue_id is not None:
+        relative = PurePosixPath(str(location or ""))
+        display = relative.as_posix() if relative.parts else "Untitled"
+        return (
+            f"recorded:{recorded_venue_id}:{display}",
+            display,
+            None,
+        )
     local_path = _display_local_path(location, local_root)
     try:
         internal = str(Path(str(location)).resolve())
@@ -140,16 +160,20 @@ def build_observed_map(
     for report_name, (visit, source) in ordered_records:
         steps = _steps(visit)
         started_at = str(visit.get("started_at") or "unknown")
-        root = None if source is not None else _local_root(steps, visit)
-        key = (
-            _source_venue_key(source)
-            if source is not None
-            else _local_venue_key(root, report_name)
-        )
+        recorded = _recorded_venue(visit) if source is None else None
+        root = None if source is not None or recorded is not None else _local_root(steps, visit)
+        if source is not None:
+            key = _source_venue_key(source)
+        elif recorded is not None:
+            key = ("recorded", recorded[0])
+        else:
+            key = _local_venue_key(root, report_name)
         venue = venues.get(key)
         if venue is None:
             if source is not None:
                 label = source.venue_label
+            elif recorded is not None:
+                label = recorded[1]
             else:
                 local_order.append(key)
                 label = (
@@ -169,7 +193,10 @@ def build_observed_map(
         route_keys: list[str] = []
         for step_index, step in enumerate(steps):
             node_key, display_path, external_url = _node_identity(
-                step.get("location"), source, venue.local_root
+                step.get("location"),
+                source,
+                venue.local_root,
+                recorded[0] if recorded is not None else None,
             )
             title = str(step.get("title") or Path(display_path).name or "Untitled")
             node = venue.nodes.get(node_key)

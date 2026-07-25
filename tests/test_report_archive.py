@@ -189,3 +189,25 @@ def test_render_index_resolves_agent_identity_in_documented_priority() -> None:
     assert "The Visits of state-agent" in render_index([], state)
     assert "The Visits of state-id" in render_index([], {"id": "state-id"})
     assert "The Visits of stray-001" in render_index([])
+
+
+def test_archive_labels_document_rummage_as_a_visit_activity() -> None:
+    visit = _visit("2026-07-25T10:16:18+09:00", backend="command")
+    visit["agent_id"] = "stray-002"
+    visit["activity_type"] = "document_rummage"
+    visit["venue"] = {
+        "kind": "repository",
+        "id": "repository:stray-ai",
+        "label": "stray-ai",
+    }
+    visit["exit_reason"] = "returned_after_document_rummage"
+
+    html = render_index(
+        [(Path("2026-07-25_101618.json"), visit)],
+        {"status": "resting", "visit_count": 1},
+        agent_id="stray-002",
+    )
+
+    assert "stray-ai" in html
+    assert "Document rummage · Returned after document rummage" in html
+    assert "Venue walks and repository rummages are Visit activities" in html
