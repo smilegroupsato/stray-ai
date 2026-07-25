@@ -4,15 +4,12 @@ set -euo pipefail
 REPO_DIR="${REPO_DIR:-/srv/sgos/repos/stray-ai}"
 DATA_DIR="${DATA_DIR:-/srv/sgos/data/stray-ai}"
 
-if [[ -z "${STRAY_LLM_MODEL:-}" ]]; then
-  echo "STRAY_LLM_MODEL is required." >&2
-  exit 1
-fi
 if [[ ! -d "$DATA_DIR/agents/stray-002" || -L "$DATA_DIR/agents/stray-002" ]]; then
   echo "Persistent stray-002 was not found safely." >&2
   exit 1
 fi
 
+export STRAY_LLM_MODEL="${STRAY_LLM_MODEL:-stray-qwen3.5-9b-16k}"
 export STRAY_LLM_BASE_URL="${STRAY_LLM_BASE_URL:-http://127.0.0.1:11434/v1}"
 export STRAY_LLM_JSON_MODE="${STRAY_LLM_JSON_MODE:-1}"
 export STRAY_LLM_REASONING_EFFORT="${STRAY_LLM_REASONING_EFFORT:-none}"

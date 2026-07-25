@@ -1,7 +1,7 @@
 # Stray-002 Rummage Runtime
 
 - ページ作成日時：2026-07-24 16:05 JST
-- 最終更新日時：2026-07-24 17:19 JST
+- 最終更新日時：2026-07-25 10:24 JST
 
 ## Purpose
 
@@ -45,11 +45,26 @@ Report generation remains a later, separate command. When generated, `individual
 After installing the current checkout with `scripts/setup_devbox.sh`:
 
 ```bash
-export STRAY_LLM_MODEL="qwen3.5:9b"
+/srv/sgos/data/stray-ai/setup-stray-002-rummage-model.sh
 /srv/sgos/data/stray-ai/rummage-stray-002-llm.sh
 ```
 
-The launcher uses the local OpenAI-compatible endpoint at `127.0.0.1:11434` by default. The route is fixed in the launcher for the first runtime execution. A different route is a separate reviewed change.
+The setup command creates the local derived model
+`stray-qwen3.5-9b-16k` from an already available `qwen3.5:9b`, with
+`num_ctx 16384`, and verifies the resulting configuration. It never pulls a
+model automatically. The rummage launcher uses that derived model and the
+local OpenAI-compatible endpoint at `127.0.0.1:11434` by default.
+
+The 16K context is required for the fixed seven-document route. During the
+first genuine runtime attempt, the survey request consumed 4,020 tokens under
+a 4,096-token context, leaving only 76 completion tokens and producing a
+truncated JSON string. Raising only `STRAY_LLM_MAX_TOKENS` cannot enlarge the
+model's total context window.
+
+`STRAY_LLM_MODEL` may still be overridden for another reviewed compatible
+endpoint, but the operator is responsible for providing at least the same
+effective context capacity. The route remains fixed in the launcher for this
+runtime. A different route is a separate reviewed change.
 
 ## Safety and failure
 
@@ -64,6 +79,7 @@ The launcher uses the local OpenAI-compatible endpoint at `127.0.0.1:11434` by d
 
 ## Update History
 
+- 2026-07-25 10:24 JST：Recorded the successful first genuine runtime rummage and standardized the verified 16K Ollama model setup.
 - 2026-07-24 17:19 JST：Isolated reflection input to selected documents, raised the local model response budget, and exposed bounded adapter diagnostics.
 - 2026-07-24 16:32 JST：Aligned runtime location checks with Stray-002's persistent underground shelf-gap habitat.
 - 2026-07-24 16:05 JST：Created the executable rummage runtime contract and devbox procedure.
