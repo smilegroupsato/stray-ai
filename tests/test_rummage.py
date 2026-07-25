@@ -118,6 +118,13 @@ if request["protocol"] == "stray-rummage-survey-v1":
         ]
     }}))
 else:
+    assert request["survey"]["deep_read_indices"] == [0, 2]
+    assert request["output_contract"]["allowed_deep_read_indices"] == [0, 2]
+    assert [item["index"] for item in request["documents"]] == [0, 2]
+    assert all(
+        item["reading_mode"] == "deep-reading"
+        for item in request["documents"]
+    )
     print(json.dumps({{
         "observation": "Two documents remained open at once.",
         "deep_readings": [
@@ -226,6 +233,27 @@ def test_invalid_survey_fails_before_persistent_writes(tmp_path: Path) -> None:
     assert list((agent / "rummages").iterdir()) == []
     assert (agent / "state.json").read_bytes() == state_before
     assert (agent / "memory.md").read_bytes() == memory_before
+
+
+def test_brain_failure_includes_bounded_stderr(tmp_path: Path) -> None:
+    adapter = tmp_path / "failed-adapter.py"
+    adapter.write_text(
+        "import sys\n"
+        "print('reflection failed after invalid JSON', file=sys.stderr)\n"
+        "raise SystemExit(3)\n",
+        encoding="utf-8",
+    )
+    brain = CommandRummageBrain(
+        [sys.executable, str(adapter)],
+        label="failed-model",
+        timeout_seconds=5,
+    )
+
+    with pytest.raises(
+        RummageError,
+        match="exited with code 3: reflection failed after invalid JSON",
+    ):
+        brain.ask("stray-rummage-reflection-v1", {})
 
 
 def test_exact_identity_and_bounded_route_are_required(tmp_path: Path) -> None:
