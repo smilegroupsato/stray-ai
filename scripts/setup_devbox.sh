@@ -221,6 +221,13 @@ exec bash "$REPO_DIR/scripts/rummage_stray_002_llm.sh" "\$@"
 EOF
 chmod 750 "$DATA_DIR/rummage-stray-002-llm.sh"
 
+cat > "$DATA_DIR/setup-stray-002-rummage-model.sh" <<EOF
+#!/usr/bin/env bash
+set -euo pipefail
+exec bash "$REPO_DIR/scripts/setup_stray_002_rummage_model.sh" "\$@"
+EOF
+chmod 750 "$DATA_DIR/setup-stray-002-rummage-model.sh"
+
 "$REPO_DIR/.venv/bin/python" -m pytest "$REPO_DIR/tests"
 
 echo "Devbox habitat prepared."
@@ -236,4 +243,5 @@ echo "Deterministic EFP wake check: $DATA_DIR/check-wake-eternal-free-party.sh"
 echo "LLM EFP wake check: $DATA_DIR/check-wake-eternal-free-party-llm.sh"
 echo "Deterministic multi-Venue wake selection: $DATA_DIR/select-wake-venue.sh"
 echo "LLM multi-Venue wake selection: $DATA_DIR/select-wake-venue-llm.sh"
+echo "Stray-002 rummage model setup: $DATA_DIR/setup-stray-002-rummage-model.sh"
 echo "LLM Stray-002 document rummage: $DATA_DIR/rummage-stray-002-llm.sh"
