@@ -6,6 +6,9 @@ from pathlib import Path
 
 from bs4 import BeautifulSoup
 
+from stray_ai.report_collection_navigation import (
+    apply_navigation_to_individual_directory,
+)
 from stray_ai.report_translations import source_digest
 from stray_ai.report_world_collection import generate_world_report_collection
 
@@ -158,4 +161,53 @@ def test_cached_translations_are_display_only_and_preserve_originals(
     assert all(
         details.find("summary").get_text(strip=True) == "原文"
         for details in soup.select("details.original-text")
+    )
+
+
+
+def test_stray_002_individual_page_links_to_visits_and_observed_map(
+    tmp_path: Path,
+) -> None:
+    individual_dir = tmp_path / "individuals" / "stray-002"
+    individual_dir.mkdir(parents=True)
+    html = """<!doctype html><html><head></head><body><main>
+<div class="kicker">Stray AI</div><h1>Page</h1>
+</main></body></html>"""
+    for name in ("index.html", "visits.html", "map.html", "rummages.html"):
+        (individual_dir / name).write_text(html, encoding="utf-8")
+
+    apply_navigation_to_individual_directory(
+        individual_dir,
+        agent_id="stray-002",
+    )
+
+    for name in ("index.html", "visits.html", "map.html", "rummages.html"):
+        soup = BeautifulSoup(
+            (individual_dir / name).read_text(encoding="utf-8"),
+            "html.parser",
+        )
+        nav = soup.select_one(".report-section-nav")
+        assert nav is not None
+        assert nav.select_one('a[href="index.html"]') is not None
+        assert (
+            nav.select_one('a[href="visits.html"]').get_text(strip=True)
+            == "訪問一覧"
+        )
+        assert (
+            nav.select_one('a[href="map.html"]').get_text(strip=True)
+            == "観測地図"
+        )
+        assert nav.select_one('a[href="rummages.html"]') is not None
+        assert nav.select_one(
+            f'a[href="{name}"][aria-current="page"]'
+        ) is not None
+
+    map_soup = BeautifulSoup(
+        (individual_dir / "map.html").read_text(encoding="utf-8"),
+        "html.parser",
+    )
+    assert (
+        map_soup.select_one('.report-breadcrumbs a[href="index.html"]')
+        .get_text(strip=True)
+        == "stray-002 個体ページ"
     )
