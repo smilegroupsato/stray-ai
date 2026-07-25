@@ -32,6 +32,10 @@ def _make_public_venue(repository: Path) -> str:
     )
     (repository / "AGENTS.md").write_text("# Reception\n", encoding="utf-8")
     (repository / "docs" / "concept.md").write_text("# Concept\n", encoding="utf-8")
+    (repository / "docs" / "executable.md").write_text(
+        "# Content, not a program\n", encoding="utf-8"
+    )
+    (repository / "docs" / "executable.md").chmod(0o755)
     (repository / "flyer" / "index.html").write_text("<html></html>", encoding="utf-8")
     (repository / "private.bin").write_bytes(b"not venue text")
     os.symlink("README.md", repository / "linked-entrance.md")
@@ -79,6 +83,10 @@ def test_snapshot_copies_only_bounded_text(tmp_path: Path) -> None:
         assert (snapshot / "REPOSITORY_CONTEXT.md").is_file()
         assert (snapshot / "AGENTS.md").is_file()
         assert (snapshot / "docs" / "concept.md").is_file()
+        assert stat.S_IMODE((snapshot / "docs" / "concept.md").stat().st_mode) == 0o440
+        assert stat.S_IMODE((snapshot / "docs" / "executable.md").stat().st_mode) == 0o440
+        assert stat.S_IMODE((snapshot / "docs").stat().st_mode) == 0o550
+        assert stat.S_IMODE(snapshot.stat().st_mode) == 0o550
         assert not (snapshot / "flyer" / "index.html").exists()
         assert not (snapshot / "private.bin").exists()
         assert not (snapshot / "linked-entrance.md").exists()
