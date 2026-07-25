@@ -141,12 +141,18 @@ def render_collection_index(
         if individual.display_name and individual.display_name != individual.agent_id:
             identity += f'<span class="name">{escape(individual.display_name)}</span>'
 
-        links = [
-            _link(f"{individual.relative_root}/index.html", "Visits"),
-            _link(f"{individual.relative_root}/map.html", "Observed map"),
-        ]
         if individual.rummage_report:
-            links.append(_link(f"{individual.relative_root}/rummages.html", "Rummages"))
+            links = [
+                _link(f"{individual.relative_root}/index.html", "Individual"),
+                _link(f"{individual.relative_root}/visits.html", "Visits"),
+                _link(f"{individual.relative_root}/map.html", "Observed map"),
+                _link(f"{individual.relative_root}/rummages.html", "Rummages"),
+            ]
+        else:
+            links = [
+                _link(f"{individual.relative_root}/index.html", "Visits"),
+                _link(f"{individual.relative_root}/map.html", "Observed map"),
+            ]
         latest_path = individual.output_dir / "latest.html"
         if latest_path.is_file():
             links.insert(1, _link(f"{individual.relative_root}/latest.html", "Latest"))
@@ -264,6 +270,10 @@ def generate_report_collection(
                 individual_output / "rummages.html",
                 agent_id=agent_id,
             )
+        if int(rummage_result["rummage_count"]) > 0:
+            visit_index = individual_output / "index.html"
+            shutil.copyfile(visit_index, individual_output / "visits.html")
+            shutil.copyfile(individual_output / "rummages.html", visit_index)
         individuals.append(
             IndividualReport(
                 agent_id=agent_id,
