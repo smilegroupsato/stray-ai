@@ -131,7 +131,7 @@ h1{{font-size:42px;margin:0}}.intro,.time,.survey,.empty,.document code{{color:v
 </head>
 <body><main class="terminal-shell">
 <div class="title-row">{inline_title_mark_svg()}<div><div class="time">Stray AI · Document Rummage v1</div><h1>The Rummages of {identity}</h1></div></div>
-<p class="intro">表紙をめくり、選んだ文書に深く潜り、持ち帰った記憶を読む場所。Visitとは別の、リポジトリ内での文書漁りです。</p>
+<p class="intro">表紙をめくり、選んだ文書に深く潜り、持ち帰った記憶を読む場所。文書漁りは、RepositoryをVenueとするVisitのactivityです。</p>
 {content}
 </main></body></html>"""
 

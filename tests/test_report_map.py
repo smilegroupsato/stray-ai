@@ -13,7 +13,6 @@ from stray_ai.report_map import (
 from stray_ai.report_source_archive import generate_source_aware_archive
 from stray_ai.report_sources import SourceCoordinates
 
-
 _REPOSITORY = "https://github.com/eternal-free-party/free-party-context"
 _COMMIT = "a" * 40
 
@@ -172,6 +171,43 @@ def test_observed_map_groups_current_archive_and_aggregates_routes(tmp_path: Pat
     assert edge_paths[("README.md", "REPOSITORY_CONTEXT.md")] == 2
     assert edge_paths[("REPOSITORY_CONTEXT.md", "AGENTS.md")] == 2
     assert edge_paths[("README.md", "docs/becoming.md")] == 1
+
+
+def test_observed_map_places_document_rummage_in_recorded_repository_venue() -> None:
+    visit = {
+        "agent_id": "stray-002",
+        "activity_type": "document_rummage",
+        "started_at": "2026-07-25T10:16:18+09:00",
+        "venue": {
+            "kind": "repository",
+            "id": "repository:stray-ai",
+            "label": "stray-ai",
+        },
+        "entrance": "README.md",
+        "steps": [
+            {"location": "README.md", "title": "Entrance", "action": "skim_cover"},
+            {
+                "location": "docs/biology.md",
+                "title": "Biology",
+                "action": "deep_read",
+            },
+        ],
+        "exit_reason": "returned_after_document_rummage",
+    }
+
+    observed = build_observed_map(
+        {"2026-07-25_101618.html": (visit, None)}
+    )
+
+    assert observed.visit_count == 1
+    assert len(observed.venues) == 1
+    venue = observed.venues[0]
+    assert venue.label == "stray-ai"
+    assert {node.display_path for node in venue.nodes.values()} == {
+        "README.md",
+        "docs/biology.md",
+    }
+    assert len(venue.routes) == 1
 
 
 def test_rendered_map_has_relative_reports_exact_sources_and_no_local_paths(

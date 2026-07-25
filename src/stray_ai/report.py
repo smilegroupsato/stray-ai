@@ -32,12 +32,17 @@ def render_report(visit: dict[str, Any], state: dict[str, Any] | None = None) ->
     brain_cards: list[str] = []
     for index, step in enumerate(steps, start=1):
         action = str(step.get("action", "observe"))
-        terminal_class = " terminal" if action in {"leave", "leave_trace"} else ""
+        returned = bool(step.get("return"))
+        terminal_class = (
+            " terminal" if action in {"leave", "leave_trace"} or returned else ""
+        )
         badge = (
             "TRACE"
             if action == "leave_trace"
             else "LEAVE"
             if action == "leave"
+            else "RETURN"
+            if returned
             else f"STEP {step.get('step', index)}"
         )
         title_value = str(step.get("title", "Untitled"))
@@ -87,9 +92,12 @@ def render_report(visit: dict[str, Any], state: dict[str, Any] | None = None) ->
     )
     memories = [str(item) for item in visit.get("memories_added", [])]
     trace_file = visit.get("trace_file")
+    inline_trace = str(visit.get("trace") or "").strip()
     trace_text = (
         f"Carried home: {_short_path(str(trace_file))}"
         if trace_file
+        else inline_trace
+        if inline_trace
         else "No trace carried home."
     )
     memory_text = (
@@ -98,7 +106,13 @@ def render_report(visit: dict[str, Any], state: dict[str, Any] | None = None) ->
         else "No new memory was selected."
     )
 
-    if exit_reason == "brain_failed_safe_exit":
+    activity_type = str(visit.get("activity_type") or "venue_visit")
+    if activity_type == "document_rummage":
+        summary = (
+            f"{len(steps)}つの文書に触れ、{len(memories)}件を記憶し、"
+            f"{'Traceを残して書架の隙間へ戻った。' if inline_trace else 'Traceを残さず書架の隙間へ戻った。'}"
+        )
+    elif exit_reason == "brain_failed_safe_exit":
         summary = f"{len(steps)}つの場所を歩き、判断を受理できなかったため、安全に退出した。"
     elif exit_reason == "left_silently" and not trace_file and not memories:
         summary = f"{len(steps)}つの場所を歩き、何も持ち帰らず、静かに退出した。"
@@ -109,9 +123,10 @@ def render_report(visit: dict[str, Any], state: dict[str, Any] | None = None) ->
         )
 
     metrics = {
+        "Activity": activity_type,
         "Places": len(steps),
         "Exit": exit_reason,
-        "Trace": "Yes" if trace_file else "None",
+        "Trace": "Yes" if trace_file or inline_trace else "None",
         "New memories": len(memories),
         "Model": visit.get("brain_model") or "deterministic mock",
     }
@@ -132,6 +147,12 @@ def render_report(visit: dict[str, Any], state: dict[str, Any] | None = None) ->
     started_at = escape(str(visit.get("started_at", "unknown")))
     agent_id = escape(str(visit.get("agent_id", "unknown")))
     backend = escape(str(visit.get("backend", "unknown")))
+    activity_label = escape(
+        {
+            "document_rummage": "Document Rummage",
+            "venue_visit": "Venue Visit",
+        }.get(activity_type, activity_type.replace("_", " ").title())
+    )
     visit_file = escape(_short_path(str(visit.get("visit_file", ""))))
     entrance = escape(_short_path(str(visit.get("entrance", ""))))
 
@@ -165,7 +186,7 @@ footer{{margin-top:18px;color:var(--muted);font-size:12px}}@media(max-width:800p
 <body>
 <main class="terminal-shell visit-report-shell">
 <header class="title-zone">
-<div><div class="kicker">Stray AI · Visit Report v0</div><div class="title-row">{inline_title_mark_svg()}<h1>{agent_id}</h1></div>
+<div><div class="kicker">Stray AI · Visit Report v0 · {activity_label}</div><div class="title-row">{inline_title_mark_svg()}<h1>{agent_id}</h1></div>
 <div class="subtitle">{started_at} · backend: {backend}</div></div>
 <div class="status">{escape(exit_label)}</div>
 </header>

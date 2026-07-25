@@ -22,7 +22,9 @@ mkdir -p \
   "$DATA_DIR/backups"
 
 if [[ -d "$DATA_DIR/agents/stray-002" && ! -L "$DATA_DIR/agents/stray-002" ]]; then
-  install -d -m 0750 "$DATA_DIR/agents/stray-002/rummages"
+  install -d -m 0750 \
+    "$DATA_DIR/agents/stray-002/rummages" \
+    "$DATA_DIR/agents/stray-002/visits"
 fi
 
 if [[ ! -d "$REPO_DIR/.venv" ]]; then
@@ -39,6 +41,11 @@ for file in profile.yml memory.md state.json; do
 done
 
 "$REPO_DIR/.venv/bin/stray-ai-migrate" "$DATA_DIR/agents/stray-001"
+if [[ -d "$DATA_DIR/agents/stray-002" && ! -L "$DATA_DIR/agents/stray-002" ]]; then
+  "$REPO_DIR/.venv/bin/stray-ai-migrate-rummage-visits" \
+    "$DATA_DIR/agents/stray-002" \
+    --seed-visit "$REPO_DIR/agents/stray-002/visits/2026-07-23_215600.json"
+fi
 
 cat > "$DATA_DIR/run-first-visitor.sh" <<EOF
 #!/usr/bin/env bash

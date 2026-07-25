@@ -1,0 +1,84 @@
+{
+  "schema": "stray-visit-v1",
+  "agent_id": "stray-002",
+  "activity_type": "document_rummage",
+  "record_kind": "hand-authored-prototype",
+  "started_at": "2026-07-23T21:56:00+09:00",
+  "ended_at": "2026-07-23T21:56:00+09:00",
+  "venue": {
+    "kind": "repository",
+    "id": "repository:stray-ai",
+    "label": "stray-ai",
+    "source_commit": null
+  },
+  "entrance": "README.md",
+  "backend": "hand-authored",
+  "brain_model": null,
+  "steps": [
+    {
+      "step": 1,
+      "location": "README.md",
+      "title": "Entrance",
+      "action": "skim_cover",
+      "reading_mode": "cover-skimming"
+    },
+    {
+      "step": 2,
+      "location": "docs/constitution.md",
+      "title": "Constitution",
+      "action": "skim_cover",
+      "reading_mode": "cover-skimming"
+    },
+    {
+      "step": 3,
+      "location": "docs/biology.md",
+      "title": "Biology",
+      "action": "deep_read",
+      "reading_mode": "deep-reading",
+      "observation": {
+        "local_law": "Context is food only when selection, refusal, forgetting, and return are allowed to shape the individual.",
+        "residue": "A visitor may become more itself by not reading everything."
+      }
+    },
+    {
+      "step": 4,
+      "location": "docs/architecture.md",
+      "title": "Architecture",
+      "action": "skim_cover",
+      "reading_mode": "cover-skimming"
+    },
+    {
+      "step": 5,
+      "location": "docs/memory-provenance.md",
+      "title": "Memory Provenance",
+      "action": "skim_cover",
+      "reading_mode": "cover-skimming"
+    },
+    {
+      "step": 6,
+      "location": "docs/repository-document-maniac.md",
+      "title": "Repository Document Maniac",
+      "action": "skim_cover",
+      "reading_mode": "cover-skimming"
+    },
+    {
+      "step": 7,
+      "location": "agents/stray-002/memory.md",
+      "title": "Memory",
+      "action": "skim_cover",
+      "reading_mode": "cover-skimming",
+      "return": "damp-underground-library-shelf-gap"
+    }
+  ],
+  "memories_added": [],
+  "trace": "The first home-shelf rummage found a local law in the biology shelf: the visitor is not made by total access, but by biased attention and finite memory.",
+  "trace_file": null,
+  "exit_reason": "returned_after_document_rummage",
+  "rummage_record": null,
+  "source_record": "observation-log.md#2026-07-23-2156-jst--first-home-shelf-rummage",
+  "effects": {
+    "repository_content_changed": false,
+    "external_write": false,
+    "returned_to_rest": true
+  }
+}

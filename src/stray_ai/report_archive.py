@@ -46,10 +46,14 @@ def _exit_label(value: Any) -> str:
         "trace_carried_home": "Trace carried home",
         "brain_failed_safe_exit": "Left safely · brain rejected",
         "place_limit": "Place limit reached",
+        "returned_after_document_rummage": "Returned after document rummage",
     }.get(reason, reason.replace("_", " ").title())
 
 
-def _venue_label(entrance: Any) -> str:
+def _venue_label(entrance: Any, visit: dict[str, Any] | None = None) -> str:
+    venue = visit.get("venue") if isinstance(visit, dict) else None
+    if isinstance(venue, dict) and venue.get("label"):
+        return str(venue["label"])
     if not entrance:
         return "Unknown venue"
     path = Path(str(entrance))
@@ -70,7 +74,12 @@ def _record_card(path: Path, visit: dict[str, Any], *, latest: bool) -> str:
     started = escape(_time_label(visit.get("started_at")))
     backend = escape(str(visit.get("backend") or "unknown"))
     model = escape(_model_label(visit))
-    venue = escape(_venue_label(visit.get("entrance")))
+    venue = escape(_venue_label(visit.get("entrance"), visit))
+    activity = str(visit.get("activity_type") or "venue_visit")
+    activity_label = {
+        "document_rummage": "Document rummage",
+        "venue_visit": "Venue visit",
+    }.get(activity, activity.replace("_", " ").title())
     result = escape(_exit_label(visit.get("exit_reason")))
     places = len(visit.get("steps", [])) if isinstance(visit.get("steps"), list) else 0
     memories = (
@@ -85,11 +94,12 @@ def _record_card(path: Path, visit: dict[str, Any], *, latest: bool) -> str:
         '<div class="visit-main">'
         f'<div class="visit-time">{started}{latest_badge}</div>'
         f'<h2><a href="{href}">{venue}</a></h2>'
-        f'<p class="result">{result}</p>'
+        f'<p class="result">{escape(activity_label)} · {result}</p>'
         '</div>'
         '<dl class="visit-facts">'
         f'<div><dt>Backend</dt><dd>{backend}</dd></div>'
         f'<div><dt>Model</dt><dd>{model}</dd></div>'
+        f'<div><dt>Activity</dt><dd>{escape(activity_label)}</dd></div>'
         f'<div><dt>Places</dt><dd>{places}</dd></div>'
         f'<div><dt>Memory</dt><dd>{memories}</dd></div>'
         f'<div><dt>Trace</dt><dd>{trace}</dd></div>'
@@ -156,7 +166,7 @@ main{{max-width:980px;margin:24px auto 48px;padding:42px 28px 64px}}a{{color:inh
 .archive-head{{display:flex;justify-content:space-between;align-items:end;gap:20px;margin:38px 0 16px}}.archive-head h2{{margin:0;font-size:22px}}.archive-head p{{margin:0;color:var(--muted);font-size:13px}}
 .visits{{display:grid;gap:14px}}.visit-card{{position:relative;padding:20px 20px 20px 24px;display:grid;grid-template-columns:minmax(220px,1.1fr) 2fr;gap:24px;align-items:center;border-left:3px solid var(--magenta);background:linear-gradient(110deg,rgba(255,79,216,.055),var(--panel) 32%)}}
 .visit-time{{color:var(--muted);font-size:13px;display:flex;align-items:center;gap:10px}}.latest-badge{{color:var(--accent);font-size:10px;letter-spacing:.12em}}
-.visit-main h2{{font-size:22px;margin:8px 0 6px}}.result{{color:var(--muted);margin:0}}.visit-facts{{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:0}}
+.visit-main h2{{font-size:22px;margin:8px 0 6px}}.result{{color:var(--muted);margin:0}}.visit-facts{{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin:0}}
 .visit-facts div{{min-width:0}}dt{{color:var(--muted);font-size:11px;margin-bottom:5px}}dd{{margin:0;font-size:13px;overflow-wrap:anywhere}}.empty{{padding:28px;color:var(--muted)}}
 footer{{margin-top:24px;color:var(--muted);font-size:12px}}@media(max-width:800px){{h1{{font-size:34px}}.state{{grid-template-columns:1fr 1fr}}.visit-card{{grid-template-columns:1fr}}.visit-facts{{grid-template-columns:1fr 1fr}}}}
 </style>
@@ -166,7 +176,7 @@ footer{{margin-top:24px;color:var(--muted);font-size:12px}}@media(max-width:800p
 <header class="title-zone">
 <div class="kicker">Stray AI · Visit Report v0 · Archive</div>
 <div class="title-row">{inline_title_mark_svg()}<h1>The Visits of {display_agent_id}</h1></div>
-<p class="intro">A local observation window into one visitor's recorded passages. This page offers no controls and starts no movement.</p>
+<p class="intro">A local observation window into one visitor's recorded encounters. Venue walks and repository rummages are Visit activities. This page offers no controls and starts no movement.</p>
 </header>
 <section class="state" aria-label="Persistent state">
 <div><span>Lifecycle</span><strong>{lifecycle}</strong></div>
@@ -176,7 +186,7 @@ footer{{margin-top:24px;color:var(--muted);font-size:12px}}@media(max-width:800p
 </section>
 <div class="archive-head"><h2>Recorded visits</h2><p>Newest first · local relative links</p></div>
 <section class="visits">{cards}</section>
-<footer>Generated locally from preserved Visit JSON. Wake judgments are recorded separately.</footer>
+<footer>Generated locally from preserved Visit JSON. Activity-specific detail may also appear on the individual's other report pages.</footer>
 </main>
 </body>
 </html>"""

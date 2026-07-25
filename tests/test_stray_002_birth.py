@@ -58,7 +58,7 @@ def test_birth_creates_one_isolated_persistent_individual(tmp_path: Path) -> Non
     assert output["born"] is True
     assert output["agent_id"] == "stray-002"
     assert output["status"] == "resting"
-    assert output["visit_count"] == 0
+    assert output["visit_count"] == 1
     assert output["document_rummage_count"] == 1
     assert output["primary_individual"] == "stray-001"
     assert output["primary_unchanged"] is True
@@ -90,7 +90,12 @@ def test_birth_creates_one_isolated_persistent_individual(tmp_path: Path) -> Non
         "wake_selections",
     ):
         assert (born / directory).is_dir()
-        assert list((born / directory).iterdir()) == []
+        if directory == "visits":
+            assert [path.name for path in (born / directory).iterdir()] == [
+                "2026-07-23_215600.json"
+            ]
+        else:
+            assert list((born / directory).iterdir()) == []
 
     manifest = json.loads((born / "birth.json").read_text(encoding="utf-8"))
     state = json.loads((born / "state.json").read_text(encoding="utf-8"))

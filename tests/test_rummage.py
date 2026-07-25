@@ -74,6 +74,7 @@ trace:
         encoding="utf-8",
     )
     (agent / "rummages").mkdir()
+    (agent / "visits").mkdir()
     return agent
 
 
@@ -147,7 +148,7 @@ else:
     return adapter
 
 
-def test_command_rummage_deep_reads_multiple_documents_and_preserves_visit_state(
+def test_command_rummage_deep_reads_multiple_documents_and_creates_visit(
     tmp_path: Path,
 ) -> None:
     agent = _agent(tmp_path)
@@ -177,7 +178,7 @@ def test_command_rummage_deep_reads_multiple_documents_and_preserves_visit_state
     ]
     assert len(result["memories_added"]) == 3
     assert result["effects"] == {
-        "visit_created": False,
+        "visit_created": True,
         "wake_invoked": False,
         "scheduler_created": False,
         "repository_content_changed": False,
@@ -187,11 +188,24 @@ def test_command_rummage_deep_reads_multiple_documents_and_preserves_visit_state
     record_text = record.read_text(encoding="utf-8")
     assert str(repository) not in record_text
     assert "/srv/" not in record_text
+    visit = json.loads(Path(result["visit_file"]).read_text(encoding="utf-8"))
+    assert visit["schema"] == "stray-visit-v1"
+    assert visit["activity_type"] == "document_rummage"
+    assert visit["venue"]["label"] == "repository"
+    assert visit["rummage_record"] == f"rummages/{record.name}"
+    assert [step["location"] for step in visit["steps"]] == [
+        "README.md",
+        "docs/old-roadmap.md",
+        "docs/biology.md",
+    ]
+    assert visit["steps"][-1]["return"] == _HOME_LOCATION
 
     state = json.loads((agent / "state.json").read_text(encoding="utf-8"))
     assert state["status"] == "resting"
     assert state["current_location"] == _HOME_LOCATION
-    assert state["visit_count"] == 0
+    assert state["visit_count"] == 1
+    assert state["rummage_visit_count"] == 1
+    assert state["llm_visit_count"] == 1
     assert state["document_rummage_count"] == 2
     assert state["runtime_rummage_count"] == 1
     assert state["llm_rummage_count"] == 1
@@ -231,6 +245,7 @@ def test_invalid_survey_fails_before_persistent_writes(tmp_path: Path) -> None:
         )
 
     assert list((agent / "rummages").iterdir()) == []
+    assert list((agent / "visits").iterdir()) == []
     assert (agent / "state.json").read_bytes() == state_before
     assert (agent / "memory.md").read_bytes() == memory_before
 
@@ -309,6 +324,7 @@ def test_rummage_requires_the_individuals_home_shelf_gap(tmp_path: Path) -> None
         )
 
     assert list((agent / "rummages").iterdir()) == []
+    assert list((agent / "visits").iterdir()) == []
 
 
 def test_symlinked_rummage_namespace_is_rejected(tmp_path: Path) -> None:
@@ -335,6 +351,7 @@ def test_symlinked_rummage_namespace_is_rejected(tmp_path: Path) -> None:
         )
 
     assert list(real_rummages.iterdir()) == []
+    assert list((agent / "visits").iterdir()) == []
 
 
 def test_rummage_report_renders_memories_and_escapes_model_content(

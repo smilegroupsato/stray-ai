@@ -1,11 +1,14 @@
 # Stray-002 Rummage Runtime
 
 - ページ作成日時：2026-07-24 16:05 JST
-- 最終更新日時：2026-07-25 12:06 JST
+- 最終更新日時：2026-07-25 12:43 JST
 
 ## Purpose
 
-Provide `stray-002` with a real, bounded execution path for repository document rummaging. This runtime replaces neither Visit nor the earlier hand-authored first-rummage prototype.
+Provide `stray-002` with a real, bounded execution path for repository
+document rummaging. Rummage is the activity-specific body of a Visit to a
+repository Venue; the earlier hand-authored first-rummage prototype remains
+preserved as the first such Visit.
 
 ## Two-stage attention
 
@@ -24,17 +27,22 @@ One successful run writes:
 ```text
 agents/stray-002/
 ├── rummages/YYYY-MM-DD_HHMMSS.json
+├── visits/YYYY-MM-DD_HHMMSS.json
 ├── memory.md
 ├── observation-log.md
 └── state.json
 ```
 
-The JSON event is the structured source. `memory.md` and `observation-log.md` are readable projections. `state.json` increments both the overall `document_rummage_count` and the separate `runtime_rummage_count`.
+The Rummage JSON is the activity-specific source. The linked Visit JSON is the
+common encounter envelope used by the Visit archive and observed map.
+`memory.md` and `observation-log.md` are readable projections. `state.json`
+increments `visit_count`, the overall `document_rummage_count`, and the
+separate `runtime_rummage_count`.
 
 The runtime explicitly records that it did not:
 
-- create a Visit
 - invoke wake
+- enter an external Venue
 - create a scheduler
 - edit repository content
 
@@ -42,8 +50,9 @@ Manual rummage execution still leaves report generation as a separate command.
 The autonomous wrapper refreshes the existing local report collection only
 after a successful rummage. The individual page at
 `individuals/stray-002/index.html` presents the route, deep readings, notes,
-memories, sunlit thought, and Trace; its separate Visit archive remains at
-`individuals/stray-002/visits.html`.
+memories, sunlit thought, and Trace. The common Visit archive at
+`individuals/stray-002/visits.html` includes the same encounter, and the
+observed map groups its route under the `stray-ai` repository Venue.
 
 ## Devbox execution
 
@@ -93,6 +102,7 @@ the rummage body.
 
 ## Update History
 
+- 2026-07-25 12:43 JST：Made each runtime rummage an atomic `document_rummage` Visit and added idempotent migration for existing evidence.
 - 2026-07-25 12:06 JST：Connected successful autonomous rummages to the private local Stray-002 individual page.
 - 2026-07-25 11:40 JST：Added the opt-in guarded autonomous opportunity layer without expanding the rummage body's authority.
 - 2026-07-25 10:24 JST：Recorded the successful first genuine runtime rummage and standardized the verified 16K Ollama model setup.

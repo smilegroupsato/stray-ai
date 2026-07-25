@@ -1,14 +1,14 @@
 # Stray-002 Persistent Runtime Birth
 
 - ページ作成日時：2026-07-24 12:37 JST
-- 最終更新日時：2026-07-24 16:05 JST
+- 最終更新日時：2026-07-25 12:43 JST
 
 ## Purpose
 
 Create `stray-002` once under the devbox persistent habitat after explicit human
 authorization, while preserving its repository identity and first home-shelf
-rummage without waking it, starting a Visit, publishing a Report, or creating a
-scheduler.
+rummage without waking it, entering an external Venue, publishing a Report, or
+creating a scheduler.
 
 This birth is the transition from a repository-backed individual definition to
 an independently preserved runtime body. It does not make `stray-002` a copy of
@@ -42,7 +42,7 @@ The dedicated birth script:
 
 1. requires the existing persistent `stray-001` namespace;
 2. validates the `stray-002` profile and initial state;
-3. requires `resting`, `visit_count: 0`, and
+3. requires `resting`, `visit_count: 1`, and
    `document_rummage_count: 1`;
 4. refuses to overwrite any existing `stray-002` path, including a symlink;
 5. builds the new body in a staging directory and moves it into place once;
@@ -50,8 +50,9 @@ The dedicated birth script:
 7. verifies that the protected `stray-001` profile, memory, and state hashes
    remain unchanged.
 
-The empty runtime directories establish separate namespaces. They do not
-authorize any content to be written into them.
+The runtime directories establish separate namespaces. The repository template
+includes one seed Visit for the already approved hand-authored home-shelf
+rummage. It does not authorize another execution.
 
 ## Execution
 
@@ -84,9 +85,12 @@ Verification confirmed:
 - `stray-001` remained the unchanged primary individual.
 
 The repository-backed first home-shelf rummage remains part of the initial
-body. It is a hand-authored prototype, not a runtime event. The first rummage
-that changes the devbox-backed persistent body uses a separate command-brain
-execution and records its own `runtime_rummage_count`.
+body. At the time of verified birth it was classified outside Visit, so the
+historical observation above correctly recorded `visit_count: 0` and an empty
+`visits/`. The Visit Activity Model later reclassified that encounter and
+provides an idempotent seed migration. The first rummage that changes the
+devbox-backed persistent body still uses a separate command-brain execution
+and records its own `runtime_rummage_count`.
 
 ## Remaining boundaries
 
@@ -108,6 +112,7 @@ merged, installed on devbox, and invoked with exact `stray-002` confirmation.
 
 ## Update History
 
+- 2026-07-25 12:43 JST：Preserved the historical birth observation while aligning future birth and migration with the first home-shelf rummage as a Visit.
 - 2026-07-24 16:05 JST：Separated the hand-authored prototype from runtime rummage records, added the persistent `rummages/` namespace, and recorded authorization without claiming execution.
 - 2026-07-24 12:52 JST：Recorded the verified devbox birth, source commit,
   initial persistent state, empty runtime namespaces, and unchanged execution
