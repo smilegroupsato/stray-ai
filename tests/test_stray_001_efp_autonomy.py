@@ -273,6 +273,8 @@ def test_installer_uses_an_irregular_hardened_timer() -> None:
     assert "AccuracySec=30min" in installer
     assert "TimeoutStartSec=20min" in installer
     assert "NoNewPrivileges=true" in installer
+    assert "Environment=GIT_CONFIG_GLOBAL=/dev/null" in installer
+    assert "Environment=GIT_CONFIG_NOSYSTEM=1" in installer
     assert "ReadOnlyPaths=$REPO_DIR" in installer
     assert "ReadWritePaths=$DATA_DIR" in installer
     assert "CapabilityBoundingSet=" in installer
