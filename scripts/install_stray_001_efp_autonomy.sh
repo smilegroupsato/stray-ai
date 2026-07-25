@@ -55,6 +55,8 @@ WorkingDirectory=$REPO_DIR
 ExecStart=/usr/bin/bash $REPO_DIR/scripts/autonomous_visit_stray_001_efp.sh
 TimeoutStartSec=20min
 Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=GIT_CONFIG_GLOBAL=/dev/null
+Environment=GIT_CONFIG_NOSYSTEM=1
 UMask=0027
 Nice=10
 IOSchedulingClass=idle
