@@ -7,6 +7,7 @@ import os
 from datetime import date, datetime
 from pathlib import Path
 from typing import Any
+from urllib.parse import quote
 from zoneinfo import ZoneInfo
 
 import yaml
@@ -228,6 +229,10 @@ def build_live_state(agent_dir: Path) -> dict[str, Any]:
 
     return {
         "agent_id": agent_id,
+        "report_href": (
+            "../../stray-ai/individuals/"
+            f"{quote(agent_dir.name, safe='')}/index.html"
+        ),
         "status": status,
         "presence": presence,
         "visit_count": _visit_count(agent_dir, state),
@@ -269,9 +274,38 @@ def _render_section(title: str, items: list[dict[str, Any]], *, class_name: str 
     return f'<section class="panel {html.escape(class_name)}"><h2>{html.escape(title)}</h2>{body}</section>'
 
 
+def _render_live_individual(live: dict[str, Any]) -> str:
+    wake = live["latest_wake"]
+    wake_value = (
+        f'{html.escape(wake["decision"] or "unknown")}<small>{html.escape(wake["checked_at"])}</small>'
+        if wake["available"]
+        else "未記録"
+    )
+    venue_value = html.escape(wake["candidate_venue_id"] or "—")
+    request_summary = ", ".join(
+        f"{html.escape(key)} {value}"
+        for key, value in sorted(live["request_status_counts"].items())
+    ) or "なし"
+    invalid_count = wake["invalid_file_count"] + live["invalid_request_count"]
+    agent_id = html.escape(live["agent_id"])
+    report_href = html.escape(live["report_href"], quote=True)
+
+    return f'''<section class="live-individual">
+<h3>{agent_id}</h3>
+<div class="metrics">
+<div class="metric"><span class="label">VISITOR</span><strong>{agent_id}</strong><small>{html.escape(live["status"])} / {html.escape(live["presence"])}</small></div>
+<div class="metric"><span class="label">LATEST WAKE</span><strong>{wake_value}</strong><small>{venue_value} / {html.escape(wake["comparison_scope"] or "scope unknown")}</small></div>
+<div class="metric"><span class="label">PENDING REQUESTS</span><strong>{live["pending_request_count"]}</strong><small>{request_summary}</small></div>
+<div class="metric"><span class="label">VISITS</span><strong>{live["visit_count"]}</strong><small>persistent counter</small></div>
+<div class="metric"><span class="label">INVALID LOCAL RECORDS</span><strong>{invalid_count}</strong><small>wake / request files skipped</small></div>
+</div>
+<a href="{report_href}">{agent_id} · 訪問レポートを見る</a>
+</section>'''
+
+
 def render_current_board_html(
     board: dict[str, Any],
-    live: dict[str, Any],
+    live_states: list[dict[str, Any]],
     *,
     generated_at: datetime | None = None,
 ) -> str:
@@ -285,16 +319,9 @@ def render_current_board_html(
             f"<li>{html.escape(item)}</li>" for item in now["notes"]
         ) + "</ul>"
 
-    wake = live["latest_wake"]
-    wake_value = (
-        f'{html.escape(wake["decision"] or "unknown")}<small>{html.escape(wake["checked_at"])}</small>'
-        if wake["available"]
-        else "未記録"
-    )
-    venue_value = html.escape(wake["candidate_venue_id"] or "—")
-    request_summary = ", ".join(
-        f"{html.escape(key)} {value}" for key, value in sorted(live["request_status_counts"].items())
-    ) or "なし"
+    if not live_states:
+        raise CurrentBoardError("at least one live individual is required")
+    live_html = "".join(_render_live_individual(live) for live in live_states)
 
     sections_html = "".join(
         [
@@ -335,7 +362,9 @@ h1 {{ margin: 0 0 8px; font-size: clamp(1.8rem, 5vw, 3.3rem); letter-spacing: -0
 .meta-chip {{ display: inline-block; border: 1px solid var(--line-magenta); color:var(--magenta); border-radius: 999px; padding: 3px 9px; margin-top: 10px; font-size: .82rem; }}
 .live {{ margin: 20px 0;padding:16px 18px;border-left:2px solid var(--cyan);border-right:1px solid var(--line);background:linear-gradient(90deg,rgba(57,246,255,.08),rgba(8,14,22,.82));box-shadow:inset 0 0 22px rgba(57,246,255,.025); }}
 .live h2, .panel h2 {{ font-size: .85rem; letter-spacing: .16em; color: var(--cyan); }}
-.live > a {{display:inline-block;margin-top:12px;color:var(--cyan);text-underline-offset:3px}}
+.live-individual + .live-individual {{margin-top:18px;padding-top:18px;border-top:1px solid var(--line)}}
+.live-individual h3 {{margin:0 0 10px;color:var(--text);font-size:1rem;letter-spacing:.08em}}
+.live-individual > a, .live > a {{display:inline-block;margin-top:12px;color:var(--cyan);text-underline-offset:3px}}
 .metrics {{ display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }}
 .metric strong {{ display: block; font-size: 1.15rem; overflow-wrap: anywhere; }}.live .metric{{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:rgba(5,12,18,.72)}}
 .metric small {{ display: block; color: #aaa; font-size: .75rem; margin-top: 3px; }}
@@ -381,14 +410,8 @@ h1 {{ margin: 0 0 8px; font-size: clamp(1.8rem, 5vw, 3.3rem); letter-spacing: -0
 </section>
 <section class="live">
 <h2>LIVE</h2>
-<div class="metrics">
-<div class="metric"><span class="label">VISITOR</span><strong>{html.escape(live["agent_id"])}</strong><small>{html.escape(live["status"])} / {html.escape(live["presence"])}</small></div>
-<div class="metric"><span class="label">LATEST WAKE</span><strong>{wake_value}</strong><small>{venue_value} / {html.escape(wake["comparison_scope"] or "scope unknown")}</small></div>
-<div class="metric"><span class="label">PENDING REQUESTS</span><strong>{live["pending_request_count"]}</strong><small>{request_summary}</small></div>
-<div class="metric"><span class="label">VISITS</span><strong>{live["visit_count"]}</strong><small>persistent counter</small></div>
-<div class="metric"><span class="label">INVALID LOCAL RECORDS</span><strong>{wake["invalid_file_count"] + live["invalid_request_count"]}</strong><small>wake / request files skipped</small></div>
-</div>
-<a href="../../stray-ai/">Stray AI · 訪問レポートを見る</a>
+{live_html}
+<a href="../../stray-ai/">Stray AI · 全個体の訪問レポートを見る</a>
 </section>
 <div class="boards">{sections_html}</div>
 <p class="footer-note">手動生成・HTMLのみ。Visit Reportとは分離され、外部fetch、scheduler、自動publishはありません。</p>
@@ -467,26 +490,52 @@ def _assert_safe_html(rendered: str) -> None:
 def publish_current_board(
     *,
     board_path: Path,
-    agent_dir: Path,
     output_root: Path,
+    agent_dir: Path | None = None,
+    agent_dirs: list[Path] | None = None,
     surface_slug: str = SURFACE_SLUG,
     generated_at: datetime | None = None,
 ) -> dict[str, Any]:
     _validate_surface_slug(surface_slug)
+    if agent_dir is not None and agent_dirs is not None:
+        raise CurrentBoardError("use agent_dir or agent_dirs, not both")
+    selected_agent_dirs = agent_dirs if agent_dirs is not None else [agent_dir]
+    if not selected_agent_dirs or any(path is None for path in selected_agent_dirs):
+        raise CurrentBoardError("at least one agent directory is required")
     board = load_current_board(board_path)
-    live = build_live_state(agent_dir.resolve())
-    rendered = render_current_board_html(board, live, generated_at=generated_at)
+    live_states = [
+        build_live_state(path.resolve())
+        for path in selected_agent_dirs
+        if path is not None
+    ]
+    agent_ids = [live["agent_id"] for live in live_states]
+    if len(agent_ids) != len(set(agent_ids)):
+        raise CurrentBoardError("live individual ids must be unique")
+    rendered = render_current_board_html(board, live_states, generated_at=generated_at)
     _assert_safe_html(rendered)
     destination = _safe_destination(output_root, surface_slug=surface_slug)
     _atomic_write_text(destination, rendered)
+    primary_live = live_states[0]
     return {
         "published": True,
         "html_output": str(destination),
         "gateway_path": _GATEWAY_PATH,
         "now": board["now"]["title"],
-        "agent_status": live["status"],
-        "pending_request_count": live["pending_request_count"],
-        "visit_count": live["visit_count"],
+        "agent_count": len(live_states),
+        "agent_status": primary_live["status"],
+        "pending_request_count": sum(
+            live["pending_request_count"] for live in live_states
+        ),
+        "visit_count": sum(live["visit_count"] for live in live_states),
+        "agents": [
+            {
+                "agent_id": live["agent_id"],
+                "status": live["status"],
+                "pending_request_count": live["pending_request_count"],
+                "visit_count": live["visit_count"],
+            }
+            for live in live_states
+        ],
         "boundaries": {
             "read_only": True,
             "venue_content_read": False,
@@ -502,7 +551,7 @@ def publish_current_board(
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="stray-ai-publish-current-board")
     parser.add_argument("--board", type=Path, required=True)
-    parser.add_argument("--agent", type=Path, required=True)
+    parser.add_argument("--agent", type=Path, action="append", required=True)
     parser.add_argument("--output-root", type=Path, required=True)
     parser.add_argument("--surface-slug", default=SURFACE_SLUG)
     return parser
@@ -514,7 +563,7 @@ def main() -> None:
     try:
         result = publish_current_board(
             board_path=args.board,
-            agent_dir=args.agent,
+            agent_dirs=args.agent,
             output_root=args.output_root,
             surface_slug=args.surface_slug,
         )
