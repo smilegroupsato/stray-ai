@@ -3,46 +3,62 @@
 
 schema_version: 0.1
 title: Stray AI Current Board
-updated_at: 2026-07-24
-last_updated_at: 2026-07-24 13:01 JST
+updated_at: 2026-07-25
+last_updated_at: 2026-07-25 14:02 JST
 
 now:
-  title: Stray-002 first devbox-backed rummage decision
-  purpose: persistent bodyとして誕生したstray-002に、実データを使う最初のbounded document rummageを許可するか、その範囲と不変条件を明示判断する
-  stage: execution decision
-  next_action: first devbox-backed rummageの対象・最大範囲・記録先・停止条件をreviewし、実行可否を人間が明示判断する
-  implementation_authorized: false
-  issue: null
+  title: Bounded autonomy operational pause
+  purpose: Stray-001とStray-002の個体差を保った限定自律運転がdevboxで成立した現在地を固定し、新機能を足さずに次の自然な行動を観測できる状態でいったん区切る
+  stage: operational / observation pause
+  next_action: 再開時に最新のVisit・journal・timer状態を確認し、001の次のEFP外出または002の通常rummageで生じた変化だけを評価する
+  implementation_authorized: true
+  issue: "PR #81 / PR #82 / PR #83"
   notes:
-    - 2026-07-24 12:50 JSTにsource commit 9291bed8fd9dab0eb77ddea65ddc7d09e5d06669からpersistent stray-002が誕生した
-    - stray-002は独立したpersistent namespaceに保存され、stray-001とは分離されている
-    - birth verificationはborn true、resting、visit_count 0、document_rummage_count 1を確認した
-    - wake・Visit・scheduler・Report publishは実行されず、個体別runtime directoryは空のまま
-    - stray-001はprimary individualのままで、birth処理による変更はない
-    - synthetic fixture上でstate・memory・wake・selection・Visit Request・reportの二個体分離を統合検証した
-    - 他個体のwake recordと移植されたVisit Requestは実行前にfail-closedで拒否された
-    - root compatibility aliasは明示したprimary individualであるstray-001に固定された
-    - stray-002はstray-001とは別個体で、湿った地下図書室の書架の隙間をhomeとする
-    - repository上の最初のhome-shelf rummageは2026-07-23 21:56 JSTに1回だけ記録済み
-    - first devbox-backed rummageはpersistent bodyを初めて変化させる別工程で、まだ承認・実行していない
+    - PR #81でdocument rummageを共通Visit envelopeのactivityへ統合し、既存記録をidempotentに移行した
+    - devbox移行確認時点でStray-002はVisit 3件、そのうちdocument rummage 2件を持ち、observed mapにstray-aiが表示された
+    - Stray-002の低頻度rummage timerは稼働中で、以後の成功したrummageもVisitとして記録・表示される
+    - PR #82でStray-001のEFP限定・24〜72時間幅の不定期自律外出機会を実装した
+    - Stray-001はEFPのcommit固定read-only snapshotだけを読み、起床判定がrequest_visitを受理した場合だけVisitする
+    - GitHub・Issue・公開Traceへの自動書き込み権限は付与していない。Trace候補は既存local outboxまでに留まる
+    - PR #83でhardened systemd下のsnapshot権限継承失敗とhome Git設定警告を修正し、Python 3.11 / 3.12で195 tests passedを確認した
+    - devbox再実行はservice result 0で成功し、2026-07-25 13:58 JSTの判断はRESTINGだった
+    - 04:49 UTCのsnapshot chmod失敗は修正前のhistorical logであり、現行blockerではない
+    - Current Boardはmanual publishのread-only derived surfaceであり、timerやVisitを起動しない
+    - 佐藤の指示により、ここで追加実装を止めて観測段階へ移る
 
 next:
-  - title: First devbox-backed rummage boundary
-    detail: repository documentsだけを候補とし、対象数・読み方・memory/state/observation-logへの最大変更・失敗時停止を実行前に固定する
-  - title: Explicit rummage authorization
-    detail: 設計確認後、人間が明示承認した場合だけ一度実行する。wake・Visit・scheduler・Report publishの承認には含めない
+  - title: Observe the first autonomous EFP outing
+    detail: Visitを強制せず、Stray-001が次の外出機会でもRESTINGを選ぶか、EFPへ出かけて帰るかを自然な結果として扱う
+  - title: Observe continuing Stray-002 rummage Visits
+    detail: 次の通常rummage後、Visit archive・document-rummage表示・observed map・resting帰還の整合だけを確認する
+  - title: Manual Current Board republish
+    detail: このPlanning Sourceのmain反映後、devboxでCurrent Boardを一度だけ手動再生成し、canonical pathの表示を更新する
+  - title: Resume from evidence, not intention
+    detail: 再開時は最新のVisit JSON・systemd journal・timer・個体stateを先に確認し、実際に起きた変化から次の一手を決める
 
 hold:
+  - title: General multi-Venue autonomy
+    detail: EFP以外のVenueを自律外出対象に広げない。新しい招待・Venue Registry・snapshot境界・個別承認を別に確認する
+  - title: Public Trace and remote write
+    detail: GitHub、Issue、PR、comment、公開Traceへの自動書き込みは許可しない。local outboxの人間reviewを維持する
   - title: Legacy Current Board redirect
     detail: 旧/stray-ai/current/から新/current-board/stray-ai/へのredirectは別の明示指示まで依頼・実装しない。legacy runtime fileも保持する
   - title: SGOS ConsoleからRequest Reviewへのread-only導線
     detail: Console Home・read-only view配置方針・安全確認・昇格Decisionの全条件待ち
   - title: execution_failedの人間レビュー型recovery
     detail: 自動retryを導入せず、別の安全レビューで扱う
-  - title: Console統合
-    detail: Current Board YAMLを将来のConsole入力候補とするが、現時点では実装しない
+  - title: Additional individual or ecology expansion
+    detail: Stray-003、新しい生態、一般schedulerは現在の001・002の観測結果が得られるまで増やさない
 
 recently_done:
+  - title: Stray-001 invited EFP autonomy operational
+    detail: PR #82をmainへmergeし、devboxでEFP限定の不定期timerを有効化。初回修復後の起床機会は正常終了し、001はRESTINGを選んだ
+  - title: Hardened EFP snapshot preparation
+    detail: PR #83でsource metadataを継承しないcontent-only copy、0440/0550正規化、Git設定隔離を実装。systemd再実行成功、195 tests passed
+  - title: Document rummage unified with Visit
+    detail: PR #81でdocument_rummageをVisit activityとして統合し、既存rummageを移行。訪問一覧とobserved mapから001・002の行動を共通生態記録として閲覧可能にした
+  - title: Stray-002 autonomous rummage operational
+    detail: 低頻度timerをdevboxで稼働し、成功したrummageがmemory・state・observation logと共通Visit archiveへ反映される状態を確認
   - title: Stray-002 persistent runtime birth
     detail: 2026-07-24 12:50 JST、source commit 9291bed8fd9dab0eb77ddea65ddc7d09e5d06669からdevbox persistent namespaceへ一度だけ誕生。resting、visit_count 0、document_rummage_count 1、runtime directory空、stray-001 primary不変、wake・Visit・scheduler・Report publish未実行を確認
   - title: Stray-002 synthetic multi-individual isolation validation
@@ -100,6 +116,7 @@ parking_lot:
     detail: Venue Registryとbounded snapshot手順が整ったものだけを候補化する
 
 update_history:
+  - "2026-07-25 14:02 JST：PR #81〜#83とdevbox反映結果を同期。Stray-002のrummage Visit統合・自律timer、Stray-001のEFP限定自律外出・snapshot権限修復・RESTING正常終了を反映し、現在地を追加実装停止中の観測段階へ更新。"
   - "2026-07-24 13:01 JST：公開Current Boardに含まれたdevbox内部パスを論理namespace表現へ置換し、static safety checkを維持したまま再公開可能に修正。"
   - "2026-07-24 12:52 JST：persistent stray-002の誕生と非実行effectを確認し、現在地をfirst devbox-backed rummageの明示判断へ移行。rummage・wake・Visit・scheduler・Report publishは未承認・未実行。"
   - "2026-07-24 12:41 JST：persistent runtime birth実装をdraft PR #70として公開。persistent data・wake・Visit・Report publish・schedulerは未実行。"
@@ -112,12 +129,11 @@ update_history:
 
 not_doing:
   - automatic individual birth
-  - automatic selection
-  - automatic wake
-  - automatic Visit
-  - scheduler / cron / systemd timer
-  - automatic snapshot fetch
-  - automatic approval / cancellation / retry
-  - automatic Gateway publish
+  - EFP限定のstanding invitation外でのautomatic selection / wake / Visit
+  - general crawler / cross-Venue patrol
+  - automatic GitHub / Issue / PR / comment write
+  - automatic public Trace publication
+  - automatic cancellation / retry / failure recovery
+  - automatic Gateway / Current Board publish
   - Visit ReportからCurrent BoardやRequest Reviewへの運用導線追加
   - SGOS Consoleの先取り実装
