@@ -2,7 +2,7 @@
 
 ページ作成日時：2026-07-23 10:18 JST
 
-最終更新日時：2026-07-24 12:28 JST
+最終更新日時：2026-07-25 14:23 JST
 
 ## Purpose
 
@@ -11,7 +11,7 @@
 It answers three different questions without mixing them into one checklist:
 
 - What is the one current focus?
-- What is live right now for `stray-001`?
+- What is live right now for each persistent Stray?
 - What is next, held, recently completed, parked, or explicitly not being done?
 
 It is not a dashboard, scheduler, approval surface, or replacement for the historical Roadmap.
@@ -43,7 +43,8 @@ This file is the source of truth for:
 
 ### Live source
 
-The publisher reads only bounded local operational metadata from one agent directory:
+The publisher reads only bounded local operational metadata from the explicitly
+listed `stray-001` and `stray-002` agent directories:
 
 - `state.json`
 - the latest valid `wake_checks/*.json`
@@ -88,7 +89,11 @@ creates nor claims completion of that redirect.
 
 Current Board is an operational current-state view. Visit Report remains an observation archive.
 
-The page top-left contains one restrained relative link to the shared Current Board Index. Current Board LIVE contains one read-only relative link to the retained Visit Report entrance. No reverse Current Board link is added to Visit Reports, maps, world views, or source archive navigation.
+The page top-left contains one restrained relative link to the shared Current
+Board Index. Current Board LIVE contains one card and one direct individual
+Visit Report link for each listed Stray, followed by one read-only link to the
+retained all-individual Visit Report entrance. No reverse Current Board link is
+added to Visit Reports, maps, world views, or source archive navigation.
 
 ## Safety boundary
 
@@ -109,4 +114,5 @@ The YAML may later become an input to a Console card, but Console remains a sepa
 
 ## 更新履歴
 
+- 2026-07-25 14:23 JST：LIVEを複数個体表示へ拡張し、Stray-001・Stray-002の状態と個別Visit Report導線を追加。
 - 2026-07-24 12:28 JST：共有 Current Board IndexへのリンクをLIVE欄からページトップ左上へ移動。
