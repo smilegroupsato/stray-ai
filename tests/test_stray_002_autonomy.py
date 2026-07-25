@@ -54,6 +54,20 @@ printf '%s\\n' "$((count + 1))" > {count}
         encoding="utf-8",
     )
     launcher.chmod(0o755)
+    report_count = data / "report-count"
+    report_launcher = data / "generate-latest-report.sh"
+    report_launcher.write_text(
+        f"""#!/usr/bin/env bash
+set -euo pipefail
+count=0
+if [[ -f {report_count} ]]; then
+  count="$(<{report_count})"
+fi
+printf '%s\\n' "$((count + 1))" > {report_count}
+""",
+        encoding="utf-8",
+    )
+    report_launcher.chmod(0o755)
     return repo, data, launcher, count
 
 
@@ -64,8 +78,10 @@ def _run(repo: Path, data: Path, launcher: Path, *, interval: int = 72000):
         "DATA_DIR": str(data),
         "PYTHON_BIN": sys.executable,
         "STRAY_AUTONOMY_RUMMAGE_LAUNCHER": str(launcher),
+        "STRAY_AUTONOMY_REPORT_LAUNCHER": str(data / "generate-latest-report.sh"),
         "STRAY_AUTONOMY_MIN_INTERVAL_SECONDS": str(interval),
         "STRAY_AUTONOMY_RUN_TIMEOUT": "30s",
+        "STRAY_AUTONOMY_REPORT_TIMEOUT": "30s",
     }
     return subprocess.run(
         ["bash", str(SCRIPT)],
@@ -83,6 +99,7 @@ def test_autonomous_opportunity_runs_once_and_records_return(tmp_path: Path) -> 
 
     assert result.returncode == 0, result.stderr
     assert count.read_text(encoding="utf-8").strip() == "1"
+    assert (data / "report-count").read_text(encoding="utf-8").strip() == "1"
     autonomy = data / "agents" / "stray-002" / "autonomy"
     assert (autonomy / "last_success_epoch").read_text(encoding="utf-8").strip().isdigit()
     decisions = [
@@ -103,6 +120,7 @@ def test_cooldown_prevents_an_immediate_second_rummage(tmp_path: Path) -> None:
     assert second.returncode == 0, second.stderr
     assert "minimum interval has not elapsed" in second.stdout
     assert count.read_text(encoding="utf-8").strip() == "1"
+    assert (data / "report-count").read_text(encoding="utf-8").strip() == "1"
 
 
 def test_dirty_repository_keeps_stray_002_resting(tmp_path: Path) -> None:
@@ -156,6 +174,33 @@ def test_failed_rummage_is_recorded_without_a_success_marker(tmp_path: Path) -> 
         for line in (autonomy / "decisions.jsonl").read_text(encoding="utf-8").splitlines()
     ]
     assert [item["decision"] for item in decisions] == ["rummage", "rest_after_failure"]
+
+
+def test_report_failure_does_not_repeat_a_successful_rummage(tmp_path: Path) -> None:
+    repo, data, launcher, count = _habitat(tmp_path)
+    report_launcher = data / "generate-latest-report.sh"
+    report_launcher.write_text("#!/usr/bin/env bash\nexit 9\n", encoding="utf-8")
+    report_launcher.chmod(0o755)
+
+    first = _run(repo, data, launcher)
+    second = _run(repo, data, launcher)
+
+    assert first.returncode == 9
+    assert "individual page refresh failed" in first.stderr
+    assert second.returncode == 0
+    assert "minimum interval has not elapsed" in second.stdout
+    assert count.read_text(encoding="utf-8").strip() == "1"
+    autonomy = data / "agents" / "stray-002" / "autonomy"
+    assert (autonomy / "last_success_epoch").is_file()
+    decisions = [
+        json.loads(line)
+        for line in (autonomy / "decisions.jsonl").read_text(encoding="utf-8").splitlines()
+    ]
+    assert [item["decision"] for item in decisions] == [
+        "rummage",
+        "rest_after_report_failure",
+        "remain_asleep",
+    ]
 
 
 def test_installer_uses_a_bounded_low_frequency_timer() -> None:
