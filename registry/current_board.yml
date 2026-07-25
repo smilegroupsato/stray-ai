@@ -22,7 +22,7 @@ now:
     - GitHub・Issue・公開Traceへの自動書き込み権限は付与していない。Trace候補は既存local outboxまでに留まる
     - PR #83でhardened systemd下のsnapshot権限継承失敗とhome Git設定警告を修正し、Python 3.11 / 3.12で195 tests passedを確認した
     - devbox再実行はservice result 0で成功し、2026-07-25 13:58 JSTの判断はRESTINGだった
-    - 04:49 UTCのsnapshot chmod失敗は修正前のhistorical logであり、現行blockerではない
+    - 2026-07-25 13:49 JSTのsnapshot chmod失敗は修正前のhistorical logであり、現行blockerではない
     - Current Boardはmanual publishのread-only derived surfaceであり、timerやVisitを起動しない
     - 佐藤の指示により、ここで追加実装を止めて観測段階へ移る
 
