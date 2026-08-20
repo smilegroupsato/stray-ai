@@ -228,6 +228,13 @@ exec bash "$REPO_DIR/scripts/rummage_stray_002_llm.sh" "\$@"
 EOF
 chmod 750 "$DATA_DIR/rummage-stray-002-llm.sh"
 
+cat > "$DATA_DIR/rummage-stray-002-sgos-console-llm.sh" <<EOF
+#!/usr/bin/env bash
+set -euo pipefail
+exec bash "$REPO_DIR/scripts/rummage_stray_002_sgos_console_llm.sh" "\$@"
+EOF
+chmod 750 "$DATA_DIR/rummage-stray-002-sgos-console-llm.sh"
+
 cat > "$DATA_DIR/setup-stray-002-rummage-model.sh" <<EOF
 #!/usr/bin/env bash
 set -euo pipefail
@@ -252,3 +259,4 @@ echo "Deterministic multi-Venue wake selection: $DATA_DIR/select-wake-venue.sh"
 echo "LLM multi-Venue wake selection: $DATA_DIR/select-wake-venue-llm.sh"
 echo "Stray-002 rummage model setup: $DATA_DIR/setup-stray-002-rummage-model.sh"
 echo "LLM Stray-002 document rummage: $DATA_DIR/rummage-stray-002-llm.sh"
+echo "LLM Stray-002 SGOS Console desk rummage: $DATA_DIR/rummage-stray-002-sgos-console-llm.sh"
