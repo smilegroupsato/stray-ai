@@ -115,18 +115,42 @@ def test_devbox_setup_exposes_sgos_console_desk_rummage_without_running_it() -> 
     assert setup.count("scripts/rummage_stray_002_sgos_console_llm.sh") == 1
 
 
-def test_sgos_console_desk_rummage_is_bounded_to_console_repo() -> None:
+def test_devbox_setup_exposes_sgos_repository_rummage_without_running_it() -> None:
+    setup = (REPO_ROOT / "scripts" / "setup_devbox.sh").read_text(
+        encoding="utf-8"
+    )
+    assert 'cat > "$DATA_DIR/rummage-stray-002-sgos-repos-llm.sh"' in setup
+    assert (
+        'exec bash "$REPO_DIR/scripts/rummage_stray_002_sgos_repos_llm.sh" "\\$@"'
+        in setup
+    )
+    assert setup.count("scripts/rummage_stray_002_sgos_repos_llm.sh") == 1
+
+
+def test_sgos_repository_rummage_defaults_to_pkm_core_and_can_visit_console() -> None:
     launcher = (
-        REPO_ROOT / "scripts" / "rummage_stray_002_sgos_console_llm.sh"
+        REPO_ROOT / "scripts" / "rummage_stray_002_sgos_repos_llm.sh"
     ).read_text(encoding="utf-8")
     assert (
-        'CONSOLE_REPO_DIR="${STRAY_002_CONSOLE_REPO_DIR:-/srv/sgos/repos/sgos-console}"'
+        'SGOS_REPO_KEY="${STRAY_002_SGOS_REPO_KEY:-sgos-pkm-core}"'
         in launcher
     )
-    assert '--repository-root "$CONSOLE_REPO_DIR"' in launcher
+    assert "/srv/sgos/repos/sgos-pkm-core" in launcher
+    assert "/srv/sgos/repos/sgos-console" in launcher
+    assert "context_packs/SGOS_COMPACT_CONTEXT.md" in launcher
+    assert "context_packs/SGOS_PKM_CONTEXT.md" in launcher
+    assert "context_packs/ACTIVE_PROJECTS_CONTEXT.md" in launcher
+    assert '--repository-root "$TARGET_REPO_DIR"' in launcher
     assert "--confirm-agent-id stray-002" in launcher
     assert "README.md" in launcher
     assert "NEXT.md" in launcher
     assert "ATTENTION.md" in launcher
-    assert "HISTORY.md" in launcher
-    assert "Need at least three safe SGOS Console documents" in launcher
+    assert "Need at least three safe SGOS documents" in launcher
+
+
+def test_sgos_console_desk_launcher_remains_a_console_compatibility_wrapper() -> None:
+    launcher = (
+        REPO_ROOT / "scripts" / "rummage_stray_002_sgos_console_llm.sh"
+    ).read_text(encoding="utf-8")
+    assert 'STRAY_002_SGOS_REPO_KEY="${STRAY_002_SGOS_REPO_KEY:-sgos-console}"' in launcher
+    assert 'exec bash "$REPO_DIR/scripts/rummage_stray_002_sgos_repos_llm.sh" "$@"' in launcher
