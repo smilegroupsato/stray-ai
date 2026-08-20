@@ -1,7 +1,7 @@
 # Repository Document Maniac
 
 ページ作成日時：2026-07-23 17:58 JST  
-最終更新日時：2026-07-25 12:43 JST
+最終更新日時：2026-08-20 12:35 JST
 
 The Repository Document Maniac is not a disposition of `stray-001`.
 
@@ -124,11 +124,14 @@ The first experiment should be small:
 
 The first candidate route is now recorded in [`stray-002-first-rummage.md`](stray-002-first-rummage.md). It keeps the initial rummage inside the Stray AI home shelf and separates cover-skimming, deep reading, margin notes, and sunlit pause.
 
-The SGOS Console room now has a small desk for this individual. The desk is
-recorded in [`stray-002-sgos-console-desk.md`](stray-002-sgos-console-desk.md).
-It lets `stray-002` make bounded read-only visits to Console documents and
-return with poetic impressions, half-forgotten document residues, and smells of
-stale links or weak functions without becoming a repair bot.
+The SGOS Console room now has a small topic desk for this individual. The desk
+is recorded in
+[`stray-002-sgos-console-desk.md`](stray-002-sgos-console-desk.md). It is a
+visible reminder for Sato that Stray-AI is moving, not a limit on
+`stray-002`'s rummage range. The actual SGOS shelf can include
+`sgos-pkm-core`, `sgos-console`, and other explicitly approved repositories.
+The first default target is `sgos-pkm-core`, with the Context Pack entrance
+documents near the front of the route.
 
 If it becomes too managerial, it should rest. If it becomes too exhaustive, it should stop. If it becomes merely obedient, it has stopped being stray.
 
@@ -156,6 +159,7 @@ repository content, or publish outside the existing local Report surface.
 
 ## Update History
 
+- 2026-08-20 12:35 JST：Clarified the Console desk as a visible topic and expanded the SGOS rummage range beyond `sgos-console`, defaulting to `sgos-pkm-core`.
 - 2026-08-20 10:30 JST：Added the SGOS Console desk as a bounded read-only route for `stray-002`.
 - 2026-07-25 12:43 JST：Reclassified document rummage as a Visit activity and connected it to the common Visit archive and observed map.
 - 2026-07-24 16:05 JST：Defined the executable two-stage rummage body, multi-document deep reading, persistent event record, and separation from the hand-authored prototype.
